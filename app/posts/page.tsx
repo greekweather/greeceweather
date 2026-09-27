@@ -2,6 +2,8 @@ import { PostCard } from "@/components/PostCard";
 import { PostsFilter } from "@/components/PostsFilter";
 import { getPublishedPosts } from "@/lib/posts";
 
+export const revalidate = 60;
+
 export default async function PostsPage() {
 	const posts = await getPublishedPosts();
 	const tags = Array.from(new Set(posts.flatMap((p) => p.tags))).sort((a, b) =>
@@ -23,7 +25,7 @@ export default async function PostsPage() {
 						{posts.map((post) => (
 							<div
 								key={post.id}
-								data-title={post.title}
+								data-title={post.title || "-"}
 								data-tags={post.tags.map((t) => t.toLocaleLowerCase("el-GR")).join("|")}
 								data-date={post.published_at ? Date.parse(post.published_at) : 0}
 								data-views={post.views}

@@ -1,8 +1,13 @@
 import { notFound } from "next/navigation";
-import { updateTagAction } from "@/app/actions";
+import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
+import { deleteTagAction, updateTagAction } from "@/app/actions";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function EditTagPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditTagPage({
+	params,
+}: {
+	params: Promise<{ id: string }>;
+}) {
 	const { id } = await params;
 
 	const supabase = await createClient();
@@ -37,6 +42,7 @@ export default async function EditTagPage({ params }: { params: Promise<{ id: st
 
 					<div className="form-field">
 						<label htmlFor="name">Όνομα ετικέτας</label>
+
 						<input
 							id="name"
 							name="name"
@@ -49,18 +55,38 @@ export default async function EditTagPage({ params }: { params: Promise<{ id: st
 
 					<div className="form-field">
 						<label htmlFor="slug">Slug</label>
-						<input id="slug" type="text" value={tag.slug} disabled readOnly />
-						<small>Το slug παραμένει σταθερό ώστε να μη δημιουργούνται σπασμένα links.</small>
+
+						<input
+							id="slug"
+							type="text"
+							value={tag.slug}
+							disabled
+							readOnly
+						/>
+
+						<small>
+							Το slug παραμένει σταθερό ώστε να μη δημιουργούνται
+							σπασμένα links.
+						</small>
 					</div>
 
 					<div className="form-actions">
+						<button className="button" type="submit">
+							Αποθήκευση
+						</button>
+
+						<DeleteConfirmButton
+							id={tag.id}
+							name={tag.name}
+							action={deleteTagAction}
+							itemType="ετικέτας"
+							grammar="την ετικέτα"
+							useParentForm
+						/>
+
 						<a className="button secondary" href="/admin/tags">
 							Ακύρωση
 						</a>
-
-						<button className="button" type="submit">
-							Αποθήκευση αλλαγών
-						</button>
 					</div>
 				</form>
 			</section>

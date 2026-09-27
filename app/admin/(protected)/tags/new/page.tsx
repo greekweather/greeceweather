@@ -18,7 +18,7 @@ export default function NewTagPage() {
 			<section className="admin-section">
 				<form action={createTagAction} className="form-card form-grid">
 					<div className="form-field">
-						<label htmlFor="name">Όνομα ετικέτας</label>
+						<label htmlFor="name">Όνομα</label>
 						<input
 							id="name"
 							name="name"
@@ -30,13 +30,13 @@ export default function NewTagPage() {
 					</div>
 
 					<div className="form-actions">
+						<button className="button" type="submit">
+							Αποθήκευση
+						</button>
+
 						<a className="button secondary" href="/admin/tags">
 							Ακύρωση
 						</a>
-
-						<button className="button" type="submit">
-							Δημιουργία ετικέτας
-						</button>
 					</div>
 				</form>
 			</section>

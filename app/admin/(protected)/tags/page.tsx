@@ -77,7 +77,8 @@ export default async function AdminTagsPage() {
 												id={tag.id}
 												name={tag.name}
 												action={deleteTagAction}
-												itemType="ετικέτα"
+												itemType="ετικέτας"
+												grammar="την ετικέτα"
 											/>
 										</td>
 									</tr>

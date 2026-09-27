@@ -37,6 +37,18 @@ export async function createPostAction(formData: FormData) {
 	const input = formDataToInput(formData);
 	const tagIds = getTagIds(formData);
 
+	if (input.published && tagIds.length === 0) {
+		throw new Error("Για δημοσίευση απαιτείται τουλάχιστον μία ετικέτα.");
+	}
+
+	if (input.published && !input.image_url.trim()) {
+		throw new Error("Για δημοσίευση απαιτείται εικόνα άρθρου.");
+	}
+
+	if (input.published && !input.slug.trim()) {
+		throw new Error("Για δημοσίευση απαιτείται slug άρθρου.");
+	}
+
 	const supabase = await createClient();
 
 	const publishedAt = input.published
@@ -99,6 +111,18 @@ export async function updatePostAction(formData: FormData) {
 	const input = formDataToInput(formData);
 	const tagIds = getTagIds(formData);
 
+	if (input.published && tagIds.length === 0) {
+		throw new Error("Για δημοσίευση απαιτείται τουλάχιστον μία ετικέτα.");
+	}
+
+	if (input.published && !input.image_url.trim()) {
+		throw new Error("Για δημοσίευση απαιτείται εικόνα άρθρου.");
+	}
+
+	if (input.published && !input.slug.trim()) {
+		throw new Error("Για δημοσίευση απαιτείται slug άρθρου.");
+	}
+
 	const supabase = await createClient();
 
 	const publishedAt = input.published
@@ -114,7 +138,9 @@ export async function updatePostAction(formData: FormData) {
 		.single();
 
 	if (existingPostError || !existingPost) {
-		throw new Error(existingPostError?.message ?? "Το άρθρο δεν βρέθηκε.");
+		throw new Error(
+			existingPostError?.message ?? "Το άρθρο δεν βρέθηκε.",
+		);
 	}
 
 	const { error } = await supabase
@@ -135,19 +161,24 @@ export async function updatePostAction(formData: FormData) {
 		throw new Error(error.message);
 	}
 
-	const { error: deleteTagsError } = await supabase.from("post_tags").delete().eq("post_id", id);
+	const { error: deleteTagsError } = await supabase
+		.from("post_tags")
+		.delete()
+		.eq("post_id", id);
 
 	if (deleteTagsError) {
 		throw new Error(deleteTagsError.message);
 	}
 
 	if (tagIds.length > 0) {
-		const { error: insertTagsError } = await supabase.from("post_tags").insert(
-			tagIds.map((tagId) => ({
-				post_id: id,
-				tag_id: tagId,
-			})),
-		);
+		const { error: insertTagsError } = await supabase
+			.from("post_tags")
+			.insert(
+				tagIds.map((tagId) => ({
+					post_id: id,
+					tag_id: tagId,
+				})),
+			);
 
 		if (insertTagsError) {
 			throw new Error(insertTagsError.message);
@@ -268,7 +299,10 @@ export async function updateTagAction(formData: FormData) {
 
 	const supabase = await createClient();
 
-	const { error } = await supabase.from("tags").update({ name }).eq("id", id);
+	const { error } = await supabase
+		.from("tags")
+		.update({ name })
+		.eq("id", id);
 
 	if (error) {
 		if (error.code === "23505") {

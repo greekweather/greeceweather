@@ -1,6 +1,8 @@
 import { PostCard } from "@/components/PostCard";
 import { getPublishedPosts } from "@/lib/posts";
 
+export const revalidate = 60;
+
 export default async function HomePage() {
 	const posts = await getPublishedPosts(6);
 	return (

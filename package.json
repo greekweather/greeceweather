@@ -10,6 +10,8 @@
 		"migrate:legacy": "node scripts/migrate-hugo.mjs"
 	},
 	"dependencies": {
+		"@ffmpeg/ffmpeg": "^0.12.15",
+		"@ffmpeg/util": "^0.12.2",
 		"@supabase/ssr": "0.12.7",
 		"@supabase/supabase-js": "2.116.0",
 		"fast-glob": "^3.3.3",
@@ -32,5 +34,8 @@
 		"eslint": "^9.0.0",
 		"eslint-config-next": "^16.0.0",
 		"typescript": "^5.9.0"
+	},
+	"allowScripts": {
+		"unrs-resolver@1.12.2": true
 	}
 }

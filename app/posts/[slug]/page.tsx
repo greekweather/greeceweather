@@ -50,6 +50,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 							alt={post.image_alt || post.title}
 							width={1200}
 							height={675}
+							loading="eager"
 							sizes="(max-width: 900px) 100vw, 900px"
 						/>
 					</figure>

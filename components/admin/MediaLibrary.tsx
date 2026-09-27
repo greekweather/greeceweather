@@ -69,6 +69,7 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 	const [files, setFiles] = useState(initialFiles);
 	const [uploading, setUploading] = useState(false);
 	const [message, setMessage] = useState("");
+	const [fileToDelete, setFileToDelete] = useState<string | null>(null);
 
 	const supabase = createClient();
 
@@ -128,9 +129,7 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 	}
 
 	async function deleteFile(name: string) {
-		const confirmed = window.confirm(`Θέλεις σίγουρα να διαγράψεις την εικόνα "${name}";`);
-
-		if (!confirmed) return;
+		setMessage("");
 
 		const { error } = await supabase.storage.from("post-images").remove([name]);
 
@@ -140,8 +139,8 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 		}
 
 		setFiles((current) => current.filter((file) => file.name !== name));
-
 		setMessage("Η εικόνα διαγράφηκε.");
+		setFileToDelete(null);
 	}
 
 	async function copyUrl(url: string) {
@@ -205,7 +204,7 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 									<button
 										className="button danger"
 										type="button"
-										onClick={() => void deleteFile(file.name)}
+										onClick={() => setFileToDelete(file.name)}
 									>
 										Διαγραφή
 									</button>
@@ -215,6 +214,52 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 					))}
 				</div>
 			)}
+
+			{fileToDelete && (
+				<div className="delete-confirm-overlay">
+					<div
+						className="delete-confirm-dialog"
+						role="dialog"
+						aria-modal="true"
+						aria-labelledby="media-delete-confirm-title"
+					>
+						<h2 id="media-delete-confirm-title">
+							Διαγραφή εικόνας
+						</h2>
+
+						<p>
+							Είσαι σίγουρος ότι θέλεις να διαγράψεις την εικόνα{" "}
+							<strong className="delete-confirm-name">
+								"{fileToDelete}"
+							</strong>
+							;
+						</p>
+
+						<p className="delete-confirm-warning">
+							Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.
+						</p>
+
+						<div className="delete-confirm-actions">
+							<button
+								className="button secondary"
+								type="button"
+								onClick={() => setFileToDelete(null)}
+							>
+								Ακύρωση
+							</button>
+
+							<button
+								className="button danger"
+								type="button"
+								onClick={() => void deleteFile(fileToDelete)}
+							>
+								Διαγραφή
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
 		</div>
 	);
 }

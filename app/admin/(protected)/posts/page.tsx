@@ -75,7 +75,13 @@ export default async function AdminPostsPage({
 							{(data ?? []).map((post) => (
 								<tr key={post.id}>
 									<td>
-										<strong>{post.title}</strong>
+										<strong>
+											{post.title || (
+												<span className="empty-value">
+													Το άρθρο δεν έχει τίτλο
+												</span>
+											)}
+										</strong>
 										<br />
 										<small>{post.slug}</small>
 									</td>
@@ -105,7 +111,8 @@ export default async function AdminPostsPage({
 											id={post.id}
 											name={post.title}
 											action={deletePostAction}
-											itemType="άρθρο"
+											itemType="άρθρου"
+											grammar="το άρθρο"
 										/>
 									</td>
 								</tr>
