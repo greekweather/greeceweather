@@ -296,6 +296,18 @@ a {
 	white-space: nowrap;
 }
 
+.post-card-description-measure,
+.post-card-title-measure {
+	position: absolute !important;
+	top: -99999px !important;
+	left: -99999px !important;
+	width: 0 !important;
+	height: auto !important;
+	visibility: hidden !important;
+	pointer-events: none !important;
+	overflow: visible !important;
+}
+
 /* =========================
    Page header
    ========================= */
@@ -1421,4 +1433,11 @@ a {
 	.media-grid {
 		grid-template-columns: 1fr;
 	}
+}
+
+.form-warning {
+	margin: 6px 0 0;
+	color: #dc2626;
+	font-size: 0.85rem;
+	font-weight: 600;
 }
