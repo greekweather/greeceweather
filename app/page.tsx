@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PostCard } from "@/components/PostCard";
 import { getPublishedPosts } from "@/lib/posts";
 
@@ -24,9 +25,9 @@ export default async function HomePage() {
 				<div className="container">
 					<div className="section-heading">
 						<h2>Τελευταία άρθρα</h2>
-						<a className="text-link" href="/posts">
+						<Link className="text-link" href="/posts">
 							Όλα τα άρθρα
-						</a>
+						</Link>
 					</div>
 					<div className="post-grid">
 						{posts.length ? (

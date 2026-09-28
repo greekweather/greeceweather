@@ -1,13 +1,9 @@
 import { notFound } from "next/navigation";
-import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { deleteTagAction, updateTagAction } from "@/app/actions";
+import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function EditTagPage({
-	params,
-}: {
-	params: Promise<{ id: string }>;
-}) {
+export default async function EditTagPage({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
 
 	const supabase = await createClient();
@@ -56,18 +52,9 @@ export default async function EditTagPage({
 					<div className="form-field">
 						<label htmlFor="slug">Slug</label>
 
-						<input
-							id="slug"
-							type="text"
-							value={tag.slug}
-							disabled
-							readOnly
-						/>
+						<input id="slug" type="text" value={tag.slug} disabled readOnly />
 
-						<small>
-							Το slug παραμένει σταθερό ώστε να μη δημιουργούνται
-							σπασμένα links.
-						</small>
+						<small>Το slug παραμένει σταθερό ώστε να μη δημιουργούνται σπασμένα links.</small>
 					</div>
 
 					<div className="form-actions">

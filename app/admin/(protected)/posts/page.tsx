@@ -76,11 +76,7 @@ export default async function AdminPostsPage({
 								<tr key={post.id}>
 									<td>
 										<strong>
-											{post.title || (
-												<span className="empty-value">
-													Το άρθρο δεν έχει τίτλο
-												</span>
-											)}
+											{post.title || <span className="empty-value">Το άρθρο δεν έχει τίτλο</span>}
 										</strong>
 										<br />
 										<small>{post.slug}</small>

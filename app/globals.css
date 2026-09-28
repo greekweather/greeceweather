@@ -512,7 +512,8 @@ a {
 	gap: 7px;
 }
 
-.form-field label {
+.form-field label,
+.form-field .form-label {
 	font-weight: 750;
 }
 

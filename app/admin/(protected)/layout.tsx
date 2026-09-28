@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { signOutAction } from "@/app/actions";
 import { requireAdmin } from "@/lib/auth";
 
@@ -13,20 +14,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 				</div>
 
 				<nav className="admin-sidebar-nav" aria-label="Admin navigation">
-					<a href="/admin">Πίνακας Ελέγχου</a>
+					<Link href="/admin">Πίνακας Ελέγχου</Link>
 
 					<div className="admin-nav-group">
 						<span>Περιεχόμενο</span>
-						<a href="/admin/posts">Άρθρα</a>
-						<a href="/admin/tags">Ετικέτες</a>
-						<a href="/admin/media">Πολυμέσα</a>
+						<Link href="/admin/posts">Άρθρα</Link>
+						<Link href="/admin/tags">Ετικέτες</Link>
+						<Link href="/admin/media">Πολυμέσα</Link>
 					</div>
 				</nav>
 
 				<div className="admin-sidebar-footer">
 					<span>{user.email}</span>
 
-					<a href="/">← Δημόσια σελίδα</a>
+					<Link href="/">← Δημόσια σελίδα</Link>
 
 					<form action={signOutAction}>
 						<button type="submit">Αποσύνδεση</button>

@@ -5,8 +5,7 @@ const slugSchema = z
 	.trim()
 	.max(120)
 	.refine(
-		(value) =>
-			value === "" || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value),
+		(value) => value === "" || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value),
 		"Το slug πρέπει να περιέχει μόνο πεζά λατινικά, αριθμούς και παύλες.",
 	);
 

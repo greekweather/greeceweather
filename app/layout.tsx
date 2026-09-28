@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Link from "next/link";
 
 export const metadata: Metadata = {
 	title: "GreeceWeather",
@@ -11,18 +12,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 	return (
 		<html lang="el" data-scroll-behavior="smooth">
 			<body>
-				<a className="skip-link" href="#content">
+				<Link className="skip-link" href="#content">
 					Μετάβαση στο περιεχόμενο
-				</a>
+				</Link>
 				<header className="site-header">
 					<div className="container header-inner">
-						<a className="brand" href="/" aria-label="Αρχική σελίδα GreeceWeather">
+						<Link className="brand" href="/" aria-label="Αρχική σελίδα GreeceWeather">
 							GreeceWeather
-						</a>
+						</Link>
 						<nav className="site-nav" aria-label="Κύρια πλοήγηση">
-							<a href="/">Αρχική</a>
-							<a href="/posts">Άρθρα</a>
-							<a href="/maps">Χάρτες</a>
+							<Link href="/">Αρχική</Link>
+							<Link href="/posts">Άρθρα</Link>
+							<Link href="/maps">Χάρτες</Link>
 						</nav>
 					</div>
 				</header>

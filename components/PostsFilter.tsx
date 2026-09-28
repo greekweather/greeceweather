@@ -39,10 +39,7 @@ export function PostsFilter({ tags }: { tags: string[] }) {
 
 			<label>
 				<span>Ετικέτα</span>
-				<select
-					value={tag}
-					onChange={(e) => setTag(e.target.value)}
-				>
+				<select value={tag} onChange={(e) => setTag(e.target.value)}>
 					<option value="all">Όλες οι ετικέτες</option>
 					{tagOptions.map((t) => (
 						<option key={t.value} value={t.value}>
@@ -54,10 +51,7 @@ export function PostsFilter({ tags }: { tags: string[] }) {
 
 			<label>
 				<span>Ταξινόμηση</span>
-				<select
-					value={sort}
-					onChange={(e) => setSort(e.target.value)}
-				>
+				<select value={sort} onChange={(e) => setSort(e.target.value)}>
 					<option value="newest">Νεότερα</option>
 					<option value="popular">Δημοφιλέστερα</option>
 				</select>
@@ -102,8 +96,7 @@ function filterCards(tag: string, sort: string, search: string) {
 			.replace(/\p{Diacritic}/gu, "");
 
 		const matchesTag = tag === "all" || tags.includes(tag);
-		const matchesSearch =
-			!normalizedSearch || title.includes(normalizedSearch);
+		const matchesSearch = !normalizedSearch || title.includes(normalizedSearch);
 
 		el.hidden = !matchesTag || !matchesSearch;
 	});

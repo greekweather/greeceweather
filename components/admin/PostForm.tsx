@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { deletePostAction } from "@/app/actions";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -20,7 +21,7 @@ export type FormPost = {
 function countRenderedLines(element: HTMLElement) {
 	const textNode = element.firstChild;
 
-	if (!textNode || !textNode.textContent?.trim()) {
+	if (!textNode?.textContent?.trim()) {
 		return 0;
 	}
 
@@ -56,9 +57,7 @@ export function PostForm({
 	const [description, setDescription] = useState(post?.description ?? "");
 	const [content, setContent] = useState(post?.content ?? "");
 	const [slug, setSlug] = useState(post?.slug ?? "");
-	const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
-		post?.tag_ids ?? [],
-	);
+	const [selectedTagIds, setSelectedTagIds] = useState<string[]>(post?.tag_ids ?? []);
 
 	const [titleTooLong, setTitleTooLong] = useState(false);
 	const [descriptionTooLong, setDescriptionTooLong] = useState(false);
@@ -108,14 +107,11 @@ export function PostForm({
 			resizeObserver.disconnect();
 			window.removeEventListener("resize", measureLines);
 		};
-	}, [title, description]);
+	}, []);
 
 	useEffect(() => {
 		const timer = window.setTimeout(() => {
-			setSlugIsInvalid(
-				slug.trim().length > 0 &&
-					!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug),
-			);
+			setSlugIsInvalid(slug.trim().length > 0 && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug));
 		}, 500);
 
 		return () => window.clearTimeout(timer);
@@ -129,8 +125,7 @@ export function PostForm({
 	const hasSlug = slug.trim().length > 0;
 
 	const showTitleWarning = publishAttempted && !hasTitle;
-	const showDescriptionWarning =
-		publishAttempted && !hasDescription;
+	const showDescriptionWarning = publishAttempted && !hasDescription;
 	const showContentWarning = publishAttempted && !hasContent;
 	const showTagWarning = publishAttempted && !hasTags;
 	const showImageWarning = publishAttempted && !hasImage;
@@ -144,9 +139,7 @@ export function PostForm({
 				const form = event.currentTarget;
 				const publishedInput = form.elements.namedItem("published");
 
-				const published =
-					publishedInput instanceof HTMLInputElement &&
-					publishedInput.checked;
+				const published = publishedInput instanceof HTMLInputElement && publishedInput.checked;
 
 				if (!published) {
 					return;
@@ -154,14 +147,7 @@ export function PostForm({
 
 				setPublishAttempted(true);
 
-				if (
-					!hasTitle ||
-					!hasDescription ||
-					!hasContent ||
-					!hasSlug ||
-					!hasTags ||
-					!hasImage
-				) {
+				if (!hasTitle || !hasDescription || !hasContent || !hasSlug || !hasTags || !hasImage) {
 					event.preventDefault();
 				}
 			}}
@@ -181,9 +167,7 @@ export function PostForm({
 					/>
 
 					<p
-						className={`form-warning-slot ${
-							showTitleWarning || titleTooLong ? "visible" : ""
-						}`}
+						className={`form-warning-slot ${showTitleWarning || titleTooLong ? "visible" : ""}`}
 						role="alert"
 					>
 						{showTitleWarning
@@ -204,9 +188,7 @@ export function PostForm({
 					/>
 
 					<p
-						className={`form-warning-slot ${
-							showSlugWarning || slugIsInvalid ? "visible" : ""
-						}`}
+						className={`form-warning-slot ${showSlugWarning || slugIsInvalid ? "visible" : ""}`}
 						role="alert"
 					>
 						{showSlugWarning
@@ -231,9 +213,7 @@ export function PostForm({
 
 				<p
 					className={`form-warning-slot ${
-						showDescriptionWarning || descriptionTooLong
-							? "visible"
-							: ""
+						showDescriptionWarning || descriptionTooLong ? "visible" : ""
 					}`}
 					role="alert"
 				>
@@ -253,17 +233,11 @@ export function PostForm({
 					onChange={(e) => setContent(e.target.value)}
 					style={{
 						minHeight: 420,
-						fontFamily:
-							"ui-monospace,SFMono-Regular,Consolas,monospace",
+						fontFamily: "ui-monospace,SFMono-Regular,Consolas,monospace",
 					}}
 				/>
 
-				<p
-					className={`form-warning-slot ${
-						showContentWarning ? "visible" : ""
-					}`}
-					role="alert"
-				>
+				<p className={`form-warning-slot ${showContentWarning ? "visible" : ""}`} role="alert">
 					⚠ Για δημοσίευση πρέπει να υπάρχει περιεχόμενο άρθρου.
 				</p>
 			</div>
@@ -293,12 +267,7 @@ export function PostForm({
 				</div>
 			</div>
 
-			<p
-				className={`form-warning-slot ${
-					showImageWarning ? "visible" : ""
-				}`}
-				role="alert"
-			>
+			<p className={`form-warning-slot ${showImageWarning ? "visible" : ""}`} role="alert">
 				⚠ Για δημοσίευση πρέπει να υπάρχει εικόνα άρθρου.
 			</p>
 
@@ -313,7 +282,7 @@ export function PostForm({
 			/>
 
 			<div className="form-field">
-				<label>Ετικέτες</label>
+				<div className="form-label">Ετικέτες</div>
 
 				<div className="tag-selector">
 					{availableTags.length > 0 ? (
@@ -328,9 +297,7 @@ export function PostForm({
 										setSelectedTagIds((current) =>
 											e.target.checked
 												? [...current, tag.id]
-												: current.filter(
-														(id) => id !== tag.id,
-													),
+												: current.filter((id) => id !== tag.id),
 										);
 									}}
 								/>
@@ -342,22 +309,14 @@ export function PostForm({
 					)}
 				</div>
 
-				<p
-					className={`form-warning-slot ${
-						showTagWarning ? "visible" : ""
-					}`}
-					role="alert"
-				>
-					⚠ Για δημοσίευση πρέπει να επιλέξεις τουλάχιστον μία
-					ετικέτα.
+				<p className={`form-warning-slot ${showTagWarning ? "visible" : ""}`} role="alert">
+					⚠ Για δημοσίευση πρέπει να επιλέξεις τουλάχιστον μία ετικέτα.
 				</p>
 			</div>
 
 			<div className="form-row">
 				<div className="form-field">
-					<label htmlFor="published_at">
-						Ημερομηνία/ώρα δημοσίευσης
-					</label>
+					<label htmlFor="published_at">Ημερομηνία/ώρα δημοσίευσης</label>
 
 					<input
 						id="published_at"
@@ -390,18 +349,14 @@ export function PostForm({
 				</button>
 
 				{post?.id && (
-					<button
-						className="button danger"
-						type="submit"
-						formAction={deletePostAction}
-					>
+					<button className="button danger" type="submit" formAction={deletePostAction}>
 						Διαγραφή
 					</button>
 				)}
 
-				<a className="button secondary" href="/admin">
+				<Link className="button secondary" href="/admin">
 					Ακύρωση
-				</a>
+				</Link>
 			</div>
 
 			<div
@@ -419,13 +374,9 @@ export function PostForm({
 				<div className="post-grid">
 					<article className="post-card">
 						<div className="post-card-body">
-							<h3 ref={titleMeasureRef}>
-								{title || "\u00a0"}
-							</h3>
+							<h3 ref={titleMeasureRef}>{title || "\u00a0"}</h3>
 
-							<p ref={descriptionMeasureRef}>
-								{description || "\u00a0"}
-							</p>
+							<p ref={descriptionMeasureRef}>{description || "\u00a0"}</p>
 						</div>
 					</article>
 				</div>

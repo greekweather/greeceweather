@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function NotFound() {
 	return (
 		<section className="section">
@@ -5,9 +7,9 @@ export default function NotFound() {
 				<p className="eyebrow">404</p>
 				<h1>Η σελίδα δεν βρέθηκε</h1>
 				<p>Ο σύνδεσμος ίσως είναι παλιός ή το άρθρο δεν είναι πλέον δημοσιευμένο.</p>
-				<a className="button" href="/">
+				<Link className="button" href="/">
 					Επιστροφή στην αρχική
-				</a>
+				</Link>
 			</div>
 		</section>
 	);

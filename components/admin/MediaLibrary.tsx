@@ -223,21 +223,14 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 						aria-modal="true"
 						aria-labelledby="media-delete-confirm-title"
 					>
-						<h2 id="media-delete-confirm-title">
-							Διαγραφή εικόνας
-						</h2>
+						<h2 id="media-delete-confirm-title">Διαγραφή εικόνας</h2>
 
 						<p>
 							Είσαι σίγουρος ότι θέλεις να διαγράψεις την εικόνα{" "}
-							<strong className="delete-confirm-name">
-								"{fileToDelete}"
-							</strong>
-							;
+							<strong className="delete-confirm-name">&ldquo;{fileToDelete}&rdquo;</strong>
 						</p>
 
-						<p className="delete-confirm-warning">
-							Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.
-						</p>
+						<p className="delete-confirm-warning">Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</p>
 
 						<div className="delete-confirm-actions">
 							<button
@@ -259,7 +252,6 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 					</div>
 				</div>
 			)}
-
 		</div>
 	);
 }

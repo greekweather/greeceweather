@@ -21,11 +21,7 @@ export function DeleteConfirmButton({
 
 	return (
 		<>
-			<button
-				className="button danger"
-				type="button"
-				onClick={() => setShowConfirm(true)}
-			>
+			<button className="button danger" type="button" onClick={() => setShowConfirm(true)}>
 				Διαγραφή
 			</button>
 
@@ -37,18 +33,14 @@ export function DeleteConfirmButton({
 						aria-modal="true"
 						aria-labelledby="delete-confirm-title"
 					>
-						<h2 id="delete-confirm-title">
-							Διαγραφή {itemType}
-						</h2>
+						<h2 id="delete-confirm-title">Διαγραφή {itemType}</h2>
 
 						<p>
 							Είσαι σίγουρος ότι θέλεις να διαγράψεις {grammar}{" "}
-							<strong className="delete-confirm-name">"{name}"</strong>;
+							<strong className="delete-confirm-name">&ldquo;{name}&rdquo;</strong>
 						</p>
 
-						<p className="delete-confirm-warning">
-							Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.
-						</p>
+						<p className="delete-confirm-warning">Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</p>
 
 						<div className="delete-confirm-actions">
 							<button
@@ -60,25 +52,14 @@ export function DeleteConfirmButton({
 							</button>
 
 							{useParentForm ? (
-								<button
-									className="button danger"
-									type="submit"
-									formAction={action}
-								>
+								<button className="button danger" type="submit" formAction={action}>
 									Διαγραφή
 								</button>
 							) : (
 								<form action={action}>
-									<input
-										type="hidden"
-										name="id"
-										value={id}
-									/>
+									<input type="hidden" name="id" value={id} />
 
-									<button
-										className="button danger"
-										type="submit"
-									>
+									<button className="button danger" type="submit">
 										Διαγραφή
 									</button>
 								</form>

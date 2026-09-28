@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Markdown } from "@/components/Markdown";
 import { formatDate } from "@/components/PostCard";
@@ -36,9 +37,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 			<ViewCounter slug={post.slug} />
 			<div className="container article-container">
 				<header className="article-header">
-					<a className="back-link" href="/posts">
+					<Link className="back-link" href="/posts">
 						← Όλα τα άρθρα
-					</a>
+					</Link>
 					<p className="post-meta">{formatDate(post.published_at)}</p>
 					<h1>{post.title}</h1>
 					{post.description && <p className="article-lead">{post.description}</p>}
