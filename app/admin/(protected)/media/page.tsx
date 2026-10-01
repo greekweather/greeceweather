@@ -69,8 +69,8 @@ export default async function MediaPage() {
 		<section className="section">
 			<div className="admin-page-header">
 				<div>
-					<p className="eyebrow">MEDIA</p>
-					<h1>Media</h1>
+					<p className="eyebrow">ΠΟΛΥΜΕΣΑ</p>
+					<h1>Πολύμεσα</h1>
 					<p>Διαχείριση των εικόνων που χρησιμοποιούνται στα άρθρα.</p>
 				</div>
 			</div>
