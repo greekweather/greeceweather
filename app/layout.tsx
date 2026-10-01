@@ -6,6 +6,22 @@ export const metadata: Metadata = {
 	title: "GreeceWeather",
 	description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
 	metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+	openGraph: {
+		title: "GreeceWeather",
+		description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
+		url: "/",
+		siteName: "GreeceWeather",
+		locale: "el_GR",
+		type: "website",
+		images: [
+			{
+				url: "/images/supercell.jpg",
+				width: 1200,
+				height: 630,
+				alt: "GreeceWeather",
+			},
+		],
+	},
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

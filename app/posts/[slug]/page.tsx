@@ -16,14 +16,29 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { slug } = await params;
 	const post = await getPublishedPostBySlug(slug);
+
 	if (!post) return {};
+
 	return {
 		title: `${post.title} · GreeceWeather`,
 		description: post.description,
 		openGraph: {
 			title: post.title,
 			description: post.description,
-			images: post.image_url ? [post.image_url] : [],
+			type: "article",
+			siteName: "GreeceWeather",
+			locale: "el_GR",
+			url: `/posts/${post.slug}`,
+			images: post.image_url
+				? [
+						{
+							url: post.image_url,
+							width: 1200,
+							height: 675,
+							alt: post.image_alt || post.title,
+						},
+					]
+				: [],
 		},
 	};
 }
