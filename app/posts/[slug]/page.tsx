@@ -52,7 +52,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 			<ViewCounter slug={post.slug} />
 			<div className="container article-container">
 				<header className="article-header">
-					<Link className="back-link" href="">
+					<Link className="back-link" href="/">
 						← Πίσω στην αρχική
 					</Link>
 					<p className="post-meta">{formatDate(post.published_at)}</p>
