@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 				<header className="site-header">
 					<div className="container header-inner">
 						<Link className="brand" href="/" aria-label="Αρχική σελίδα GreeceWeather">
+							<Image src="/icon.svg" alt="" />
 							GreeceWeather
 						</Link>
 						<nav className="site-nav" aria-label="Κύρια πλοήγηση">

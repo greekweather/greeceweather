@@ -714,7 +714,7 @@ a {
 	border-radius: 10px;
 	padding: 11px 38px 11px 12px;
 	font: inherit;
-	color: var(--text);
+	color: var(--muted);
 	background: #fff;
 	cursor: pointer;
 }
@@ -1599,4 +1599,15 @@ a {
 	white-space: normal;
 	overflow-wrap: anywhere;
 	word-break: break-word;
+}
+
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+}
+
+.brand img {
+	width: 32px;
+	height: 32px;
 }

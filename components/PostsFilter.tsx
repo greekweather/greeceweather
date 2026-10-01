@@ -9,7 +9,7 @@ export function PostsFilter({ tags }: { tags: string[] }) {
 	const [appliedSearch, setAppliedSearch] = useState("");
 
 	const tagOptions = useMemo(
-		() => tags.map((x) => ({ label: x, value: x.toLocaleLowerCase("el-GR") })),
+		() => tags.slice(0, 8).map((x) => ({ label: x, value: x.toLocaleLowerCase("el-GR") })),
 		[tags],
 	);
 
@@ -53,6 +53,7 @@ export function PostsFilter({ tags }: { tags: string[] }) {
 				<span>Ταξινόμηση</span>
 				<select value={sort} onChange={(e) => setSort(e.target.value)}>
 					<option value="newest">Νεότερα</option>
+					<option value="oldest">Παλαιότερα</option>
 					<option value="popular">Δημοφιλέστερα</option>
 				</select>
 			</label>
@@ -73,6 +74,10 @@ function filterCards(tag: string, sort: string, search: string) {
 
 			if (sort === "popular") {
 				return Number(b.dataset.views || 0) - Number(a.dataset.views || 0);
+			}
+
+			if (sort === "oldest") {
+				return da - db;
 			}
 
 			return db - da;
