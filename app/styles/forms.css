@@ -1,0 +1,152 @@
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: auto;
+	min-width: 0;
+	height: 44px;
+	box-sizing: border-box;
+	border: 0;
+	padding: 11px 18px;
+	border-radius: 12px;
+	background: var(--accent);
+	color: #fff;
+	text-decoration: none;
+	font-size: 1rem;
+	font-family: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.button.secondary {
+	background: #eaf2ff;
+	color: #174b93;
+}
+
+.button.danger {
+	background: #b42318;
+	color: #fff;
+}
+
+.form-card {
+	background: #fff;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 24px;
+	box-shadow: 0 5px 16px rgba(15, 23, 42, 0.04);
+}
+
+.form-grid {
+	display: grid;
+	gap: 18px;
+}
+
+.form-row {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+	align-items: start;
+}
+
+.form-field {
+	min-width: 0;
+	display: grid;
+	gap: 7px;
+}
+
+.form-field label,
+.form-field .form-label {
+	font-weight: 750;
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+	width: 100%;
+	box-sizing: border-box;
+	border: 1px solid var(--border);
+	border-radius: 10px;
+	padding: 11px 12px;
+	font: inherit;
+	background: #fff;
+	color: var(--text);
+}
+
+.form-field input {
+	height: 44px;
+}
+
+.form-field textarea {
+	min-height: 180px;
+	resize: vertical;
+}
+
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.form-warning-slot {
+	min-height: 20px;
+	margin: 6px 0 0;
+	color: #dc2626;
+	font-size: 0.85rem;
+	font-weight: 600;
+	visibility: hidden;
+}
+
+.form-warning-slot.visible {
+	visibility: visible;
+}
+
+.form-warning {
+	margin: 6px 0 0;
+	color: #dc2626;
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+
+.form-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.form-actions .button {
+	flex: 0 0 auto;
+}
+
+.form-actions .button:first-child {
+	justify-self: start;
+}
+
+.form-actions .button:nth-child(2) {
+	justify-self: center;
+}
+
+.form-actions .button:last-child {
+	justify-self: end;
+}
+
+.image-fields {
+	position: relative;
+}
+
+.image-warning {
+	grid-column: 1 / -1;
+}
+
+.preview {
+	padding: 18px;
+	border: 1px dashed var(--border);
+	border-radius: 12px;
+	background: #fafcff;
+}
+
+.preview small {
+	color: var(--muted);
+}

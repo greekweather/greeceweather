@@ -1,0 +1,141 @@
+.hero {
+	position: relative;
+	background:
+		linear-gradient(rgba(11, 18, 32, 0.62), rgba(11, 18, 32, 0.78)),
+		var(--hero-background, #0b1220) center / cover no-repeat;
+	color: #fff;
+	padding: 110px 0 120px;
+}
+
+.hero-inner {
+	max-width: 900px;
+}
+
+.eyebrow {
+	margin: 0 0 10px;
+	color: #79aef8;
+	font-size: 0.78rem;
+	font-weight: 800;
+	letter-spacing: 0.14em;
+}
+
+.hero h1 {
+	margin: 0;
+	font-size: clamp(2.5rem, 6vw, 4.8rem);
+	line-height: 1.03;
+	letter-spacing: -0.05em;
+}
+
+.hero-copy {
+	margin: 24px 0 0;
+	max-width: 720px;
+	color: #cbd5e1;
+	font-size: 1.15rem;
+}
+
+.featured-main {
+	display: block;
+	overflow: hidden;
+	margin-bottom: 26px;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+	color: inherit;
+	text-decoration: none;
+}
+
+.featured-main img {
+	display: block;
+	width: 100%;
+	height: 500px;
+	object-fit: cover;
+}
+
+.featured-main-content {
+	padding: 24px 30px 30px;
+}
+
+.featured-main-content .post-meta {
+	margin-left: 8px;
+}
+
+.featured-main-content h2 {
+	margin: 8px 0 14px;
+	font-size: clamp(2rem, 3.5vw, 3rem);
+	line-height: 1.08;
+	letter-spacing: -0.035em;
+}
+
+.featured-main-description {
+	max-width: 850px;
+	margin: 0;
+	color: var(--muted);
+	font-size: 1.08rem;
+	line-height: 1.65;
+}
+
+.featured-secondary-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 26px;
+	margin-bottom: 42px;
+}
+
+.featured-secondary {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+	color: inherit;
+	text-decoration: none;
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease;
+}
+
+.featured-secondary:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--shadow);
+}
+
+.featured-secondary img {
+	display: block;
+	width: 100%;
+	height: 285px;
+	object-fit: cover;
+}
+
+.featured-secondary-content {
+	padding: 24px 26px 28px;
+}
+
+.featured-secondary-content .post-meta {
+	margin-left: 8px;
+}
+
+.featured-secondary-content h3 {
+	margin: 8px 0 12px;
+	font-size: clamp(1.45rem, 2vw, 1.8rem);
+	line-height: 1.18;
+	letter-spacing: -0.02em;
+}
+
+.featured-secondary-content > p:last-child {
+	margin: 0;
+	color: var(--muted);
+	font-size: 1rem;
+	line-height: 1.6;
+	display: -webkit-box;
+	line-clamp: 4;
+	-webkit-line-clamp: 4;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.homepage-post-grid {
+	margin-top: 0;
+}

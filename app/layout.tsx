@@ -41,7 +41,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 						<nav className="site-nav" aria-label="Κύρια πλοήγηση">
 							<Link href="/">Αρχική</Link>
 							<Link href="/posts">Άρθρα</Link>
-							<Link href="/maps">Χάρτες</Link>
 						</nav>
 					</div>
 				</header>

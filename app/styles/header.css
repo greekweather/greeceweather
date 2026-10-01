@@ -1,0 +1,45 @@
+.site-header {
+	position: sticky;
+	top: 0;
+	z-index: 20;
+	background: rgba(11, 18, 32, 0.96);
+	color: #fff;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-inner {
+	min-height: 72px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+}
+
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	text-decoration: none;
+	font-weight: 800;
+}
+
+.brand img {
+	width: 32px;
+	height: 32px;
+}
+
+.site-nav {
+	display: flex;
+	gap: 24px;
+}
+
+.site-nav a {
+	color: #cbd5e1;
+	text-decoration: none;
+	font-size: 0.95rem;
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+	color: #fff;
+}
