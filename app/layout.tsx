@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
+import { WeatherBanner } from "@/components/WeatherBanner";
 
 export const metadata: Metadata = {
 	title: "GreeceWeather",
@@ -44,6 +45,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 						</nav>
 					</div>
 				</header>
+
+				<WeatherBanner />
+
 				<main id="content">{children}</main>
 				<footer className="site-footer">
 					<div className="container footer-inner">

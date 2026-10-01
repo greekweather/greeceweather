@@ -334,6 +334,162 @@ export async function deleteTagAction(formData: FormData) {
 	redirect("/admin/tags");
 }
 
+export async function createBannerAction(_prevState: { error?: string }, formData: FormData) {
+	await requireAdmin();
+
+	const forecastEnabled = formData.get("forecast_enabled") === "on";
+	const emergencyEnabled = formData.get("emergency_enabled") === "on";
+	const updateEnabled = formData.get("update_enabled") === "on";
+
+	const forecastUrl = String(formData.get("forecast_url") ?? "").trim();
+	const emergencyUrl = String(formData.get("emergency_url") ?? "").trim();
+	const updateUrl = String(formData.get("update_url") ?? "").trim();
+
+	if (forecastEnabled && !forecastUrl) {
+		return {
+			error: "Το URL της πρόγνωσης είναι υποχρεωτικό.",
+		};
+	}
+
+	if (emergencyEnabled && !emergencyUrl) {
+		return {
+			error: "Το URL του έκτακτου δελτίου είναι υποχρεωτικό.",
+		};
+	}
+
+	if (updateEnabled && !updateUrl) {
+		return {
+			error: "Το URL της επικαιροποίησης είναι υποχρεωτικό.",
+		};
+	}
+
+	if (!forecastEnabled && !emergencyEnabled && !updateEnabled) {
+		return {
+			error: "Πρέπει να ενεργοποιήσεις τουλάχιστον μία επιλογή.",
+		};
+	}
+
+	const supabase = await createClient();
+
+	const { error } = await supabase.from("weather_banner").insert({
+		forecast_enabled: forecastEnabled,
+		forecast_url: forecastUrl || null,
+		emergency_enabled: emergencyEnabled,
+		emergency_url: emergencyUrl || null,
+		update_enabled: updateEnabled,
+		update_url: updateUrl || null,
+		updated_at: new Date().toISOString(),
+	});
+
+	if (error) {
+		return {
+			error: "Δεν ήταν δυνατή η αποθήκευση του μπάνερ.",
+		};
+	}
+
+	revalidatePath("/");
+	revalidatePath("/admin");
+	revalidatePath("/admin/banner");
+
+	redirect("/admin/banner");
+}
+
+export async function updateBannerAction(_prevState: { error?: string }, formData: FormData) {
+	await requireAdmin();
+
+	const id = String(formData.get("id") ?? "");
+
+	if (!id) {
+		return {
+			error: "Μη έγκυρο μπάνερ.",
+		};
+	}
+
+	const forecastEnabled = formData.get("forecast_enabled") === "on";
+	const emergencyEnabled = formData.get("emergency_enabled") === "on";
+	const updateEnabled = formData.get("update_enabled") === "on";
+
+	const forecastUrl = String(formData.get("forecast_url") ?? "").trim();
+	const emergencyUrl = String(formData.get("emergency_url") ?? "").trim();
+	const updateUrl = String(formData.get("update_url") ?? "").trim();
+
+	if (forecastEnabled && !forecastUrl) {
+		return {
+			error: "Το URL της πρόγνωσης είναι υποχρεωτικό.",
+		};
+	}
+
+	if (emergencyEnabled && !emergencyUrl) {
+		return {
+			error: "Το URL του έκτακτου δελτίου είναι υποχρεωτικό.",
+		};
+	}
+
+	if (updateEnabled && !updateUrl) {
+		return {
+			error: "Το URL της επικαιροποίησης είναι υποχρεωτικό.",
+		};
+	}
+
+	if (!forecastEnabled && !emergencyEnabled && !updateEnabled) {
+		return {
+			error: "Πρέπει να ενεργοποιήσεις τουλάχιστον μία επιλογή.",
+		};
+	}
+
+	const supabase = await createClient();
+
+	const { error } = await supabase
+		.from("weather_banner")
+		.update({
+			forecast_enabled: forecastEnabled,
+			forecast_url: forecastUrl || null,
+			emergency_enabled: emergencyEnabled,
+			emergency_url: emergencyUrl || null,
+			update_enabled: updateEnabled,
+			update_url: updateUrl || null,
+			updated_at: new Date().toISOString(),
+		})
+		.eq("id", id);
+
+	if (error) {
+		return {
+			error: "Δεν ήταν δυνατή η αποθήκευση του μπάνερ.",
+		};
+	}
+
+	revalidatePath("/");
+	revalidatePath("/admin");
+	revalidatePath("/admin/banner");
+	revalidatePath(`/admin/banner/${id}/edit`);
+
+	redirect("/admin/banner");
+}
+
+export async function deleteBannerAction(formData: FormData) {
+	await requireAdmin();
+
+	const id = String(formData.get("id") ?? "");
+
+	if (!id) {
+		throw new Error("Μη έγκυρο μπάνερ.");
+	}
+
+	const supabase = await createClient();
+
+	const { error } = await supabase.from("weather_banner").delete().eq("id", id);
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	revalidatePath("/");
+	revalidatePath("/admin");
+	revalidatePath("/admin/banner");
+
+	redirect("/admin/banner");
+}
+
 export async function signOutAction() {
 	const supabase = await createClient();
 

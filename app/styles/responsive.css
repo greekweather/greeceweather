@@ -75,6 +75,10 @@
 	.media-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
+
+	.banner-option {
+		padding: 14px;
+	}
 }
 
 @media (max-width: 640px) {
@@ -174,6 +178,38 @@
 
 	.featured-secondary-content h3 {
 		font-size: 1.4rem;
+	}
+
+	.weather-banner {
+		padding: 19px 0 21px;
+	}
+
+	.weather-banner-inner {
+		width: calc(100% - 28px);
+		gap: 13px;
+	}
+
+	.weather-banner-title {
+		font-size: 0.98rem;
+	}
+
+	.weather-banner-items {
+		width: 100%;
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 6px;
+	}
+
+	.weather-banner-item {
+		width: 100%;
+		min-height: 39px;
+		box-sizing: border-box;
+		padding: 0 10px;
+		font-size: 0.7rem;
+	}
+
+	.weather-banner-arrow {
+		display: inline;
 	}
 }
 

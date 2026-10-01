@@ -659,3 +659,81 @@
 	font-size: 12px;
 	text-align: center;
 }
+
+.banner-option {
+	display: grid;
+	gap: 10px;
+	padding: 16px;
+	border: 1px solid #d9e1ea;
+	border-radius: 10px;
+	background: #fff;
+}
+
+.banner-option:hover {
+	border-color: #bfdbfe;
+	background: #f9fbff;
+}
+
+.banner-option-label {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.banner-option-label input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	flex: 0 0 auto;
+	accent-color: #1d6fe8;
+}
+
+.banner-option input[type="url"] {
+	width: 100%;
+	min-height: 46px;
+	padding: 11px 14px;
+	box-sizing: border-box;
+
+	border: 1px solid #d6dee8;
+	border-radius: 8px;
+
+	background: #f8fafc;
+	color: var(--text);
+
+	font-family: inherit;
+	font-size: 0.92rem;
+	line-height: 1.4;
+
+	outline: none;
+	transition:
+		border-color 0.18s ease,
+		background 0.18s ease,
+		box-shadow 0.18s ease;
+}
+
+.banner-option input[type="url"]::placeholder {
+	color: #94a3b8;
+}
+
+.banner-option input[type="url"]:hover {
+	border-color: #b8c5d4;
+	background: #fff;
+}
+
+.banner-option input[type="url"]:focus {
+	border-color: var(--accent);
+	background: #fff;
+	box-shadow: 0 0 0 3px rgba(29, 111, 232, 0.12);
+}
+
+.banner-option small {
+	color: #6b7280;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+body:has(.admin-shell) .weather-banner {
+	display: none;
+}

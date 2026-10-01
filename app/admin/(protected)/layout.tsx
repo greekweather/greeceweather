@@ -18,9 +18,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
 					<div className="admin-nav-group">
 						<span>Περιεχόμενο</span>
+
 						<Link href="/admin/posts">Άρθρα</Link>
 						<Link href="/admin/tags">Ετικέτες</Link>
 						<Link href="/admin/media">Πολυμέσα</Link>
+						<Link href="/admin/banner">Μπάνερ</Link>
 					</div>
 				</nav>
 
