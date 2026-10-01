@@ -414,6 +414,45 @@ a {
 	border-radius: 12px;
 }
 
+.article-body table {
+	width: 100%;
+	margin: 1.5rem 0;
+	border-collapse: collapse;
+	font-size: 0.95rem;
+}
+
+.article-body th,
+.article-body td {
+	padding: 9px 12px;
+	border-bottom: 1px solid var(--border);
+}
+
+.article-body th {
+	font-weight: 600;
+	text-align: left;
+}
+
+.article-body td {
+	font-weight: 400;
+}
+
+.article-body th:first-child,
+.article-body td:first-child {
+	width: 45px;
+	text-align: center;
+}
+
+.article-body th:nth-child(3),
+.article-body td:nth-child(3),
+.article-body th:nth-child(4),
+.article-body td:nth-child(4) {
+	text-align: right;
+}
+
+.article-body tbody tr:last-child td {
+	border-bottom: 0;
+}
+
 .article-footer {
 	display: flex;
 	flex-wrap: wrap;
