@@ -65,6 +65,7 @@ export default async function HomePage() {
 									{featured.description && (
 										<p className="featured-main-description">{featured.description}</p>
 									)}
+									<span className="featured-read-more">Διαβάστε το άρθρο →</span>
 								</div>
 							</Link>
 
@@ -98,7 +99,10 @@ export default async function HomePage() {
 
 												<h3>{post.title}</h3>
 
-												{post.description && <p>{post.description}</p>}
+												{post.description && (
+													<p className="featured-secondary-description">{post.description}</p>
+												)}
+												<span className="featured-read-more">Διαβάστε το άρθρο →</span>
 											</div>
 										</Link>
 									))}

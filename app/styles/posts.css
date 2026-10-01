@@ -81,7 +81,7 @@
 	background: #eef5ff;
 	color: var(--accent);
 	font-size: 0.78rem;
-	font-weight: 750;
+	font-weight: 600;
 	line-height: 1;
 }
 
@@ -112,6 +112,8 @@
 .post-card-footer .text-link {
 	display: block;
 	white-space: nowrap;
+	font-size: 0.95rem;
+	font-weight: 600;
 }
 
 .article-filters {
@@ -171,4 +173,42 @@
 .article-search input:focus {
 	border-color: var(--accent);
 	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.featured-read-more {
+	display: inline-flex;
+	align-items: center;
+	margin-top: auto;
+	padding-top: 18px;
+	color: var(--accent);
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.featured-main:hover .featured-read-more,
+.featured-secondary:hover .featured-read-more {
+	color: var(--accent-dark);
+	text-decoration: underline;
+}
+
+.featured-main-content,
+.featured-secondary-content {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+.featured-secondary-content h3 {
+	margin: 8px 0 12px;
+	font-size: clamp(1.45rem, 2vw, 1.8rem);
+	line-height: 1.18;
+	letter-spacing: -0.02em;
+}
+
+.featured-secondary-description {
+	margin: 0 0 16px;
+	color: var(--muted);
+	font-size: 1rem;
+	line-height: 1.6;
 }
