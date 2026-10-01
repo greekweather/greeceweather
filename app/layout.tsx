@@ -35,7 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 				<header className="site-header">
 					<div className="container header-inner">
 						<Link className="brand" href="/" aria-label="Αρχική σελίδα GreeceWeather">
-							<Image src="/icon.svg" alt="" />
+							<Image src="/icon.svg" alt="" width={32} height={32} />
 							GreeceWeather
 						</Link>
 						<nav className="site-nav" aria-label="Κύρια πλοήγηση">
