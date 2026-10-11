@@ -1,0 +1,37 @@
+/* footer.css — NEW FILE. The footer used to be in base.css. */
+
+.site-footer {
+	position: relative;
+	padding: 36px 0 32px;
+	background: var(--night);
+	color: #d3cab8;
+}
+
+.site-footer::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 4px;
+	background: linear-gradient(
+		90deg,
+		var(--accent) 0 34%,
+		var(--sun) 34% 67%,
+		var(--olive) 67% 100%
+	);
+}
+
+.footer-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	font-size: 1rem;
+}
+
+.footer-inner strong {
+	color: var(--surface);
+	font-family: var(--font-display);
+	font-size: 1.3rem;
+}

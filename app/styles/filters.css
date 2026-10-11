@@ -1,0 +1,228 @@
+/* filters.css — NEW FILE. Category buttons, search box and the two dropdowns on /posts.
+   These rules were duplicated in posts.css and article.css; now they live only here. */
+
+.post-categories {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 24px;
+}
+
+.post-categories button {
+	border: 1.5px solid var(--border);
+	border-radius: 999px;
+	padding: 10px 18px;
+	background: var(--surface);
+	color: var(--text);
+	font: inherit;
+	font-size: 1rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition:
+		background 0.18s ease,
+		color 0.18s ease,
+		border-color 0.18s ease;
+}
+
+.post-categories button:hover {
+	border-color: var(--accent);
+	background: #e6f0f5;
+	color: var(--accent-dark);
+}
+
+.post-categories button.active {
+	border-color: var(--accent);
+	background: var(--accent);
+	color: var(--surface);
+}
+
+.article-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 14px;
+	align-items: end;
+	margin-bottom: 30px;
+}
+
+.article-filters label,
+.tag-filter {
+	display: grid;
+	gap: 7px;
+	font-weight: 700;
+	color: var(--night);
+}
+
+.article-filters select {
+	min-width: 190px;
+	height: 44px;
+	border: 1.5px solid var(--border);
+	border-radius: var(--radius-sm);
+	padding: 0 38px 0 12px;
+	font: inherit;
+	color: var(--muted);
+	background: var(--surface);
+	cursor: pointer;
+}
+
+.article-filters select:focus {
+	outline: 3px solid var(--sun);
+	outline-offset: 2px;
+}
+
+.article-search {
+	flex: 1 1 320px;
+}
+
+.article-search input,
+.tag-dropdown-trigger {
+	height: 44px;
+	box-sizing: border-box;
+}
+
+.article-search input {
+	width: 100%;
+	padding: 0 16px;
+	border: 1.5px solid var(--border);
+	border-radius: var(--radius-sm);
+	background: var(--surface);
+	color: var(--text);
+	font: inherit;
+	outline: none;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.article-search input::placeholder {
+	color: #81786a;
+}
+
+.article-search input:focus {
+	border-color: var(--accent);
+	box-shadow: 0 0 0 4px rgba(26, 95, 134, 0.16);
+}
+
+.tag-filter {
+	position: relative;
+	flex: 0 0 190px;
+	min-width: 190px;
+}
+
+.tag-dropdown-trigger {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 0 14px;
+	border: 1.5px solid var(--border);
+	border-radius: var(--radius-sm);
+	background: var(--surface);
+	color: var(--text);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition:
+		border-color 0.18s ease,
+		box-shadow 0.18s ease,
+		background 0.18s ease;
+}
+
+.tag-dropdown-trigger:hover,
+.tag-dropdown-trigger[aria-expanded="true"] {
+	border-color: var(--accent);
+}
+
+.tag-dropdown-arrow {
+	flex: 0 0 auto;
+	font-size: 1rem;
+	line-height: 1;
+	transition: transform 0.2s ease;
+}
+
+.tag-dropdown-arrow.open {
+	transform: rotate(180deg);
+}
+
+.tag-dropdown-menu {
+	position: absolute;
+	z-index: 100;
+	top: calc(100% + 6px);
+	left: 0;
+	width: 100%;
+	box-sizing: border-box;
+	max-height: 220px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 6px;
+	border: 1.5px solid var(--border);
+	border-radius: 16px;
+	background: var(--surface);
+	box-shadow: var(--shadow);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transform: translateY(-6px) scale(0.98);
+	transform-origin: top center;
+	transition:
+		opacity 0.18s ease,
+		transform 0.18s ease,
+		visibility 0s linear 0.18s;
+}
+
+.tag-dropdown-menu.open {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+	transform: translateY(0) scale(1);
+	transition:
+		opacity 0.18s ease,
+		transform 0.18s ease,
+		visibility 0s linear 0s;
+}
+
+.tag-dropdown-menu button {
+	display: block;
+	width: 100%;
+	min-height: 40px;
+	box-sizing: border-box;
+	padding: 9px 12px;
+	border: 0;
+	border-radius: 10px;
+	background: transparent;
+	color: var(--text);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition:
+		background 0.15s ease,
+		color 0.15s ease;
+}
+
+.tag-dropdown-menu button:hover {
+	background: var(--bg-deep);
+	color: var(--night);
+}
+
+.tag-dropdown-menu button.active {
+	background: #dcebf2;
+	color: var(--accent-dark);
+	font-weight: 700;
+}
+
+.tag-dropdown-menu::-webkit-scrollbar {
+	width: 7px;
+}
+
+.tag-dropdown-menu::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.tag-dropdown-menu::-webkit-scrollbar-thumb {
+	border-radius: 999px;
+	background: #d3c3a6;
+}
+
+.tag-dropdown-menu::-webkit-scrollbar-thumb:hover {
+	background: #b8a784;
+}

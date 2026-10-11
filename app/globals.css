@@ -1,8 +1,15 @@
+@import "./styles/tokens.css";
 @import "./styles/base.css";
 @import "./styles/header.css";
+@import "./styles/weather-banner.css";
+@import "./styles/hero.css";
 @import "./styles/homepage.css";
 @import "./styles/posts.css";
+@import "./styles/filters.css";
 @import "./styles/article.css";
+@import "./styles/footer.css";
+@import "./styles/human.css";
 @import "./styles/forms.css";
 @import "./styles/admin.css";
 @import "./styles/responsive.css";
+@import "./styles/theme-responsive.css";

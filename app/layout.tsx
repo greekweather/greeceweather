@@ -1,8 +1,23 @@
 import type { Metadata } from "next";
+import { Alegreya, Alegreya_Sans } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
 import { WeatherBanner } from "@/components/WeatherBanner";
+
+const alegreya = Alegreya({
+	subsets: ["greek", "latin"],
+	style: ["normal", "italic"],
+	variable: "--font-alegreya",
+	display: "swap",
+});
+
+const alegreyaSans = Alegreya_Sans({
+	subsets: ["greek", "latin"],
+	weight: ["400", "500", "700", "800"],
+	variable: "--font-alegreya-sans",
+	display: "swap",
+});
 
 export const metadata: Metadata = {
 	title: "GreeceWeather",
@@ -28,7 +43,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
-		<html lang="el" data-scroll-behavior="smooth">
+		<html
+			lang="el"
+			data-scroll-behavior="smooth"
+			className={`${alegreya.variable} ${alegreyaSans.variable}`}
+		>
 			<body>
 				<Link className="skip-link" href="#content">
 					Μετάβαση στο περιεχόμενο

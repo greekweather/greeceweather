@@ -1,0 +1,137 @@
+/* hero.css — NEW FILE. The big intro blocks: homepage hero + the "Άρθρα" page header.
+   (.hero used to live in homepage.css, .page-header in base.css.) */
+
+.hero {
+	position: relative;
+	background:
+		linear-gradient(180deg, rgba(20, 56, 74, 0.5), rgba(20, 56, 74, 0.86)),
+		var(--hero-background, var(--night)) center / cover no-repeat;
+	color: var(--surface);
+	padding: 104px 0 172px;
+}
+
+/* two layered waves flowing into the page.
+   NOTE: the fill colours inside the data-URIs must match --bg (#f5ede0) and --bg-deep (#ecdfc8). */
+.hero::before,
+.hero::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -1px;
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	pointer-events: none;
+}
+
+.hero::before {
+	height: 96px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 96' preserveAspectRatio='none'%3E%3Cpath fill='%23ecdfc8' fill-opacity='.55' d='M0 52 C 200 8 420 88 700 46 S 1190 10 1440 56 L1440 96 L0 96Z'/%3E%3C/svg%3E");
+}
+
+.hero::after {
+	height: 64px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 64' preserveAspectRatio='none'%3E%3Cpath fill='%23f5ede0' d='M0 34 C 260 78 520 -4 800 34 S 1230 62 1440 26 L1440 64 L0 64Z'/%3E%3C/svg%3E");
+}
+
+.hero-inner {
+	position: relative;
+	z-index: 1;
+	max-width: 900px;
+}
+
+/* the label becomes a small pill, only inside these two blocks */
+.hero .eyebrow,
+.page-header .eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	margin: 0 0 16px;
+	padding: 6px 14px;
+	border: 1px solid #efc89c;
+	border-radius: 999px;
+	background: #f8e1c9;
+	color: var(--sun-ink);
+	font-size: 0.82rem;
+}
+
+.hero .eyebrow::before,
+.page-header .eyebrow::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--sun);
+	box-shadow: 0 0 0 4px rgba(217, 99, 31, 0.2);
+}
+
+.hero .eyebrow {
+	border-color: rgba(255, 250, 241, 0.3);
+	background: rgba(255, 250, 241, 0.13);
+	color: #ffd7a3;
+}
+
+.hero .eyebrow::before {
+	background: #f4a24c;
+	box-shadow: 0 0 0 4px rgba(244, 162, 76, 0.25);
+}
+
+.hero h1 {
+	margin: 0;
+	font-size: clamp(2.7rem, 6vw, 5.1rem);
+	line-height: 1.04;
+	letter-spacing: -0.015em;
+	text-wrap: balance;
+}
+
+.hero-copy {
+	margin: 26px 0 0;
+	max-width: 720px;
+	color: #eadfca;
+	font-size: 1.28rem;
+	line-height: 1.55;
+}
+
+/* ---------- page header (archive) ---------- */
+
+.page-header {
+	position: relative;
+	overflow: hidden;
+	padding: 76px 0 108px;
+	color: var(--text);
+	background:
+		radial-gradient(circle 118px at 88% 40%, #f2a255 0, #f2a255 117px, transparent 118px),
+		radial-gradient(circle 300px at 88% 40%, rgba(246, 182, 106, 0.38), transparent 70%),
+		var(--bg-deep);
+}
+
+.page-header::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -1px;
+	height: 56px;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 56' preserveAspectRatio='none'%3E%3Cpath fill='%23f5ede0' d='M0 30 C 260 70 520 -2 800 30 S 1230 54 1440 22 L1440 56 L0 56Z'/%3E%3C/svg%3E")
+		bottom / 100% 100% no-repeat;
+}
+
+.page-header > .container {
+	position: relative;
+	z-index: 1;
+}
+
+.page-header h1 {
+	margin: 0;
+	font-size: clamp(2.7rem, 6vw, 5rem);
+	line-height: 1.03;
+	letter-spacing: -0.015em;
+	color: var(--night);
+}
+
+.page-header > .container > p:last-child {
+	max-width: 700px;
+	margin: 16px 0 0;
+	color: #4d4538;
+	font-size: 1.2rem;
+}

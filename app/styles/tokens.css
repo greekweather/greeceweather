@@ -1,0 +1,40 @@
+/* tokens.css — NEW FILE. All colours, fonts, radii and shadows live here.
+   Change a value here and the whole site follows. */
+
+:root {
+	/* surfaces */
+	--bg: #f5ede0; /* limestone: page background */
+	--bg-deep: #ecdfc8; /* sand: bands, banner, hover fills */
+	--surface: #fffaf1; /* whitewash: cards, inputs */
+	--sky: #cfe5ec; /* image placeholder */
+
+	/* text */
+	--text: #1c2b36; /* ink */
+	--muted: #645c4f; /* secondary text */
+	--night: #14384a; /* titles, footer */
+
+	/* lines */
+	--border: #e3d5bb;
+
+	/* accents */
+	--accent: #1a5f86; /* Aegean: links, active states */
+	--accent-dark: #114461;
+	--sun: #d9631f; /* terracotta: details */
+	--sun-ink: #b04512; /* sun colour that is safe for small text */
+	--olive: #5b6b2c;
+
+	/* shape */
+	--radius: 24px;
+	--radius-sm: 14px;
+	--max: 1180px;
+	--shadow: 0 16px 36px rgba(86, 58, 24, 0.13);
+	--shadow-soft: 0 6px 18px rgba(86, 58, 24, 0.08);
+
+	/* fonts — next/font sets --font-alegreya and --font-alegreya-sans on <html>;
+	   the plain names after the comma are only a fallback */
+	--font-display: var(--font-alegreya, "Alegreya"), Georgia, "Times New Roman", serif;
+	--font-body: var(--font-alegreya-sans, "Alegreya Sans"), system-ui, -apple-system, "Segoe UI",
+		sans-serif;
+	/* the article text keeps the site's ORIGINAL font */
+	--font-system: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}

@@ -1,0 +1,114 @@
+/* weather-banner.css — NEW FILE. These rules used to sit at the bottom of base.css.
+   Same class names, same three semantic colours (blue / red / amber). */
+
+.weather-banner {
+	width: 100%;
+	padding: 20px 0 22px;
+	background: var(--bg-deep);
+	border-bottom: 1px solid var(--border);
+}
+
+.weather-banner-inner {
+	width: min(1180px, calc(100% - 32px));
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 14px;
+}
+
+.weather-banner-title {
+	position: relative;
+	margin: 0;
+	padding-left: 20px;
+	color: #a8261c;
+	font-family: var(--font-display);
+	font-size: 1.35rem;
+	font-weight: 800;
+	line-height: 1.25;
+}
+
+.weather-banner-title::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 9px;
+	height: 9px;
+	transform: translateY(-50%);
+	border-radius: 50%;
+	background: #c62828;
+	box-shadow: 0 0 0 5px rgba(198, 40, 40, 0.14);
+}
+
+.weather-banner-items {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.weather-banner-item {
+	min-height: 44px;
+	padding: 0 22px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	border: 1.5px solid;
+	border-radius: 999px;
+	text-decoration: none;
+	font-size: 0.82rem;
+	font-weight: 800;
+	letter-spacing: 0.07em;
+	transition:
+		background 0.18s ease,
+		border-color 0.18s ease,
+		transform 0.18s ease;
+}
+
+.weather-banner-item:hover {
+	transform: translateY(-2px);
+}
+
+.weather-banner-forecast {
+	color: var(--accent-dark);
+	background: rgba(26, 95, 134, 0.1);
+	border-color: rgba(26, 95, 134, 0.38);
+}
+
+.weather-banner-forecast:hover {
+	background: rgba(26, 95, 134, 0.17);
+}
+
+.weather-banner-emergency {
+	color: #fff;
+	background: #b3261e;
+	border-color: #b3261e;
+}
+
+.weather-banner-emergency:hover {
+	background: #8f1d17;
+	border-color: #8f1d17;
+}
+
+.weather-banner-update {
+	color: #6e4100;
+	background: rgba(217, 140, 31, 0.2);
+	border-color: rgba(176, 106, 10, 0.45);
+}
+
+.weather-banner-update:hover {
+	background: rgba(217, 140, 31, 0.3);
+}
+
+.weather-banner-arrow {
+	font-size: 1rem;
+	line-height: 1;
+	transition: transform 0.18s ease;
+}
+
+.weather-banner-item:hover .weather-banner-arrow {
+	transform: translateX(3px);
+}

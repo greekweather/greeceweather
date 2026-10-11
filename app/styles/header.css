@@ -1,14 +1,33 @@
+/* header.css — REPLACES the old file. Light frosted bar with a three-colour stripe. */
+
 .site-header {
 	position: sticky;
 	top: 0;
 	z-index: 20;
-	background: rgba(11, 18, 32, 0.96);
-	color: #fff;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	background: rgba(255, 250, 241, 0.92);
+	-webkit-backdrop-filter: saturate(1.4) blur(10px);
+	backdrop-filter: saturate(1.4) blur(10px);
+	color: var(--text);
+	border-bottom: 1px solid var(--border);
+}
+
+.site-header::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -1px;
+	height: 3px;
+	background: linear-gradient(
+		90deg,
+		var(--accent) 0 34%,
+		var(--sun) 34% 67%,
+		var(--olive) 67% 100%
+	);
 }
 
 .header-inner {
-	min-height: 72px;
+	min-height: 76px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -18,28 +37,37 @@
 .brand {
 	display: inline-flex;
 	align-items: center;
-	gap: 9px;
+	gap: 10px;
 	text-decoration: none;
+	font-family: var(--font-display);
+	font-size: 1.5rem;
 	font-weight: 800;
+	letter-spacing: -0.005em;
+	color: var(--night);
 }
 
 .brand img {
-	width: 32px;
-	height: 32px;
+	width: 34px;
+	height: 34px;
 }
 
 .site-nav {
 	display: flex;
-	gap: 24px;
+	gap: 6px;
 }
 
 .site-nav a {
-	color: #cbd5e1;
+	padding: 8px 16px;
+	border-radius: 999px;
+	color: var(--text);
 	text-decoration: none;
-	font-size: 0.95rem;
+	font-size: 1.05rem;
+	font-weight: 600;
+	transition: background 0.18s ease;
 }
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-	color: #fff;
+	background: var(--bg-deep);
+	color: var(--night);
 }

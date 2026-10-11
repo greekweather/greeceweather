@@ -1,15 +1,5 @@
-:root {
-	--bg: #f7f9fc;
-	--surface: #fff;
-	--text: #142033;
-	--muted: #64748b;
-	--border: #e2e8f0;
-	--accent: #1d6fe8;
-	--accent-dark: #1558b8;
-	--shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
-	--radius: 18px;
-	--max: 1180px;
-}
+/* base.css — REPLACES the old file. Reset, body, layout helpers.
+   (The weather banner and footer moved out into their own files.) */
 
 * {
 	box-sizing: border-box;
@@ -21,10 +11,21 @@ html {
 
 body {
 	margin: 0;
-	background: var(--bg);
 	color: var(--text);
-	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-	line-height: 1.65;
+	font-family: var(--font-body);
+	font-size: 1.1rem;
+	line-height: 1.6;
+	background:
+		radial-gradient(900px 480px at 100% 0, rgba(236, 170, 96, 0.16), transparent 70%),
+		radial-gradient(700px 420px at 0 38%, rgba(26, 95, 134, 0.06), transparent 70%), var(--bg);
+	background-repeat: no-repeat;
+}
+
+h1,
+h2,
+h3 {
+	font-family: var(--font-display);
+	font-weight: 800;
 }
 
 img {
@@ -34,6 +35,16 @@ img {
 
 a {
 	color: inherit;
+}
+
+::selection {
+	background: #f6c892;
+	color: var(--night);
+}
+
+:focus-visible {
+	outline: 3px solid var(--sun);
+	outline-offset: 3px;
 }
 
 .container {
@@ -47,37 +58,18 @@ a {
 	top: 12px;
 	z-index: 100;
 	transform: translateY(-150%);
-	background: #fff;
-	color: #000;
+	background: var(--surface);
+	color: var(--text);
 	padding: 10px 14px;
-	border-radius: 10px;
+	border-radius: var(--radius-sm);
 }
 
 .skip-link:focus {
 	transform: translateY(0);
 }
 
-.page-header {
-	background: #0b1220;
-	color: #fff;
-	padding: 68px 0;
-}
-
-.page-header h1 {
-	margin: 0;
-	font-size: clamp(2.5rem, 6vw, 4.8rem);
-	line-height: 1.03;
-	letter-spacing: -0.05em;
-}
-
-.page-header > .container > p:last-child {
-	max-width: 700px;
-	color: #cbd5e1;
-	margin: 18px 0 0;
-}
-
 .section {
-	padding: 64px 0 90px;
+	padding: 56px 0 96px;
 }
 
 .section-heading {
@@ -85,152 +77,49 @@ a {
 	align-items: end;
 	justify-content: space-between;
 	gap: 20px;
-	margin-bottom: 24px;
+	margin-bottom: 28px;
 }
 
 .section-heading h2 {
+	position: relative;
 	margin: 0;
-	font-size: 1.65rem;
+	padding-bottom: 16px;
+	font-size: 2.2rem;
+	line-height: 1.1;
+	letter-spacing: -0.01em;
+	color: var(--night);
+}
+
+/* hand-drawn squiggle under section titles */
+.section-heading h2::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 96px;
+	height: 10px;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 10'%3E%3Cpath d='M2 6 Q 14 0 26 5 T 50 5 T 74 5 T 94 4' fill='none' stroke='%23d9631f' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E")
+		left center / contain no-repeat;
 }
 
 .text-link {
 	color: var(--accent);
 	text-decoration: none;
-	font-weight: 750;
+	font-weight: 700;
 }
 
 .text-link:hover {
 	color: var(--accent-dark);
-	text-decoration: underline;
+	text-decoration: underline wavy var(--sun);
+	text-decoration-thickness: 1.5px;
+	text-underline-offset: 6px;
 }
 
-.site-footer {
-	padding: 26px 0;
-	background: #0b1220;
-	color: #94a3b8;
-}
-
-.footer-inner {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 16px;
-	font-size: 0.9rem;
-}
-
-.weather-banner {
-	width: 100%;
-	padding: 22px 0 24px;
-	background: var(--bg);
-	border-top: 1px solid var(--border);
-	border-bottom: 1px solid var(--border);
-}
-
-.weather-banner-inner {
-	width: min(1180px, calc(100% - 32px));
-	margin: 0 auto;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 16px;
-}
-
-.weather-banner-title {
-	position: relative;
-	margin: 0;
-	padding-left: 17px;
-	color: #b42318;
-	font-size: 1.05rem;
-	font-weight: 850;
-	line-height: 1.3;
-	letter-spacing: -0.01em;
-}
-
-.weather-banner-title::before {
-	content: "";
-	position: absolute;
-	left: 0;
-	top: 50%;
-	width: 7px;
-	height: 7px;
-	transform: translateY(-50%);
-	border-radius: 50%;
-	background: #c62828;
-	box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.1);
-}
-
-.weather-banner-items {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 9px;
-}
-
-.weather-banner-item {
-	min-height: 40px;
-	padding: 0 17px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-
-	border: 1px solid;
-	border-radius: 7px;
-
-	text-decoration: none;
-	font-size: 0.75rem;
+/* plain small label (used by admin and the 404/login cards too) */
+.eyebrow {
+	margin: 0 0 10px;
+	color: var(--sun-ink);
+	font-size: 0.78rem;
 	font-weight: 800;
-	letter-spacing: 0.015em;
-
-	transition:
-		background 0.18s ease,
-		border-color 0.18s ease,
-		transform 0.18s ease;
-}
-
-.weather-banner-item:hover {
-	transform: translateY(-1px);
-}
-
-.weather-banner-forecast {
-	color: #185abc;
-	background: rgba(29, 111, 232, 0.045);
-	border-color: rgba(29, 111, 232, 0.2);
-}
-
-.weather-banner-forecast:hover {
-	background: rgba(29, 111, 232, 0.09);
-	border-color: rgba(29, 111, 232, 0.35);
-}
-
-.weather-banner-emergency {
-	color: #b42318;
-	background: rgba(180, 35, 24, 0.045);
-	border-color: rgba(180, 35, 24, 0.22);
-}
-
-.weather-banner-emergency:hover {
-	background: rgba(180, 35, 24, 0.09);
-	border-color: rgba(180, 35, 24, 0.38);
-}
-
-.weather-banner-update {
-	color: #9a5b00;
-	background: rgba(154, 91, 0, 0.045);
-	border-color: rgba(154, 91, 0, 0.2);
-}
-
-.weather-banner-update:hover {
-	background: rgba(154, 91, 0, 0.09);
-	border-color: rgba(154, 91, 0, 0.35);
-}
-
-.weather-banner-arrow {
-	font-size: 0.95rem;
-	line-height: 1;
-	transition: transform 0.18s ease;
-}
-
-.weather-banner-item:hover .weather-banner-arrow {
-	transform: translateX(3px);
+	letter-spacing: 0.14em;
 }

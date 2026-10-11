@@ -1,8 +1,53 @@
+/* posts.css — REPLACES the old file. Post card, date line and tags.
+   (The category buttons and search/dropdowns moved to filters.css.) */
+
+.post-meta {
+	margin: 0;
+	color: var(--muted);
+	font-size: 0.95rem;
+	font-weight: 500;
+	letter-spacing: 0.03em;
+	font-variant-numeric: tabular-nums;
+}
+
+.post-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 7px;
+	margin: 10px 0 12px;
+}
+
+/* tags rotate through three soft colours: sea, sun, olive */
+.post-tags span,
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	padding: 6px 12px;
+	border-radius: 999px;
+	background: #dcebf2;
+	color: #164f6d;
+	font-size: 0.86rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.post-tags span:nth-child(3n + 2),
+.post-tag:nth-child(3n + 2) {
+	background: #f8dfc8;
+	color: #8c3a10;
+}
+
+.post-tags span:nth-child(3n),
+.post-tag:nth-child(3n) {
+	background: #e4e9cb;
+	color: #47561d;
+}
+
 .post-grid,
 .popular-post-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 24px;
+	gap: 26px;
 }
 
 .post-card {
@@ -10,25 +55,27 @@
 	flex-direction: column;
 	height: 100%;
 	overflow: hidden;
+	padding: 10px;
 	background: var(--surface);
 	border: 1px solid var(--border);
 	border-radius: var(--radius);
-	box-shadow: 0 5px 16px rgba(15, 23, 42, 0.04);
+	box-shadow: var(--shadow-soft);
 	transition:
-		transform 0.18s ease,
-		box-shadow 0.18s ease;
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 }
 
 .post-card:hover {
-	transform: translateY(-3px);
+	transform: translateY(-4px) rotate(-0.25deg);
 	box-shadow: var(--shadow);
 }
 
 .post-image-link {
 	display: block;
-	background: #dbeafe;
+	background: var(--sky);
 	aspect-ratio: 16 / 10;
 	overflow: hidden;
+	border-radius: 15px;
 }
 
 .post-image {
@@ -40,59 +87,30 @@
 .post-image-placeholder {
 	display: grid;
 	place-items: center;
-	color: #475569;
+	color: var(--accent-dark);
+	font-weight: 600;
 }
 
 .post-card-body {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
-	padding: 22px;
-}
-
-.post-meta {
-	margin: 0;
-	color: var(--muted);
-	font-size: 0.86rem;
-}
-
-.post-tag {
-	display: inline-block;
-	padding: 4px 9px;
-	border-radius: 999px;
-	background: #eef5ff;
-	color: #21528f;
-	font-size: 0.78rem;
-	font-weight: 700;
-}
-
-.post-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 7px;
-	margin: 10px 0 12px;
-}
-
-.post-tags span {
-	display: inline-flex;
-	align-items: center;
-	padding: 5px 9px;
-	border-radius: 999px;
-	background: #eef5ff;
-	color: var(--accent);
-	font-size: 0.78rem;
-	font-weight: 600;
-	line-height: 1;
+	padding: 18px 12px 12px;
 }
 
 .post-card h3 {
 	margin: 8px 0 10px;
-	font-size: 1.28rem;
-	line-height: 1.25;
+	font-size: 1.45rem;
+	line-height: 1.18;
+	color: var(--night);
 }
 
 .post-card h3 a {
 	text-decoration: none;
+}
+
+.post-card h3 a:hover {
+	color: var(--accent);
 }
 
 .post-card p {
@@ -112,147 +130,5 @@
 .post-card-footer .text-link {
 	display: block;
 	white-space: nowrap;
-	font-size: 0.95rem;
-	font-weight: 600;
-}
-
-.post-categories {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	margin-bottom: 22px;
-}
-
-.post-categories button {
-	border: 1px solid var(--border);
-	border-radius: 10px;
-	padding: 10px 15px;
-	background: var(--surface);
-	color: var(--text);
-	font: inherit;
-	font-size: 0.95rem;
-	font-weight: 650;
-	cursor: pointer;
-	transition:
-		background 0.18s ease,
-		color 0.18s ease,
-		border-color 0.18s ease,
-		box-shadow 0.18s ease;
-}
-
-.post-categories button:hover {
-	border-color: #bfdbfe;
-	background: #f4f8ff;
-	color: var(--accent);
-}
-
-.post-categories button.active {
-	border-color: var(--accent);
-	background: var(--accent);
-	color: #fff;
-	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18);
-}
-
-.article-filters {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 14px;
-	align-items: end;
-	margin-bottom: 28px;
-}
-
-.article-filters label {
-	display: grid;
-	gap: 7px;
-	font-weight: 750;
-	color: var(--text);
-}
-
-.article-filters select {
-	min-width: 190px;
-	height: 42px;
-	border: 1px solid var(--border);
-	border-radius: 10px;
-	padding: 0 38px 0 12px;
-	font: inherit;
-	color: var(--muted);
-	background: #fff;
-	cursor: pointer;
-}
-
-.article-filters select:focus {
-	outline: 2px solid var(--accent);
-	outline-offset: 2px;
-}
-
-.article-search {
-	flex: 1 1 320px;
-}
-
-.article-search input {
-	width: 100%;
-	height: 42px;
-	padding: 0 14px;
-	border: 1px solid var(--border);
-	border-radius: 8px;
-	background: #fff;
-	color: var(--text);
-	font: inherit;
-	outline: none;
-	transition:
-		border-color 0.2s ease,
-		box-shadow 0.2s ease;
-}
-
-.article-search input::placeholder {
-	color: var(--muted);
-}
-
-.article-search input:focus {
-	border-color: var(--accent);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
-}
-
-.featured-read-more {
-	display: inline-flex;
-	align-items: center;
-	margin-top: auto;
-	padding-top: 18px;
-	color: var(--accent);
-	font-size: 0.95rem;
-	font-weight: 600;
-	line-height: 1.2;
-}
-
-.featured-main:hover .featured-read-more,
-.featured-secondary:hover .featured-read-more {
-	color: var(--accent-dark);
-	text-decoration: underline;
-}
-
-.featured-main-content,
-.featured-secondary-content {
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-}
-
-.featured-main-content h2 {
-	margin: 8px 0 14px;
-}
-
-.featured-secondary-content h3 {
-	margin: 8px 0 12px;
-}
-
-.featured-secondary-description {
-	margin: 0 0 16px;
-	color: var(--muted);
 	font-size: 1rem;
-	line-height: 1.6;
-}
-
-.featured-main-content .post-tags,
-.featured-secondary-content .post-tags {
-	margin: 12px 0 1px;
 }

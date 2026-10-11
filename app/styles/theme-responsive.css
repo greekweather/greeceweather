@@ -1,0 +1,59 @@
+/* theme-responsive.css — NEW FILE, imported AFTER responsive.css.
+   Phone-size values for the new look. Because it loads last, you do not have to
+   edit or delete anything in responsive.css (its layout rules keep working;
+   only the values below are overridden). */
+
+@media (max-width: 640px) {
+	.hero {
+		padding: 72px 0 132px;
+	}
+
+	.page-header {
+		padding: 52px 0 84px;
+		background:
+			radial-gradient(circle 64px at 92% 22%, #f2a255 0, #f2a255 63px, transparent 64px),
+			var(--bg-deep);
+	}
+
+	.section-heading h2 {
+		font-size: 1.85rem;
+	}
+
+	.featured-main {
+		padding: 8px;
+		border-radius: 22px;
+	}
+
+	.featured-main img {
+		height: 270px;
+		border-radius: 15px;
+	}
+
+	.featured-main-content {
+		padding: 20px 14px 16px;
+	}
+
+	.featured-main-content h2 {
+		font-size: 1.95rem;
+	}
+
+	.featured-secondary img {
+		height: 240px;
+	}
+
+	.featured-secondary-content {
+		padding: 20px 14px 14px;
+	}
+
+	.featured-secondary-content h3 {
+		font-size: 1.5rem;
+	}
+
+	.weather-banner-title {
+		font-size: 1.2rem;
+	}
+
+	.weather-banner-item {
+		font-size: 0.76rem;
+	}
+}
