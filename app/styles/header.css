@@ -53,11 +53,11 @@
 
 .site-nav {
 	display: flex;
-	gap: 6px;
+	gap: 2px;
 }
 
 .site-nav a {
-	padding: 8px 16px;
+	padding: 8px 12px;
 	border-radius: 999px;
 	color: var(--text);
 	text-decoration: none;

@@ -108,8 +108,8 @@ body::before {
 .site-nav a::after {
 	content: "";
 	position: absolute;
-	left: 16px;
-	right: 16px;
+	left: 12px;
+	right: 12px;
 	bottom: 2px;
 	height: 8px;
 	opacity: 0;
