@@ -24,11 +24,11 @@
 	--olive: #5b6b2c;
 
 	/* shape */
-	--radius: 24px;
-	--radius-sm: 14px;
+	--radius: 14px;
+	--radius-sm: 8px;
 	--max: 1180px;
-	--shadow: 0 16px 36px rgba(86, 58, 24, 0.13);
-	--shadow-soft: 0 6px 18px rgba(86, 58, 24, 0.08);
+	--shadow: 0 12px 28px rgba(60, 42, 20, 0.1);
+	--shadow-soft: 0 2px 10px rgba(60, 42, 20, 0.06);
 
 	/* fonts — next/font sets --font-alegreya and --font-alegreya-sans on <html>;
 	   the plain names after the comma are only a fallback */

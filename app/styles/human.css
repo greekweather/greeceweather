@@ -1,61 +1,26 @@
-/* human.css — NEW FILE. Small imperfections that make the site feel hand-made.
-   Pure CSS: no markup, text or feature changes.
+/* human.css — REPLACES the previous version. Quiet, professional refinements.
+   The tilted cards, sticker tags, squiggles and uneven corners are gone;
+   what is left is a hint of paper texture, warmer photos and italic dates.
    To switch it all off: delete this file and its @import line in globals.css. */
 
-/* 1. Paper grain — a very faint warm texture over the whole page */
+/* 1. Paper grain — barely-there warm texture over the page */
 body::before {
 	content: "";
 	position: fixed;
 	inset: 0;
 	z-index: 9999;
 	pointer-events: none;
-	opacity: 0.35;
+	opacity: 0.22;
 	mix-blend-mode: multiply;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* 2. Cards that are not perfectly straight (they straighten up on hover) */
-.post-grid > :nth-child(3n + 1) {
-	--tilt: -0.45deg;
-}
-
-.post-grid > :nth-child(3n + 2) {
-	--tilt: 0.35deg;
-}
-
-.post-grid > :nth-child(3n) {
-	--tilt: -0.2deg;
-}
-
-.featured-secondary-grid > :nth-child(1) {
-	--tilt: -0.35deg;
-}
-
-.featured-secondary-grid > :nth-child(2) {
-	--tilt: 0.35deg;
-}
-
-.post-card,
-.featured-secondary {
-	rotate: var(--tilt, 0deg);
-	transition:
-		transform 0.25s ease,
-		rotate 0.25s ease,
-		box-shadow 0.25s ease;
-}
-
-.post-card:hover,
-.featured-secondary:hover {
-	transform: translateY(-4px);
-	rotate: 0deg;
-}
-
-/* 3. Photos warmed a touch so they sit in the palette (natural colour on hover) */
+/* 2. Photos warmed very slightly so they sit in the palette */
 .featured-main img,
 .featured-secondary img,
 .post-image,
 .article-hero img {
-	filter: sepia(0.12) saturate(1.06) contrast(1.02);
+	filter: sepia(0.06) saturate(1.03);
 	transition: filter 0.3s ease;
 }
 
@@ -65,7 +30,7 @@ body::before {
 	filter: none;
 }
 
-/* 4. Dates in Alegreya italic, like a handwritten dateline */
+/* 3. Dates in Alegreya italic — an editorial dateline */
 .post-meta {
 	font-family: var(--font-display);
 	font-size: 1.05rem;
@@ -75,93 +40,7 @@ body::before {
 	font-variant-numeric: lining-nums;
 }
 
-/* 5. Tags like stickers, each stuck on at its own angle */
-.post-tags span,
-.post-tag {
-	rotate: -1.4deg;
-	box-shadow: 0 1px 0 rgba(86, 58, 24, 0.12);
-	transition: rotate 0.2s ease;
-}
-
-.post-tags span:nth-child(2n),
-.post-tag:nth-child(2n) {
-	rotate: 1.1deg;
-}
-
-.post-tags span:nth-child(3n),
-.post-tag:nth-child(3n) {
-	rotate: -0.5deg;
-}
-
-.post-card:hover .post-tags span,
-.post-card:hover .post-tag,
-.featured-main:hover .post-tags span,
-.featured-secondary:hover .post-tags span {
-	rotate: 0deg;
-}
-
-/* 6a. Hand-drawn squiggle under a nav link on hover */
-.site-nav a {
-	position: relative;
-}
-
-.site-nav a::after {
-	content: "";
-	position: absolute;
-	left: 12px;
-	right: 12px;
-	bottom: 2px;
-	height: 8px;
-	opacity: 0;
-	background:
-		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 8' preserveAspectRatio='none'%3E%3Cpath d='M2 4 Q 9 0 16 4 T 30 4 T 44 4 T 58 4' fill='none' stroke='%23d9631f' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E")
-		center / 100% 100% no-repeat;
-	transition: opacity 0.18s ease;
-}
-
-.site-nav a:hover,
-.site-nav a:focus-visible {
-	background: transparent;
-}
-
-.site-nav a:hover::after,
-.site-nav a:focus-visible::after {
-	opacity: 1;
-}
-
-/* 6b. Slightly uneven corners on cards and photos */
-.featured-main {
-	border-radius: 30px 26px 32px 24px;
-}
-
-.featured-main img,
-.article-hero img {
-	border-radius: 20px 16px 22px 14px;
-}
-
-.article-hero {
-	border-radius: 30px 26px 32px 24px;
-}
-
-.featured-secondary,
-.post-card {
-	border-radius: 24px 20px 26px 22px;
-}
-
-.featured-secondary img {
-	border-radius: 16px 20px 14px 18px;
-}
-
-.post-image-link {
-	border-radius: 14px 18px 12px 16px;
-}
-
 @media (prefers-reduced-motion: reduce) {
-	.post-card,
-	.featured-secondary,
-	.post-tags span,
-	.post-tag,
-	.site-nav a::after,
 	.featured-main img,
 	.featured-secondary img,
 	.post-image {

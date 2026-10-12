@@ -40,17 +40,16 @@
 	max-width: 900px;
 }
 
-/* the label becomes a small pill, only inside these two blocks */
+/* the label: small caps with a short rule, no pill */
 .hero .eyebrow,
 .page-header .eyebrow {
 	display: inline-flex;
 	align-items: center;
-	gap: 9px;
-	margin: 0 0 16px;
-	padding: 6px 14px;
-	border: 1px solid #efc89c;
-	border-radius: 999px;
-	background: #f8e1c9;
+	gap: 12px;
+	margin: 0 0 18px;
+	padding: 0;
+	border: 0;
+	background: none;
 	color: var(--sun-ink);
 	font-size: 0.82rem;
 }
@@ -58,22 +57,17 @@
 .hero .eyebrow::before,
 .page-header .eyebrow::before {
 	content: "";
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
+	width: 28px;
+	height: 2px;
 	background: var(--sun);
-	box-shadow: 0 0 0 4px rgba(217, 99, 31, 0.2);
 }
 
 .hero .eyebrow {
-	border-color: rgba(255, 250, 241, 0.3);
-	background: rgba(255, 250, 241, 0.13);
 	color: #ffd7a3;
 }
 
 .hero .eyebrow::before {
 	background: #f4a24c;
-	box-shadow: 0 0 0 4px rgba(244, 162, 76, 0.25);
 }
 
 .hero h1 {
@@ -100,8 +94,8 @@
 	padding: 76px 0 108px;
 	color: var(--text);
 	background:
-		radial-gradient(circle 118px at 88% 40%, #f2a255 0, #f2a255 117px, transparent 118px),
-		radial-gradient(circle 300px at 88% 40%, rgba(246, 182, 106, 0.38), transparent 70%),
+		radial-gradient(circle 84px at 90% 42%, rgba(242, 162, 85, 0.55) 0, rgba(242, 162, 85, 0.55) 83px, transparent 84px),
+		radial-gradient(circle 260px at 90% 42%, rgba(246, 182, 106, 0.22), transparent 70%),
 		var(--bg-deep);
 }
 

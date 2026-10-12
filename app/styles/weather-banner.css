@@ -51,13 +51,13 @@
 
 .weather-banner-item {
 	min-height: 44px;
-	padding: 0 22px;
+	padding: 0 20px;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
 	border: 1.5px solid;
-	border-radius: 999px;
+	border-radius: 8px;
 	text-decoration: none;
 	font-size: 0.82rem;
 	font-weight: 800;

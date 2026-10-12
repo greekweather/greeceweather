@@ -17,17 +17,15 @@
 .back-link {
 	display: inline-flex;
 	align-items: center;
-	padding: 8px 16px;
-	border-radius: 999px;
-	background: var(--bg-deep);
-	color: var(--night);
+	color: var(--accent);
 	text-decoration: none;
 	font-weight: 700;
-	transition: background 0.18s ease;
 }
 
 .back-link:hover {
-	background: #e2d1b3;
+	color: var(--accent-dark);
+	text-decoration: underline;
+	text-underline-offset: 5px;
 }
 
 .article-header {
@@ -52,10 +50,10 @@
 
 .article-hero {
 	margin: 0 0 46px;
-	padding: 10px;
+	padding: 8px;
 	background: var(--surface);
 	border: 1px solid var(--border);
-	border-radius: 28px;
+	border-radius: 16px;
 	box-shadow: var(--shadow);
 }
 
@@ -63,7 +61,7 @@
 	width: 100%;
 	max-height: 620px;
 	object-fit: cover;
-	border-radius: 18px;
+	border-radius: 10px;
 }
 
 /* ---------- the markdown text: original look, new colours ---------- */

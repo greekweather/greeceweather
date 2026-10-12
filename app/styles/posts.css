@@ -17,30 +17,19 @@
 	margin: 10px 0 12px;
 }
 
-/* tags rotate through three soft colours: sea, sun, olive */
+/* tags: quiet, rectangular, one tone */
 .post-tags span,
 .post-tag {
 	display: inline-flex;
 	align-items: center;
-	padding: 6px 12px;
-	border-radius: 999px;
-	background: #dcebf2;
+	padding: 5px 10px;
+	border: 1px solid #cfdfe6;
+	border-radius: 6px;
+	background: #e8f0f4;
 	color: #164f6d;
-	font-size: 0.86rem;
-	font-weight: 700;
+	font-size: 0.84rem;
+	font-weight: 600;
 	line-height: 1;
-}
-
-.post-tags span:nth-child(3n + 2),
-.post-tag:nth-child(3n + 2) {
-	background: #f8dfc8;
-	color: #8c3a10;
-}
-
-.post-tags span:nth-child(3n),
-.post-tag:nth-child(3n) {
-	background: #e4e9cb;
-	color: #47561d;
 }
 
 .post-grid,
@@ -55,7 +44,7 @@
 	flex-direction: column;
 	height: 100%;
 	overflow: hidden;
-	padding: 10px;
+	padding: 8px;
 	background: var(--surface);
 	border: 1px solid var(--border);
 	border-radius: var(--radius);
@@ -66,7 +55,7 @@
 }
 
 .post-card:hover {
-	transform: translateY(-4px) rotate(-0.25deg);
+	transform: translateY(-3px);
 	box-shadow: var(--shadow);
 }
 
@@ -75,7 +64,7 @@
 	background: var(--sky);
 	aspect-ratio: 16 / 10;
 	overflow: hidden;
-	border-radius: 15px;
+	border-radius: 10px;
 }
 
 .post-image {

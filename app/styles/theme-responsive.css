@@ -11,7 +11,7 @@
 	.page-header {
 		padding: 52px 0 84px;
 		background:
-			radial-gradient(circle 64px at 92% 22%, #f2a255 0, #f2a255 63px, transparent 64px),
+			radial-gradient(circle 48px at 92% 22%, rgba(242, 162, 85, 0.55) 0, rgba(242, 162, 85, 0.55) 47px, transparent 48px),
 			var(--bg-deep);
 	}
 
@@ -21,12 +21,12 @@
 
 	.featured-main {
 		padding: 8px;
-		border-radius: 22px;
+		border-radius: 14px;
 	}
 
 	.featured-main img {
 		height: 270px;
-		border-radius: 15px;
+		border-radius: 10px;
 	}
 
 	.featured-main-content {
@@ -49,14 +49,6 @@
 		font-size: 1.5rem;
 	}
 
-	.weather-banner-title {
-		font-size: 1.2rem;
-	}
-
-	.weather-banner-item {
-		font-size: 0.76rem;
-	}
-
 	.site-nav {
 		gap: 0;
 	}
@@ -65,8 +57,11 @@
 		padding: 8px 10px;
 	}
 
-	.site-nav a::after {
-		left: 10px;
-		right: 10px;
+	.weather-banner-title {
+		font-size: 1.2rem;
+	}
+
+	.weather-banner-item {
+		font-size: 0.76rem;
 	}
 }

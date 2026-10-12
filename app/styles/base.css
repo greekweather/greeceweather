@@ -90,16 +90,16 @@ a {
 	color: var(--night);
 }
 
-/* hand-drawn squiggle under section titles */
+/* short solid rule under section titles */
 .section-heading h2::after {
 	content: "";
 	position: absolute;
 	left: 0;
 	bottom: 0;
-	width: 96px;
-	height: 10px;
-	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 10'%3E%3Cpath d='M2 6 Q 14 0 26 5 T 50 5 T 74 5 T 94 4' fill='none' stroke='%23d9631f' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E")
-		left center / contain no-repeat;
+	width: 44px;
+	height: 3px;
+	border-radius: 2px;
+	background: var(--sun);
 }
 
 .text-link {
@@ -110,9 +110,9 @@ a {
 
 .text-link:hover {
 	color: var(--accent-dark);
-	text-decoration: underline wavy var(--sun);
-	text-decoration-thickness: 1.5px;
-	text-underline-offset: 6px;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 5px;
 }
 
 /* plain small label (used by admin and the 404/login cards too) */

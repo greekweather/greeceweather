@@ -10,8 +10,8 @@
 
 .post-categories button {
 	border: 1.5px solid var(--border);
-	border-radius: 999px;
-	padding: 10px 18px;
+	border-radius: 8px;
+	padding: 9px 16px;
 	background: var(--surface);
 	color: var(--text);
 	font: inherit;
@@ -156,7 +156,7 @@
 	overflow-x: hidden;
 	padding: 6px;
 	border: 1.5px solid var(--border);
-	border-radius: 16px;
+	border-radius: 10px;
 	background: var(--surface);
 	box-shadow: var(--shadow);
 	opacity: 0;
@@ -188,7 +188,7 @@
 	box-sizing: border-box;
 	padding: 9px 12px;
 	border: 0;
-	border-radius: 10px;
+	border-radius: 6px;
 	background: transparent;
 	color: var(--text);
 	font: inherit;
