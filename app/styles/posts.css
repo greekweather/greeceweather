@@ -23,10 +23,10 @@
 	display: inline-flex;
 	align-items: center;
 	padding: 5px 10px;
-	border: 1px solid #cfdfe6;
+	border: 1px solid #cdd7e1;
 	border-radius: 6px;
-	background: #e8f0f4;
-	color: #164f6d;
+	background: #e7edf3;
+	color: #234a6d;
 	font-size: 0.84rem;
 	font-weight: 600;
 	line-height: 1;
@@ -89,8 +89,8 @@
 
 .post-card h3 {
 	margin: 8px 0 10px;
-	font-size: 1.45rem;
-	line-height: 1.18;
+	font-size: 1.2rem;
+	line-height: 1.3;
 	color: var(--night);
 }
 

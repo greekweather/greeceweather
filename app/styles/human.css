@@ -1,49 +1,12 @@
-/* human.css — REPLACES the previous version. Quiet, professional refinements.
-   The tilted cards, sticker tags, squiggles and uneven corners are gone;
-   what is left is a hint of paper texture, warmer photos and italic dates.
-   To switch it all off: delete this file and its @import line in globals.css. */
+/* human.css — REPLACES the previous version. Typographic detail only.
+   The paper grain, photo tint and italic dates are gone: the site now reads as a
+   weather service, so dates are set like a data line. */
 
-/* 1. Paper grain — barely-there warm texture over the page */
-body::before {
-	content: "";
-	position: fixed;
-	inset: 0;
-	z-index: 9999;
-	pointer-events: none;
-	opacity: 0.22;
-	mix-blend-mode: multiply;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* 2. Photos warmed very slightly so they sit in the palette */
-.featured-main img,
-.featured-secondary img,
-.post-image,
-.article-hero img {
-	filter: sepia(0.06) saturate(1.03);
-	transition: filter 0.3s ease;
-}
-
-.featured-main:hover img,
-.featured-secondary:hover img,
-.post-card:hover .post-image {
-	filter: none;
-}
-
-/* 3. Dates in Alegreya italic — an editorial dateline */
 .post-meta {
-	font-family: var(--font-display);
-	font-size: 1.05rem;
-	font-style: italic;
+	font-family: var(--font-body);
+	font-size: 0.9rem;
+	font-style: normal;
 	font-weight: 500;
-	letter-spacing: 0;
-	font-variant-numeric: lining-nums;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.featured-main img,
-	.featured-secondary img,
-	.post-image {
-		transition: none;
-	}
+	letter-spacing: 0.03em;
+	font-variant-numeric: tabular-nums;
 }

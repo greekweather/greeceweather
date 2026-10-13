@@ -5,18 +5,15 @@
 
 @media (max-width: 640px) {
 	.hero {
-		padding: 72px 0 132px;
+		padding: 72px 0 88px;
 	}
 
 	.page-header {
-		padding: 52px 0 84px;
-		background:
-			radial-gradient(circle 48px at 92% 22%, rgba(242, 162, 85, 0.55) 0, rgba(242, 162, 85, 0.55) 47px, transparent 48px),
-			var(--bg-deep);
+		padding: 52px 0 48px;
 	}
 
 	.section-heading h2 {
-		font-size: 1.85rem;
+		font-size: 1.6rem;
 	}
 
 	.featured-main {
@@ -34,7 +31,7 @@
 	}
 
 	.featured-main-content h2 {
-		font-size: 1.95rem;
+		font-size: 1.6rem;
 	}
 
 	.featured-secondary img {
@@ -46,7 +43,7 @@
 	}
 
 	.featured-secondary-content h3 {
-		font-size: 1.5rem;
+		font-size: 1.3rem;
 	}
 
 	.site-nav {
@@ -58,7 +55,7 @@
 	}
 
 	.weather-banner-title {
-		font-size: 1.2rem;
+		font-size: 1.1rem;
 	}
 
 	.weather-banner-item {

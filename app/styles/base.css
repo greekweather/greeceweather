@@ -13,11 +13,10 @@ body {
 	margin: 0;
 	color: var(--text);
 	font-family: var(--font-body);
-	font-size: 1.1rem;
+	font-size: 1rem;
 	line-height: 1.6;
 	background:
-		radial-gradient(900px 480px at 100% 0, rgba(236, 170, 96, 0.16), transparent 70%),
-		radial-gradient(700px 420px at 0 38%, rgba(26, 95, 134, 0.06), transparent 70%), var(--bg);
+		radial-gradient(900px 480px at 100% 0, rgba(26, 90, 150, 0.07), transparent 70%), var(--bg);
 	background-repeat: no-repeat;
 }
 
@@ -25,7 +24,7 @@ h1,
 h2,
 h3 {
 	font-family: var(--font-display);
-	font-weight: 800;
+	font-weight: 700;
 }
 
 img {
@@ -38,12 +37,12 @@ a {
 }
 
 ::selection {
-	background: #f6c892;
+	background: #ffe08a;
 	color: var(--night);
 }
 
 :focus-visible {
-	outline: 3px solid var(--sun);
+	outline: 3px solid var(--signal);
 	outline-offset: 3px;
 }
 
@@ -84,7 +83,7 @@ a {
 	position: relative;
 	margin: 0;
 	padding-bottom: 16px;
-	font-size: 2.2rem;
+	font-size: 1.8rem;
 	line-height: 1.1;
 	letter-spacing: -0.01em;
 	color: var(--night);
@@ -99,7 +98,7 @@ a {
 	width: 44px;
 	height: 3px;
 	border-radius: 2px;
-	background: var(--sun);
+	background: var(--signal);
 }
 
 .text-link {
@@ -118,7 +117,7 @@ a {
 /* plain small label (used by admin and the 404/login cards too) */
 .eyebrow {
 	margin: 0 0 10px;
-	color: var(--sun-ink);
+	color: var(--accent);
 	font-size: 0.78rem;
 	font-weight: 800;
 	letter-spacing: 0.14em;

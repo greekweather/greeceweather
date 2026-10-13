@@ -20,7 +20,7 @@
 
 .featured-main:hover {
 	transform: translateY(-3px);
-	box-shadow: 0 16px 36px rgba(60, 42, 20, 0.14);
+	box-shadow: 0 16px 36px rgba(14, 34, 51, 0.16);
 }
 
 .featured-main img {
@@ -44,8 +44,8 @@
 
 .featured-main-content h2 {
 	margin: 8px 0 14px;
-	font-size: clamp(2rem, 3.5vw, 3.1rem);
-	line-height: 1.08;
+	font-size: clamp(1.7rem, 3vw, 2.5rem);
+	line-height: 1.2;
 	letter-spacing: -0.01em;
 	color: var(--night);
 }
@@ -54,7 +54,7 @@
 	max-width: 850px;
 	margin: 0;
 	color: var(--muted);
-	font-size: 1.18rem;
+	font-size: 1.1rem;
 	line-height: 1.6;
 }
 
@@ -100,8 +100,8 @@
 
 .featured-secondary-content h3 {
 	margin: 8px 0 12px;
-	font-size: clamp(1.5rem, 2vw, 1.85rem);
-	line-height: 1.15;
+	font-size: clamp(1.3rem, 1.8vw, 1.5rem);
+	line-height: 1.28;
 	letter-spacing: -0.005em;
 	color: var(--night);
 }
@@ -109,7 +109,7 @@
 .featured-secondary-description {
 	margin: 0 0 16px;
 	color: var(--muted);
-	font-size: 1.06rem;
+	font-size: 1.02rem;
 	line-height: 1.55;
 }
 
@@ -131,7 +131,7 @@
 
 .featured-main:hover .featured-read-more,
 .featured-secondary:hover .featured-read-more {
-	color: var(--sun-ink);
+	color: var(--accent-dark);
 	text-decoration: underline;
 	text-decoration-thickness: 1px;
 	text-underline-offset: 5px;

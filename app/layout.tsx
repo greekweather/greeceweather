@@ -1,83 +1,82 @@
 import type { Metadata } from "next";
-import { Alegreya, Alegreya_Sans } from "next/font/google";
+import { IBM_Plex_Sans, Noto_Serif } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
 import { WeatherBanner } from "@/components/WeatherBanner";
 
-const alegreya = Alegreya({
-	subsets: ["greek", "latin"],
-	style: ["normal", "italic"],
-	variable: "--font-alegreya",
-	display: "swap",
+const notoSerif = Noto_Serif({
+    subsets: ["greek", "latin"],
+    variable: "--font-noto-serif",
+    display: "swap",
 });
 
-const alegreyaSans = Alegreya_Sans({
-	subsets: ["greek", "latin"],
-	weight: ["400", "500", "700", "800"],
-	variable: "--font-alegreya-sans",
-	display: "swap",
+const plexSans = IBM_Plex_Sans({
+    subsets: ["greek", "latin"],
+    weight: ["400", "500", "600", "700"],
+    variable: "--font-plex-sans",
+    display: "swap",
 });
 
 export const metadata: Metadata = {
-	title: "GreeceWeather",
-	description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
-	metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
-	openGraph: {
-		title: "GreeceWeather",
-		description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
-		url: "/",
-		siteName: "GreeceWeather",
-		locale: "el_GR",
-		type: "website",
-		images: [
-			{
-				url: "/images/supercell.jpg",
-				width: 1200,
-				height: 630,
-				alt: "GreeceWeather",
-			},
-		],
-	},
+    title: "GreeceWeather",
+    description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+    openGraph: {
+        title: "GreeceWeather",
+        description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
+        url: "/",
+        siteName: "GreeceWeather",
+        locale: "el_GR",
+        type: "website",
+        images: [
+            {
+                url: "/images/supercell.jpg",
+                width: 1200,
+                height: 630,
+                alt: "GreeceWeather",
+            },
+        ],
+    },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-	return (
-		<html
-			lang="el"
-			data-scroll-behavior="smooth"
-			className={`${alegreya.variable} ${alegreyaSans.variable}`}
-		>
-			<body>
-				<Link className="skip-link" href="#content">
-					Μετάβαση στο περιεχόμενο
-				</Link>
-				<header className="site-header">
-					<div className="container header-inner">
-						<Link className="brand" href="/" aria-label="Αρχική σελίδα GreeceWeather">
-							<Image src="/icon.svg" alt="" width={32} height={32} />
-							GreeceWeather
-						</Link>
-						<nav className="site-nav" aria-label="Κύρια πλοήγηση">
-							<Link href="/">Αρχική</Link>
-							<Link href="/posts">Άρθρα</Link>
-						</nav>
-					</div>
-				</header>
+    return (
+        <html
+            lang="el"
+            data-scroll-behavior="smooth"
+            className={`${notoSerif.variable} ${plexSans.variable}`}
+        >
+            <body>
+                <Link className="skip-link" href="#content">
+                    Μετάβαση στο περιεχόμενο
+                </Link>
+                <header className="site-header">
+                    <div className="container header-inner">
+                        <Link className="brand" href="/" aria-label="Αρχική σελίδα GreeceWeather">
+                            <Image src="/icon.svg" alt="" width={32} height={32} />
+                            GreeceWeather
+                        </Link>
+                        <nav className="site-nav" aria-label="Κύρια πλοήγηση">
+                            <Link href="/">Αρχική</Link>
+                            <Link href="/posts">Άρθρα</Link>
+                        </nav>
+                    </div>
+                </header>
 
-				<WeatherBanner />
+                <WeatherBanner />
 
-				<main id="content">{children}</main>
-				<footer className="site-footer">
-					<div className="container footer-inner">
-						<div>
-							<strong>GreeceWeather</strong>
-							<span> · {new Date().getFullYear()}</span>
-						</div>
-						<div>Μετεωρολογία και καιρός στην Ελλάδα</div>
-					</div>
-				</footer>
-			</body>
-		</html>
-	);
+                <main id="content">{children}</main>
+                <footer className="site-footer">
+                    <div className="container footer-inner">
+                        <div>
+                            <strong>GreeceWeather</strong>
+                            <span> · {new Date().getFullYear()}</span>
+                        </div>
+                        <div>Μετεωρολογία και καιρός στην Ελλάδα</div>
+                    </div>
+                </footer>
+            </body>
+        </html>
+    );
 }

@@ -1,39 +1,50 @@
-/* tokens.css — NEW FILE. All colours, fonts, radii and shadows live here.
+/* tokens.css — REPLACES the previous version. "Meteo" palette.
+   Cool cloud-greys, storm navy, a radar-blue accent and a single amber "lightning" signal.
    Change a value here and the whole site follows. */
 
 :root {
 	/* surfaces */
-	--bg: #f5ede0; /* limestone: page background */
-	--bg-deep: #ecdfc8; /* sand: bands, banner, hover fills */
-	--surface: #fffaf1; /* whitewash: cards, inputs */
-	--sky: #cfe5ec; /* image placeholder */
+	--bg: #eef1f4; /* cloud: page background */
+	--bg-deep: #e1e7ec; /* fog: bands, banner, hover fills */
+	--surface: #ffffff; /* cards, inputs */
+	--sky: #cfdde8; /* image placeholder */
 
 	/* text */
-	--text: #1c2b36; /* ink */
-	--muted: #645c4f; /* secondary text */
-	--night: #14384a; /* titles, footer */
+	--text: #17212b; /* ink */
+	--muted: #5b6773; /* secondary text */
+	--night: #0e2233; /* storm navy: titles, footer */
 
 	/* lines */
-	--border: #e3d5bb;
+	--border: #d5dde4;
 
 	/* accents */
-	--accent: #1a5f86; /* Aegean: links, active states */
-	--accent-dark: #114461;
-	--sun: #d9631f; /* terracotta: details */
-	--sun-ink: #b04512; /* sun colour that is safe for small text */
-	--olive: #5b6b2c;
+	--accent: #1a5a96; /* radar blue: links, active states */
+	--accent-dark: #123f6b;
+	--signal: #e8a400; /* amber lightning: rules, dots, highlights */
+	--signal-ink: #8a5a00; /* amber that is safe for small text */
+
+	/* the radar precipitation scale, used as a thin stripe (header, footer) */
+	--radar: linear-gradient(
+		90deg,
+		#5ec2e0 0 17%,
+		#2f86d6 17% 34%,
+		#3fae6a 34% 51%,
+		#e8c52a 51% 68%,
+		#ee8a2b 68% 84%,
+		#cf3b30 84% 100%
+	);
 
 	/* shape */
 	--radius: 14px;
 	--radius-sm: 8px;
 	--max: 1180px;
-	--shadow: 0 12px 28px rgba(60, 42, 20, 0.1);
-	--shadow-soft: 0 2px 10px rgba(60, 42, 20, 0.06);
+	--shadow: 0 12px 28px rgba(14, 34, 51, 0.12);
+	--shadow-soft: 0 2px 10px rgba(14, 34, 51, 0.07);
 
-	/* fonts — next/font sets --font-alegreya and --font-alegreya-sans on <html>;
+	/* fonts — next/font sets --font-noto-serif and --font-plex-sans on <html>;
 	   the plain names after the comma are only a fallback */
-	--font-display: var(--font-alegreya, "Alegreya"), Georgia, "Times New Roman", serif;
-	--font-body: var(--font-alegreya-sans, "Alegreya Sans"), system-ui, -apple-system, "Segoe UI",
+	--font-display: var(--font-noto-serif, "Noto Serif"), Georgia, "Times New Roman", serif;
+	--font-body: var(--font-plex-sans, "IBM Plex Sans"), system-ui, -apple-system, "Segoe UI",
 		sans-serif;
 	/* the article text keeps the site's ORIGINAL font */
 	--font-system: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;

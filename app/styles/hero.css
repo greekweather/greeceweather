@@ -1,37 +1,22 @@
-/* hero.css — NEW FILE. The big intro blocks: homepage hero + the "Άρθρα" page header.
-   (.hero used to live in homepage.css, .page-header in base.css.) */
+/* hero.css — REPLACES the previous version. Isobar lines (a low-pressure system) replace the waves. */
 
 .hero {
 	position: relative;
+	overflow: hidden;
 	background:
-		linear-gradient(180deg, rgba(20, 56, 74, 0.5), rgba(20, 56, 74, 0.86)),
+		linear-gradient(180deg, rgba(14, 34, 51, 0.5), rgba(14, 34, 51, 0.88)),
 		var(--hero-background, var(--night)) center / cover no-repeat;
-	color: var(--surface);
-	padding: 104px 0 172px;
+	color: #fff;
+	padding: 104px 0 112px;
 }
 
-/* two layered waves flowing into the page.
-   NOTE: the fill colours inside the data-URIs must match --bg (#f5ede0) and --bg-deep (#ecdfc8). */
-.hero::before,
-.hero::after {
+/* isobars drawn over the photo */
+.hero::before {
 	content: "";
 	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: -1px;
-	background-repeat: no-repeat;
-	background-size: 100% 100%;
+	inset: 0;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 600' preserveAspectRatio='xMidYMid slice'%3E%3Cg transform='rotate(-14 1130 250)' fill='none' stroke='white' stroke-opacity='.17' stroke-width='1.4'%3E%3Cellipse cx='1130' cy='250' rx='70' ry='42'/%3E%3Cellipse cx='1130' cy='250' rx='140' ry='86'/%3E%3Cellipse cx='1130' cy='250' rx='215' ry='132'/%3E%3Cellipse cx='1130' cy='250' rx='300' ry='182'/%3E%3Cellipse cx='1130' cy='250' rx='395' ry='236'/%3E%3Cellipse cx='1130' cy='250' rx='500' ry='296'/%3E%3C/g%3E%3Cg fill='none' stroke='white' stroke-opacity='.12' stroke-width='1.4'%3E%3Cpath d='M-20 470 C 260 410 480 520 760 455 S 1200 560 1460 500'/%3E%3Cpath d='M-20 540 C 240 490 500 590 780 525 S 1180 620 1460 570'/%3E%3Cpath d='M-20 380 C 200 330 360 400 600 350 S 900 300 1060 380'/%3E%3C/g%3E%3C/svg%3E") center / cover no-repeat;
 	pointer-events: none;
-}
-
-.hero::before {
-	height: 96px;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 96' preserveAspectRatio='none'%3E%3Cpath fill='%23ecdfc8' fill-opacity='.55' d='M0 52 C 200 8 420 88 700 46 S 1190 10 1440 56 L1440 96 L0 96Z'/%3E%3C/svg%3E");
-}
-
-.hero::after {
-	height: 64px;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 64' preserveAspectRatio='none'%3E%3Cpath fill='%23f5ede0' d='M0 34 C 260 78 520 -4 800 34 S 1230 62 1440 26 L1440 64 L0 64Z'/%3E%3C/svg%3E");
 }
 
 .hero-inner {
@@ -40,7 +25,7 @@
 	max-width: 900px;
 }
 
-/* the label: small caps with a short rule, no pill */
+/* the label: small caps with a short amber rule */
 .hero .eyebrow,
 .page-header .eyebrow {
 	display: inline-flex;
@@ -50,8 +35,9 @@
 	padding: 0;
 	border: 0;
 	background: none;
-	color: var(--sun-ink);
+	color: var(--accent);
 	font-size: 0.82rem;
+	letter-spacing: 0.14em;
 }
 
 .hero .eyebrow::before,
@@ -59,31 +45,27 @@
 	content: "";
 	width: 28px;
 	height: 2px;
-	background: var(--sun);
+	background: var(--signal);
 }
 
 .hero .eyebrow {
-	color: #ffd7a3;
-}
-
-.hero .eyebrow::before {
-	background: #f4a24c;
+	color: #f3d98a;
 }
 
 .hero h1 {
 	margin: 0;
-	font-size: clamp(2.7rem, 6vw, 5.1rem);
-	line-height: 1.04;
-	letter-spacing: -0.015em;
+	font-size: clamp(2.3rem, 5vw, 4.2rem);
+	line-height: 1.12;
+	letter-spacing: -0.01em;
 	text-wrap: balance;
 }
 
 .hero-copy {
-	margin: 26px 0 0;
+	margin: 24px 0 0;
 	max-width: 720px;
-	color: #eadfca;
-	font-size: 1.28rem;
-	line-height: 1.55;
+	color: #cdd8e2;
+	font-size: 1.2rem;
+	line-height: 1.6;
 }
 
 /* ---------- page header (archive) ---------- */
@@ -91,23 +73,19 @@
 .page-header {
 	position: relative;
 	overflow: hidden;
-	padding: 76px 0 108px;
+	padding: 76px 0 64px;
 	color: var(--text);
-	background:
-		radial-gradient(circle 84px at 90% 42%, rgba(242, 162, 85, 0.55) 0, rgba(242, 162, 85, 0.55) 83px, transparent 84px),
-		radial-gradient(circle 260px at 90% 42%, rgba(246, 182, 106, 0.22), transparent 70%),
-		var(--bg-deep);
+	background: var(--bg-deep);
+	border-bottom: 1px solid var(--border);
 }
 
-.page-header::after {
+/* a low-pressure system drawn in isobars, on the right */
+.page-header::before {
 	content: "";
 	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: -1px;
-	height: 56px;
-	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 56' preserveAspectRatio='none'%3E%3Cpath fill='%23f5ede0' d='M0 30 C 260 70 520 -2 800 30 S 1230 54 1440 22 L1440 56 L0 56Z'/%3E%3C/svg%3E")
-		bottom / 100% 100% no-repeat;
+	inset: 0;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 400' preserveAspectRatio='xMaxYMid meet'%3E%3Cg transform='rotate(-12 470 200)' fill='none' stroke='%230e2233' stroke-opacity='.16' stroke-width='1.4'%3E%3Cellipse cx='470' cy='200' rx='60' ry='38'/%3E%3Cellipse cx='470' cy='200' rx='120' ry='76'/%3E%3Cellipse cx='470' cy='200' rx='185' ry='118'/%3E%3Cellipse cx='470' cy='200' rx='255' ry='162'/%3E%3Cellipse cx='470' cy='200' rx='330' ry='208'/%3E%3Cellipse cx='470' cy='200' rx='410' ry='256'/%3E%3C/g%3E%3C/svg%3E") right -30px center / auto 150% no-repeat;
+	pointer-events: none;
 }
 
 .page-header > .container {
@@ -117,15 +95,15 @@
 
 .page-header h1 {
 	margin: 0;
-	font-size: clamp(2.7rem, 6vw, 5rem);
-	line-height: 1.03;
-	letter-spacing: -0.015em;
+	font-size: clamp(2.3rem, 5vw, 4rem);
+	line-height: 1.12;
+	letter-spacing: -0.01em;
 	color: var(--night);
 }
 
 .page-header > .container > p:last-child {
 	max-width: 700px;
 	margin: 16px 0 0;
-	color: #4d4538;
-	font-size: 1.2rem;
+	color: #3f4b57;
+	font-size: 1.15rem;
 }

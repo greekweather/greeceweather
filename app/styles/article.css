@@ -34,8 +34,8 @@
 
 .article-header h1 {
 	margin: 10px 0 16px;
-	font-size: clamp(2.4rem, 5vw, 4.6rem);
-	line-height: 1.06;
+	font-size: clamp(2rem, 4.4vw, 3.6rem);
+	line-height: 1.15;
 	letter-spacing: -0.015em;
 	text-wrap: balance;
 	color: var(--night);
@@ -44,7 +44,7 @@
 .article-lead {
 	margin: 0;
 	max-width: 780px;
-	color: #4d4538;
+	color: #3f4b57;
 	font-size: 1.18rem;
 }
 
@@ -77,7 +77,7 @@
 
 .article-body a {
 	color: var(--accent);
-	text-decoration-color: var(--sun);
+	text-decoration-color: var(--signal);
 }
 
 .article-body a:hover {
@@ -101,21 +101,21 @@
 }
 
 .article-body li::marker {
-	color: var(--sun);
+	color: var(--accent);
 }
 
 .article-body blockquote {
 	margin: 1.5em 0;
 	padding: 16px 20px;
-	border-left: 4px solid var(--sun);
+	border-left: 4px solid var(--signal);
 	border-radius: 0 12px 12px 0;
-	background: #f7e8cf;
-	color: #3d382f;
+	background: #e9eef3;
+	color: #2a3540;
 }
 
 .article-body code {
 	padding: 0.1em 0.35em;
-	background: #eadcc2;
+	background: #e3e9ef;
 	border-radius: 6px;
 }
 
@@ -123,7 +123,7 @@
 	overflow-x: auto;
 	padding: 18px;
 	background: var(--night);
-	color: #f1eadb;
+	color: #e8eef4;
 	border-radius: 12px;
 }
 

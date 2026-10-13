@@ -26,7 +26,7 @@
 
 .post-categories button:hover {
 	border-color: var(--accent);
-	background: #e6f0f5;
+	background: #e8eff6;
 	color: var(--accent-dark);
 }
 
@@ -65,7 +65,7 @@
 }
 
 .article-filters select:focus {
-	outline: 3px solid var(--sun);
+	outline: 3px solid var(--signal);
 	outline-offset: 2px;
 }
 
@@ -94,7 +94,7 @@
 }
 
 .article-search input::placeholder {
-	color: #81786a;
+	color: #6f7b87;
 }
 
 .article-search input:focus {
@@ -205,7 +205,7 @@
 }
 
 .tag-dropdown-menu button.active {
-	background: #dcebf2;
+	background: #dde8f2;
 	color: var(--accent-dark);
 	font-weight: 700;
 }
@@ -220,9 +220,9 @@
 
 .tag-dropdown-menu::-webkit-scrollbar-thumb {
 	border-radius: 999px;
-	background: #d3c3a6;
+	background: #c3ced8;
 }
 
 .tag-dropdown-menu::-webkit-scrollbar-thumb:hover {
-	background: #b8a784;
+	background: #a3b0bc;
 }
