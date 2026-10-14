@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
+import { parseBannerSchedule } from "@/lib/banner";
 import { athensLocalToUTC } from "@/lib/date";
 import { createClient } from "@/lib/supabase/server";
 import { postInputSchema } from "@/lib/validation";
@@ -369,6 +370,12 @@ export async function createBannerAction(_prevState: { error?: string }, formDat
 		};
 	}
 
+	const schedule = parseBannerSchedule(formData);
+
+	if (!schedule.ok) {
+		return { error: schedule.error };
+	}
+
 	const supabase = await createClient();
 
 	const { error } = await supabase.from("weather_banner").insert({
@@ -379,6 +386,8 @@ export async function createBannerAction(_prevState: { error?: string }, formDat
 		update_enabled: updateEnabled,
 		update_url: updateUrl || null,
 		updated_at: new Date().toISOString(),
+		starts_at: schedule.value.starts_at,
+		ends_at: schedule.value.ends_at,
 	});
 
 	if (error) {
@@ -437,6 +446,12 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		};
 	}
 
+	const schedule = parseBannerSchedule(formData);
+
+	if (!schedule.ok) {
+		return { error: schedule.error };
+	}
+
 	const supabase = await createClient();
 
 	const { error } = await supabase
@@ -449,6 +464,8 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 			update_enabled: updateEnabled,
 			update_url: updateUrl || null,
 			updated_at: new Date().toISOString(),
+			starts_at: schedule.value.starts_at,
+			ends_at: schedule.value.ends_at,
 		})
 		.eq("id", id);
 

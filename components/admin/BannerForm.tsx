@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { utcToAthensLocal } from "@/lib/date";
 
 type Banner = {
 	id?: string;
@@ -10,6 +11,8 @@ type Banner = {
 	emergency_url: string | null;
 	update_enabled: boolean;
 	update_url: string | null;
+	starts_at?: string | null;
+	ends_at?: string | null;
 };
 
 type BannerFormState = {
@@ -91,6 +94,37 @@ export function BannerForm({
 				/>
 
 				<small>Το link που θα ανοίγει όταν ο χρήστης πατά «ΕΠΙΚΑΙΡΟΠΟΙΗΣΗ ΔΕΛΤΙΟΥ».</small>
+			</div>
+
+			<div className="banner-option">
+				<span className="banner-option-label banner-schedule-title">
+					ΧΡΟΝΙΚΟ ΠΑΡΑΘΥΡΟ <em>ώρα Ελλάδας</em>
+				</span>
+
+				<div className="banner-schedule-grid">
+					<label className="banner-schedule-field">
+						<span>Έναρξη</span>
+						<input
+							name="starts_at"
+							type="datetime-local"
+							defaultValue={utcToAthensLocal(banner?.starts_at)}
+						/>
+					</label>
+
+					<label className="banner-schedule-field">
+						<span>Λήξη</span>
+						<input
+							name="ends_at"
+							type="datetime-local"
+							defaultValue={utcToAthensLocal(banner?.ends_at)}
+						/>
+					</label>
+				</div>
+
+				<small>
+					Κενή έναρξη: εμφανίζεται αμέσως. Κενή λήξη: δεν λήγει ποτέ. Αν πολλά μπάνερ είναι ενεργά
+					ταυτόχρονα, εμφανίζεται το πιο πρόσφατα ενημερωμένο.
+				</small>
 			</div>
 
 			{state.error && (

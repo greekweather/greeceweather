@@ -1,5 +1,6 @@
 import { deleteBannerAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
+import { BANNER_STATUS_LABEL, getBannerStatus } from "@/lib/banner";
 import { createClient } from "@/lib/supabase/server";
 
 function formatDate(date: string | null) {
@@ -19,7 +20,9 @@ export default async function AdminBannerPage() {
 
 	const { data, error } = await supabase
 		.from("weather_banner")
-		.select("id,created_at,updated_at,forecast_enabled,emergency_enabled,update_enabled")
+		.select(
+			"id,created_at,updated_at,starts_at,ends_at,forecast_enabled,emergency_enabled,update_enabled",
+		)
 		.order("created_at", { ascending: false });
 
 	if (error) {
@@ -47,7 +50,8 @@ export default async function AdminBannerPage() {
 							<tr>
 								<th>Περιεχόμενο</th>
 								<th>Κατάσταση</th>
-								<th>Δημιουργία</th>
+								<th>Έναρξη</th>
+								<th>Λήξη</th>
 								<th>Ενημέρωση</th>
 								<th></th>
 							</tr>
@@ -61,6 +65,8 @@ export default async function AdminBannerPage() {
 									banner.update_enabled,
 								].filter(Boolean).length;
 
+								const status = getBannerStatus(banner);
+
 								return (
 									<tr key={banner.id}>
 										<td>
@@ -72,12 +78,13 @@ export default async function AdminBannerPage() {
 										</td>
 
 										<td>
-											<span className={`status ${enabledItems > 0 ? "published" : "draft"}`}>
-												{enabledItems > 0 ? "Ενεργό" : "Ανενεργό"}
+											<span className={`status ${status === "active" ? "published" : "draft"}`}>
+												{BANNER_STATUS_LABEL[status]}
 											</span>
 										</td>
 
-										<td>{formatDate(banner.created_at)}</td>
+										<td>{banner.starts_at ? formatDate(banner.starts_at) : "Άμεσα"}</td>
+										<td>{banner.ends_at ? formatDate(banner.ends_at) : "Χωρίς λήξη"}</td>
 										<td>{formatDate(banner.updated_at)}</td>
 
 										<td style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

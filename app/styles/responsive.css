@@ -229,6 +229,51 @@
 	.tag-selector {
 		grid-template-columns: 1fr;
 	}
+	.site-header .header-inner {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		grid-template-areas:
+			"brand toggle"
+			"nav nav";
+		align-items: center;
+		column-gap: 12px;
+		row-gap: 0;
+		min-height: 0;
+		padding-top: 10px;
+	}
+
+	.site-header .header-right {
+		display: contents;
+	}
+
+	.site-header .brand {
+		grid-area: brand;
+		min-width: 0;
+	}
+
+	.site-header .theme-toggle {
+		grid-area: toggle;
+	}
+
+	.site-header .site-nav {
+		grid-area: nav;
+		gap: 4px;
+		margin-left: -12px;
+		padding: 6px 0 10px;
+		border-right: 0;
+	}
+
+	.site-header .site-nav a {
+		padding: 8px 12px;
+		font-size: 1rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle-knob {
+		transition: none;
+	}
 }
 
 @media (max-width: 480px) {

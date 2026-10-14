@@ -24,7 +24,7 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 	const { data: banner, error } = await supabase
 		.from("weather_banner")
 		.select(
-			"id,created_at,updated_at,forecast_enabled,forecast_url,emergency_enabled,emergency_url,update_enabled,update_url",
+			"id,created_at,updated_at,starts_at,ends_at,forecast_enabled,forecast_url,emergency_enabled,emergency_url,update_enabled,update_url",
 		)
 		.eq("id", id)
 		.single();

@@ -3,80 +3,92 @@ import { IBM_Plex_Sans, Noto_Serif } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { WeatherBanner } from "@/components/WeatherBanner";
 
 const notoSerif = Noto_Serif({
-    subsets: ["greek", "latin"],
-    variable: "--font-noto-serif",
-    display: "swap",
+	subsets: ["greek", "latin"],
+	variable: "--font-noto-serif",
+	display: "swap",
 });
 
 const plexSans = IBM_Plex_Sans({
-    subsets: ["greek", "latin"],
-    weight: ["400", "500", "600", "700"],
-    variable: "--font-plex-sans",
-    display: "swap",
+	subsets: ["greek", "latin"],
+	weight: ["400", "500", "600", "700"],
+	variable: "--font-plex-sans",
+	display: "swap",
 });
 
 export const metadata: Metadata = {
-    title: "GreeceWeather",
-    description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
-    openGraph: {
-        title: "GreeceWeather",
-        description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
-        url: "/",
-        siteName: "GreeceWeather",
-        locale: "el_GR",
-        type: "website",
-        images: [
-            {
-                url: "/images/supercell.jpg",
-                width: 1200,
-                height: 630,
-                alt: "GreeceWeather",
-            },
-        ],
-    },
+	colorScheme: "light dark",
+	title: "GreeceWeather",
+	description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
+	metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+	openGraph: {
+		title: "GreeceWeather",
+		description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
+		url: "/",
+		siteName: "GreeceWeather",
+		locale: "el_GR",
+		type: "website",
+		images: [
+			{
+				url: "/images/supercell.jpg",
+				width: 1200,
+				height: 630,
+				alt: "GreeceWeather",
+			},
+		],
+	},
 };
 
+const themeScript = `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t}catch(e){}})()`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    return (
-        <html
-            lang="el"
-            data-scroll-behavior="smooth"
-            className={`${notoSerif.variable} ${plexSans.variable}`}
-        >
-            <body>
-                <Link className="skip-link" href="#content">
-                    Μετάβαση στο περιεχόμενο
-                </Link>
-                <header className="site-header">
-                    <div className="container header-inner">
-                        <Link className="brand" href="/" aria-label="Αρχική σελίδα GreeceWeather">
-                            <Image src="/icon.svg" alt="" width={32} height={32} />
-                            GreeceWeather
-                        </Link>
-                        <nav className="site-nav" aria-label="Κύρια πλοήγηση">
-                            <Link href="/">Αρχική</Link>
-                            <Link href="/posts">Άρθρα</Link>
-                        </nav>
-                    </div>
-                </header>
+	return (
+		<html
+			lang="el"
+			data-scroll-behavior="smooth"
+			className={`${notoSerif.variable} ${plexSans.variable}`}
+			suppressHydrationWarning
+		>
+			<body>
+				<Script id="theme-init" strategy="beforeInteractive">
+					{themeScript}
+				</Script>
+				<Link className="skip-link" href="#content">
+					Μετάβαση στο περιεχόμενο
+				</Link>
+				<header className="site-header">
+					<div className="container header-inner">
+						<Link className="brand" href="/" aria-label="Αρχική σελίδα GreeceWeather">
+							<Image src="/icon.svg" alt="" width={32} height={32} />
+							GreeceWeather
+						</Link>
+						<div className="header-right">
+							<nav className="site-nav" aria-label="Κύρια πλοήγηση">
+								<Link href="/">Αρχική</Link>
+								<Link href="/posts">Άρθρα</Link>
+							</nav>
+							<ThemeToggle />
+						</div>
+					</div>
+				</header>
 
-                <WeatherBanner />
+				<WeatherBanner />
 
-                <main id="content">{children}</main>
-                <footer className="site-footer">
-                    <div className="container footer-inner">
-                        <div>
-                            <strong>GreeceWeather</strong>
-                            <span> · {new Date().getFullYear()}</span>
-                        </div>
-                        <div>Μετεωρολογία και καιρός στην Ελλάδα</div>
-                    </div>
-                </footer>
-            </body>
-        </html>
-    );
+				<main id="content">{children}</main>
+				<footer className="site-footer">
+					<div className="container footer-inner">
+						<div>
+							<strong>GreeceWeather</strong>
+							<span> · {new Date().getFullYear()}</span>
+						</div>
+						<div>Μετεωρολογία και καιρός στην Ελλάδα</div>
+					</div>
+				</footer>
+			</body>
+		</html>
+	);
 }

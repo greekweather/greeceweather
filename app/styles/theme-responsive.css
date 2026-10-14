@@ -61,4 +61,8 @@
 	.weather-banner-item {
 		font-size: 0.76rem;
 	}
+
+	.banner-schedule-grid {
+		grid-template-columns: 1fr;
+	}
 }

@@ -737,3 +737,78 @@
 body:has(.admin-shell) .weather-banner {
 	display: none;
 }
+
+.banner-schedule-title {
+	cursor: default;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+.banner-schedule-title em {
+	color: #6b7280;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+}
+
+.banner-schedule-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.banner-schedule-field {
+	display: grid;
+	gap: 7px;
+	min-width: 0;
+}
+
+.banner-schedule-field > span {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--text);
+}
+
+.banner-option input[type="datetime-local"] {
+	width: 100%;
+	min-height: 46px;
+	padding: 11px 14px;
+	box-sizing: border-box;
+
+	border: 1px solid #d6dee8;
+	border-radius: 8px;
+
+	background: #f8fafc;
+	color: var(--text);
+
+	font-family: inherit;
+	font-size: 1rem;
+	line-height: 1.2;
+}
+
+.banner-option input[type="datetime-local"]:hover {
+	border-color: #b8c5d4;
+	background: #fff;
+}
+
+.banner-option input[type="datetime-local"]:focus {
+	outline: none;
+	border-color: var(--accent);
+	background: #fff;
+	box-shadow: 0 0 0 3px rgba(29, 111, 232, 0.12);
+}
+
+.banner-option input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+	cursor: pointer;
+	opacity: 0.6;
+}
+
+.banner-option input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+	opacity: 1;
+}
+
+@media (max-width: 640px) {
+	.banner-schedule-grid {
+		grid-template-columns: 1fr;
+	}
+}

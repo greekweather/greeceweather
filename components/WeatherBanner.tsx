@@ -12,11 +12,15 @@ type WeatherBannerData = {
 export async function WeatherBanner() {
 	const supabase = await createClient();
 
+	const now = new Date().toISOString();
+
 	const { data } = await supabase
 		.from("weather_banner")
 		.select(
 			"forecast_enabled,forecast_url,emergency_enabled,emergency_url,update_enabled,update_url",
 		)
+		.or(`starts_at.is.null,starts_at.lte.${now}`)
+		.or(`ends_at.is.null,ends_at.gt.${now}`)
 		.order("updated_at", { ascending: false })
 		.limit(1)
 		.maybeSingle<WeatherBannerData>();
