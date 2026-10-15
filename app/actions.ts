@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
-import { parseBannerSchedule } from "@/lib/banner";
+import { bannerUrlError, parseBannerSchedule } from "@/lib/banner";
 import { athensLocalToUTC } from "@/lib/date";
 import { createClient } from "@/lib/supabase/server";
 import { postInputSchema } from "@/lib/validation";
@@ -370,6 +370,12 @@ export async function createBannerAction(_prevState: { error?: string }, formDat
 		};
 	}
 
+	const urlError = bannerUrlError([forecastUrl, emergencyUrl, updateUrl]);
+
+	if (urlError) {
+		return { error: urlError };
+	}
+
 	const schedule = parseBannerSchedule(formData);
 
 	if (!schedule.ok) {
@@ -444,6 +450,12 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		return {
 			error: "Πρέπει να ενεργοποιήσεις τουλάχιστον μία επιλογή.",
 		};
+	}
+
+	const urlError = bannerUrlError([forecastUrl, emergencyUrl, updateUrl]);
+
+	if (urlError) {
+		return { error: urlError };
 	}
 
 	const schedule = parseBannerSchedule(formData);

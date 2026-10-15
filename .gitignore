@@ -1,9 +1,18 @@
+# dependencies
 node_modules
+
+# build output
 .next
 out
-.env*.local
+tsconfig.tsbuildinfo
+
+# environment files: keep secrets out, keep the example
+.env
+.env.*
+!.env.example
+
+# misc
 .DS_Store
 npm-debug.log*
 *.pem
 .vercel
-tsconfig.tsbuildinfo

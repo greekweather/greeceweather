@@ -1,3 +1,4 @@
+import { isSafeBannerUrl } from "@/lib/banner";
 import { createClient } from "@/lib/supabase/server";
 
 type WeatherBannerData = {
@@ -9,9 +10,19 @@ type WeatherBannerData = {
 	update_url: string | null;
 };
 
+type BannerItem = {
+	url: string;
+	label: string;
+	className: string;
+};
+
+// Returns the URL only when the option is on and the link is a safe https:// URL.
+function pickUrl(enabled: boolean, url: string | null): string | null {
+	return enabled && url && isSafeBannerUrl(url) ? url : null;
+}
+
 export async function WeatherBanner() {
 	const supabase = await createClient();
-
 	const now = new Date().toISOString();
 
 	const { data } = await supabase
@@ -29,29 +40,25 @@ export async function WeatherBanner() {
 		return null;
 	}
 
+	const forecastUrl = pickUrl(data.forecast_enabled, data.forecast_url);
+	const emergencyUrl = pickUrl(data.emergency_enabled, data.emergency_url);
+	const updateUrl = pickUrl(data.update_enabled, data.update_url);
+
 	const items = [
-		data.forecast_enabled && data.forecast_url
-			? {
-					url: data.forecast_url,
-					label: "ΠΡΟΓΝΩΣΗ",
-					className: "weather-banner-forecast",
-				}
+		forecastUrl
+			? { url: forecastUrl, label: "ΠΡΟΓΝΩΣΗ", className: "weather-banner-forecast" }
 			: null,
-		data.emergency_enabled && data.emergency_url
-			? {
-					url: data.emergency_url,
-					label: "ΕΚΤΑΚΤΟ ΔΕΛΤΙΟ",
-					className: "weather-banner-emergency",
-				}
+		emergencyUrl
+			? { url: emergencyUrl, label: "ΕΚΤΑΚΤΟ ΔΕΛΤΙΟ", className: "weather-banner-emergency" }
 			: null,
-		data.update_enabled && data.update_url
+		updateUrl
 			? {
-					url: data.update_url,
+					url: updateUrl,
 					label: "ΕΠΙΚΑΙΡΟΠΟΙΗΣΗ ΔΕΛΤΙΟΥ",
 					className: "weather-banner-update",
 				}
 			: null,
-	].filter((item) => item !== null);
+	].filter((item): item is BannerItem => item !== null);
 
 	if (items.length === 0) {
 		return null;
@@ -69,6 +76,7 @@ export async function WeatherBanner() {
 						<a
 							key={item.label}
 							href={item.url}
+							rel="noopener noreferrer"
 							className={`weather-banner-item ${item.className}`}
 						>
 							<span>{item.label}</span>

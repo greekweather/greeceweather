@@ -65,6 +65,15 @@
 	--btn2-ink: #174b93;
 	--preview-bg: #fafcff;
 	--media-bg: #eef2f7;
+	--sidebar-bg: #111827;
+	--sidebar-edge: transparent;
+	--sidebar-btn: #1f2937;
+	--sidebar-btn-hover: #374151;
+	--logo-ring: 0 0 0 0 transparent;
+	--img-dim: none;
+	--upload-ink: #fff;
+	--autofill-shadow: 0 0 0 0 transparent inset;
+	--autofill-ink: currentColor;
 }
 
 /* ---- night values: system preference ---- */
@@ -153,6 +162,15 @@
 		--btn2-ink: #a6d2f7;
 		--preview-bg: #0f1a24;
 		--media-bg: #1a2a39;
+		--sidebar-bg: #0c1721;
+		--sidebar-edge: #1b2a38;
+		--sidebar-btn: #14212d;
+		--sidebar-btn-hover: #1d3246;
+		--logo-ring: 0 0 0 1px #2c3e50;
+		--img-dim: brightness(0.92);
+		--upload-ink: #06121d;
+		--autofill-shadow: 0 0 0 1000px #14202c inset;
+		--autofill-ink: #e4ebf1;
 	}
 }
 
@@ -241,6 +259,15 @@
 	--btn2-ink: #a6d2f7;
 	--preview-bg: #0f1a24;
 	--media-bg: #1a2a39;
+	--sidebar-bg: #0c1721;
+	--sidebar-edge: #1b2a38;
+	--sidebar-btn: #14212d;
+	--sidebar-btn-hover: #1d3246;
+	--logo-ring: 0 0 0 1px #2c3e50;
+	--img-dim: brightness(0.92);
+	--upload-ink: #06121d;
+	--autofill-shadow: 0 0 0 1000px #14202c inset;
+	--autofill-ink: #e4ebf1;
 }
 
 /* ========== rules (use the variables above; in light mode they equal the old values) ========== */
@@ -466,6 +493,49 @@
 .media-preview {
 	background: var(--media-bg);
 }
+
+/* ---- polish for night mode ---- */
+
+.admin-sidebar {
+	background: var(--sidebar-bg);
+	box-shadow: 1px 0 0 var(--sidebar-edge);
+}
+
+.admin-sidebar-footer button {
+	background: var(--sidebar-btn);
+}
+
+.admin-sidebar-footer button:hover {
+	background: var(--sidebar-btn-hover);
+}
+
+.brand img {
+	border-radius: 8px;
+	box-shadow: var(--logo-ring);
+}
+
+.media-upload-label {
+	color: var(--upload-ink);
+}
+
+.post-image,
+.featured-main img,
+.featured-secondary img,
+.article-hero img {
+	filter: var(--img-dim);
+}
+
+/* browser autofill paints inputs light yellow/white; keep it on-theme */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+	-webkit-box-shadow: var(--autofill-shadow);
+	-webkit-text-fill-color: var(--autofill-ink);
+	caret-color: var(--autofill-ink);
+}
+
 /* ---- header layout + theme switch ---- */
 
 .header-right {
@@ -480,7 +550,6 @@
 	border-right: 1px solid var(--border);
 }
 
-/* the switch */
 .theme-toggle {
 	position: relative;
 	flex: none;
@@ -544,4 +613,53 @@
 
 :root[data-theme="dark"] .theme-toggle .icon-sun {
 	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle-knob {
+		transition: none;
+	}
+}
+
+/* phone: logo + switch on the first row, page links on the second */
+@media (max-width: 600px) {
+	.site-header .header-inner {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		grid-template-areas:
+			"brand toggle"
+			"nav nav";
+		align-items: center;
+		column-gap: 12px;
+		row-gap: 0;
+		min-height: 0;
+		padding-top: 10px;
+	}
+
+	.site-header .header-right {
+		display: contents;
+	}
+
+	.site-header .brand {
+		grid-area: brand;
+		min-width: 0;
+	}
+
+	.site-header .theme-toggle {
+		grid-area: toggle;
+	}
+
+	.site-header .site-nav {
+		grid-area: nav;
+		gap: 4px;
+		margin-left: -12px;
+		padding: 6px 0 10px;
+		border-right: 0;
+	}
+
+	.site-header .site-nav a {
+		padding: 8px 12px;
+		font-size: 1rem;
+	}
 }

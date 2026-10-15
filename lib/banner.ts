@@ -62,3 +62,22 @@ export const BANNER_STATUS_LABEL: Record<BannerStatus, string> = {
 	expired: "Έληξε",
 	disabled: "Ανενεργό",
 };
+
+// Banner links must be absolute https:// URLs (no javascript:, data:, http:, etc.).
+export function isSafeBannerUrl(value: string): boolean {
+	try {
+		return new URL(value).protocol === "https:";
+	} catch {
+		return false;
+	}
+}
+
+export function bannerUrlError(urls: string[]): string | null {
+	for (const url of urls) {
+		if (url && !isSafeBannerUrl(url)) {
+			return "Τα links πρέπει να είναι έγκυρα και να ξεκινούν με https://";
+		}
+	}
+
+	return null;
+}
