@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, Noto_Serif } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
@@ -21,7 +21,6 @@ const plexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-	colorScheme: "light dark",
 	title: "GreeceWeather",
 	description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",
 	metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
@@ -44,6 +43,10 @@ export const metadata: Metadata = {
 };
 
 const themeScript = `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t}catch(e){}})()`;
+
+export const viewport: Viewport = {
+	colorScheme: "light dark",
+};
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (

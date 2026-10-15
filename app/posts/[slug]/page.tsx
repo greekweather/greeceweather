@@ -7,7 +7,7 @@ import { formatDate } from "@/components/PostCard";
 import { ViewCounter } from "@/components/ViewCounter";
 import { getPublishedPostBySlug } from "@/lib/posts";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function generateMetadata({
 	params,

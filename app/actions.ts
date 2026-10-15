@@ -402,7 +402,7 @@ export async function createBannerAction(_prevState: { error?: string }, formDat
 		};
 	}
 
-	revalidatePath("/");
+	revalidatePath("/", "layout");
 	revalidatePath("/admin");
 	revalidatePath("/admin/banner");
 
@@ -487,7 +487,7 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		};
 	}
 
-	revalidatePath("/");
+	revalidatePath("/", "layout");
 	revalidatePath("/admin");
 	revalidatePath("/admin/banner");
 	revalidatePath(`/admin/banner/${id}/edit`);
@@ -512,7 +512,7 @@ export async function deleteBannerAction(formData: FormData) {
 		throw new Error(error.message);
 	}
 
-	revalidatePath("/");
+	revalidatePath("/", "layout");
 	revalidatePath("/admin");
 	revalidatePath("/admin/banner");
 

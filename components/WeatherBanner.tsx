@@ -1,5 +1,5 @@
 import { isSafeBannerUrl } from "@/lib/banner";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 type WeatherBannerData = {
 	forecast_enabled: boolean;
@@ -22,7 +22,7 @@ function pickUrl(enabled: boolean, url: string | null): string | null {
 }
 
 export async function WeatherBanner() {
-	const supabase = await createClient();
+	const supabase = await createPublicClient();
 	const now = new Date().toISOString();
 
 	const { data } = await supabase

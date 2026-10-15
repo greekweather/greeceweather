@@ -1,7 +1,7 @@
 import Image from "next/image";
-import type { Post } from "@/lib/posts";
+import type { PostSummary } from "@/lib/posts";
 
-export function PostCard({ post }: { post: Post }) {
+export function PostCard({ post }: { post: PostSummary }) {
 	return (
 		<article className="post-card">
 			<a
