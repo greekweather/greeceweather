@@ -3,8 +3,6 @@ import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-// View rules: at most MAX_VIEWS_PER_DAY counted views per visitor per article per day,
-// at least MIN_GAP_MINUTES apart. Change these two numbers to tune.
 const MIN_GAP_MINUTES = 3;
 const MAX_VIEWS_PER_DAY = 15;
 

@@ -1,8 +1,3 @@
-/* theme-responsive.css — NEW FILE, imported AFTER responsive.css.
-   Phone-size values for the new look. Because it loads last, you do not have to
-   edit or delete anything in responsive.css (its layout rules keep working;
-   only the values below are overridden). */
-
 @media (max-width: 640px) {
 	.hero {
 		padding: 72px 0 88px;

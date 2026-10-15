@@ -1,6 +1,3 @@
-/* posts.css — REPLACES the old file. Post card, date line and tags.
-   (The category buttons and search/dropdowns moved to filters.css.) */
-
 .post-meta {
 	margin: 0;
 	color: var(--muted);

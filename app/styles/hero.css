@@ -1,5 +1,3 @@
-/* hero.css — REPLACES the previous version. Isobar lines (a low-pressure system) replace the waves. */
-
 .hero {
 	position: relative;
 	overflow: hidden;
@@ -15,7 +13,9 @@
 	content: "";
 	position: absolute;
 	inset: 0;
-	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 600' preserveAspectRatio='xMidYMid slice'%3E%3Cg transform='rotate(-14 1130 250)' fill='none' stroke='white' stroke-opacity='.17' stroke-width='1.4'%3E%3Cellipse cx='1130' cy='250' rx='70' ry='42'/%3E%3Cellipse cx='1130' cy='250' rx='140' ry='86'/%3E%3Cellipse cx='1130' cy='250' rx='215' ry='132'/%3E%3Cellipse cx='1130' cy='250' rx='300' ry='182'/%3E%3Cellipse cx='1130' cy='250' rx='395' ry='236'/%3E%3Cellipse cx='1130' cy='250' rx='500' ry='296'/%3E%3C/g%3E%3Cg fill='none' stroke='white' stroke-opacity='.12' stroke-width='1.4'%3E%3Cpath d='M-20 470 C 260 410 480 520 760 455 S 1200 560 1460 500'/%3E%3Cpath d='M-20 540 C 240 490 500 590 780 525 S 1180 620 1460 570'/%3E%3Cpath d='M-20 380 C 200 330 360 400 600 350 S 900 300 1060 380'/%3E%3C/g%3E%3C/svg%3E") center / cover no-repeat;
+	background:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 600' preserveAspectRatio='xMidYMid slice'%3E%3Cg transform='rotate(-14 1130 250)' fill='none' stroke='white' stroke-opacity='.17' stroke-width='1.4'%3E%3Cellipse cx='1130' cy='250' rx='70' ry='42'/%3E%3Cellipse cx='1130' cy='250' rx='140' ry='86'/%3E%3Cellipse cx='1130' cy='250' rx='215' ry='132'/%3E%3Cellipse cx='1130' cy='250' rx='300' ry='182'/%3E%3Cellipse cx='1130' cy='250' rx='395' ry='236'/%3E%3Cellipse cx='1130' cy='250' rx='500' ry='296'/%3E%3C/g%3E%3Cg fill='none' stroke='white' stroke-opacity='.12' stroke-width='1.4'%3E%3Cpath d='M-20 470 C 260 410 480 520 760 455 S 1200 560 1460 500'/%3E%3Cpath d='M-20 540 C 240 490 500 590 780 525 S 1180 620 1460 570'/%3E%3Cpath d='M-20 380 C 200 330 360 400 600 350 S 900 300 1060 380'/%3E%3C/g%3E%3C/svg%3E")
+		center / cover no-repeat;
 	pointer-events: none;
 }
 
@@ -84,7 +84,9 @@
 	content: "";
 	position: absolute;
 	inset: 0;
-	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 400' preserveAspectRatio='xMaxYMid meet'%3E%3Cg transform='rotate(-12 470 200)' fill='none' stroke='%230e2233' stroke-opacity='.16' stroke-width='1.4'%3E%3Cellipse cx='470' cy='200' rx='60' ry='38'/%3E%3Cellipse cx='470' cy='200' rx='120' ry='76'/%3E%3Cellipse cx='470' cy='200' rx='185' ry='118'/%3E%3Cellipse cx='470' cy='200' rx='255' ry='162'/%3E%3Cellipse cx='470' cy='200' rx='330' ry='208'/%3E%3Cellipse cx='470' cy='200' rx='410' ry='256'/%3E%3C/g%3E%3C/svg%3E") right -30px center / auto 150% no-repeat;
+	background:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 400' preserveAspectRatio='xMaxYMid meet'%3E%3Cg transform='rotate(-12 470 200)' fill='none' stroke='%230e2233' stroke-opacity='.16' stroke-width='1.4'%3E%3Cellipse cx='470' cy='200' rx='60' ry='38'/%3E%3Cellipse cx='470' cy='200' rx='120' ry='76'/%3E%3Cellipse cx='470' cy='200' rx='185' ry='118'/%3E%3Cellipse cx='470' cy='200' rx='255' ry='162'/%3E%3Cellipse cx='470' cy='200' rx='330' ry='208'/%3E%3Cellipse cx='470' cy='200' rx='410' ry='256'/%3E%3C/g%3E%3C/svg%3E")
+		right -30px center / auto 150% no-repeat;
 	pointer-events: none;
 }
 

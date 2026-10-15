@@ -1,7 +1,3 @@
-/* human.css — REPLACES the previous version. Typographic detail only.
-   The paper grain, photo tint and italic dates are gone: the site now reads as a
-   weather service, so dates are set like a data line. */
-
 .post-meta {
 	font-family: var(--font-body);
 	font-size: 0.9rem;

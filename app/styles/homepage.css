@@ -1,7 +1,3 @@
-/* homepage.css — REPLACES the old file. Main + secondary featured posts.
-   Layout, sizes and structure are unchanged; only surfaces, colours and shape differ.
-   (The .hero rules moved to hero.css.) */
-
 .featured-main {
 	display: block;
 	overflow: hidden;

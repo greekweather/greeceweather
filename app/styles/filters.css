@@ -1,6 +1,3 @@
-/* filters.css — NEW FILE. Category buttons, search box and the two dropdowns on /posts.
-   These rules were duplicated in posts.css and article.css; now they live only here. */
-
 .post-categories {
 	display: flex;
 	flex-wrap: wrap;

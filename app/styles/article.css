@@ -1,11 +1,3 @@
-/* article.css — REPLACES the old file.
-
-   The markdown body (.article-body) keeps its ORIGINAL typography:
-   same system font, same size (1.08rem), same line-height, same heading sizes,
-   same margins, same table sizing. Only colours and block shapes are new.
-   (The duplicated filter rules that used to be at the bottom of this file
-   now live only in filters.css.) */
-
 .article {
 	padding: 62px 0 90px;
 }
@@ -63,8 +55,6 @@
 	object-fit: cover;
 	border-radius: 10px;
 }
-
-/* ---------- the markdown text: original look, new colours ---------- */
 
 .article-body {
 	max-width: 760px;

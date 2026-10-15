@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 // Only allow same-site paths such as "/admin" or "/posts/x".
-// Rejects "https://evil.com", "//evil.com" and "/\evil.com".
 function safeNextPath(value: string | null): string {
 	if (!value?.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) {
 		return "/admin";
