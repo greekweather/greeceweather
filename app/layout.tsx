@@ -3,7 +3,6 @@ import { IBM_Plex_Sans, Noto_Serif } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
-import Script from "next/script";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { WeatherBanner } from "@/components/WeatherBanner";
 
@@ -42,8 +41,6 @@ export const metadata: Metadata = {
 	},
 };
 
-const themeScript = `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t}catch(e){}})()`;
-
 export const viewport: Viewport = {
 	colorScheme: "light dark",
 };
@@ -56,10 +53,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 			className={`${notoSerif.variable} ${plexSans.variable}`}
 			suppressHydrationWarning
 		>
+			<head>{typeof window === "undefined" ? <script src="/theme-init.js" /> : null}</head>
 			<body>
-				<Script id="theme-init" strategy="beforeInteractive">
-					{themeScript}
-				</Script>
 				<Link className="skip-link" href="#content">
 					Μετάβαση στο περιεχόμενο
 				</Link>
