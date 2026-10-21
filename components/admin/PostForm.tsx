@@ -255,7 +255,7 @@ export function PostForm({
 				</div>
 
 				<div className="form-field">
-					<label htmlFor="image_alt">Image alt</label>
+					<label htmlFor="image_alt">Image Alt</label>
 
 					<input
 						id="image_alt"
