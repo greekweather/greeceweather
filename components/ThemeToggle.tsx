@@ -20,9 +20,15 @@ export function ThemeToggle() {
 	const isDark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
 	function toggle() {
+		const root = document.documentElement;
 		const next = isDark ? "light" : "dark";
 
-		document.documentElement.dataset.theme = next;
+		root.setAttribute("data-theme-switching", "");
+		root.dataset.theme = next;
+
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => root.removeAttribute("data-theme-switching"));
+		});
 
 		try {
 			localStorage.setItem("theme", next);

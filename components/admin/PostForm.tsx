@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { deletePostAction } from "@/app/actions";
-import { ImageUpload } from "@/components/admin/ImageUpload";
+import { ImagePicker } from "@/components/admin/ImagePicker";
 
 export type FormPost = {
 	id?: string;
@@ -271,11 +271,12 @@ export function PostForm({
 				⚠ Για δημοσίευση πρέπει να υπάρχει εικόνα άρθρου.
 			</p>
 
-			<ImageUpload
-				onUploaded={(url, alt) => {
+			<ImagePicker
+				currentUrl={imageUrl}
+				onSelect={(url, alt) => {
 					setImageUrl(url);
 
-					if (!imageAlt) {
+					if (!imageAlt && alt) {
 						setImageAlt(alt);
 					}
 				}}
