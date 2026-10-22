@@ -232,9 +232,6 @@
 		grid-template-columns: 1fr;
 	}
 
-	.tag-selector {
-		grid-template-columns: 1fr;
-	}
 	.site-header .header-inner {
 		display: grid;
 		grid-template-columns: 1fr auto;

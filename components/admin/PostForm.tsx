@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { deletePostAction } from "@/app/actions";
 import { ImagePicker } from "@/components/admin/ImagePicker";
+import { TagPicker } from "@/components/admin/TagPicker";
 
 export type FormPost = {
 	id?: string;
@@ -285,30 +286,7 @@ export function PostForm({
 			<div className="form-field">
 				<div className="form-label">Ετικέτες</div>
 
-				<div className="tag-selector">
-					{availableTags.length > 0 ? (
-						availableTags.map((tag) => (
-							<label className="tag-option" key={tag.id}>
-								<input
-									type="checkbox"
-									name="tag_ids"
-									value={tag.id}
-									defaultChecked={post?.tag_ids.includes(tag.id)}
-									onChange={(e) => {
-										setSelectedTagIds((current) =>
-											e.target.checked
-												? [...current, tag.id]
-												: current.filter((id) => id !== tag.id),
-										);
-									}}
-								/>
-								<span>{tag.name}</span>
-							</label>
-						))
-					) : (
-						<p>Δεν υπάρχουν διαθέσιμες ετικέτες.</p>
-					)}
-				</div>
+				<TagPicker tags={availableTags} selectedIds={selectedTagIds} onChange={setSelectedTagIds} />
 
 				<p className={`form-warning-slot ${showTagWarning ? "visible" : ""}`} role="alert">
 					⚠ Για δημοσίευση πρέπει να επιλέξεις τουλάχιστον μία ετικέτα.

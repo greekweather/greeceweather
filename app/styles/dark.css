@@ -474,12 +474,11 @@
 	background: var(--a-secondary-hover);
 }
 
-.tag-option,
 .publish-option {
 	background: var(--a-card);
 	border-color: var(--a-field-border);
 }
-.tag-option:hover,
+
 .publish-option:hover {
 	background: var(--a-fill-hover);
 }

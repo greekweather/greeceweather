@@ -416,47 +416,6 @@
 	border-color: #1d6fe8;
 }
 
-.tag-selector {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-	gap: 10px;
-	margin-top: 8px;
-}
-
-.tag-option {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	min-height: 44px;
-	padding: 10px 12px;
-	border: 1px solid #d9e1ea;
-	border-radius: 8px;
-	background: #fff;
-	cursor: pointer;
-	font-weight: 500;
-	box-sizing: border-box;
-	transition:
-		border-color 0.15s ease,
-		background 0.15s ease;
-}
-
-.tag-option:hover {
-	border-color: #1d6fe8;
-	background: #f7faff;
-}
-
-.tag-option input[type="checkbox"] {
-	width: 17px;
-	height: 17px;
-	margin: 0;
-	flex: 0 0 auto;
-	accent-color: #1d6fe8;
-}
-
-.tag-option span {
-	line-height: 1.2;
-}
-
 .publish-option {
 	display: flex;
 	align-items: center;
@@ -916,4 +875,142 @@ body:has(.admin-shell) .weather-banner {
 .image-picker-foot {
 	justify-content: flex-end;
 	border-top: 1px solid var(--border);
+}
+
+/* ---- tag picker (post form) ---- */
+.tag-picker {
+	margin-top: 8px;
+}
+
+.tag-picker-anchor {
+	position: relative;
+}
+
+.tag-picker-box {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	min-height: 48px;
+	padding: 7px 10px;
+	border: 1px solid var(--a-field-border);
+	border-radius: 8px;
+	background: var(--a-card);
+	cursor: text;
+}
+
+.tag-picker-box:focus-within {
+	border-color: var(--accent);
+	box-shadow: 0 0 0 3px rgba(26, 95, 134, 0.16);
+}
+
+.tag-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 6px 5px 11px;
+	border-radius: 999px;
+	background: var(--accent);
+	color: #fff;
+	font-size: 0.9rem;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.tag-chip-remove {
+	display: grid;
+	place-items: center;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: rgb(255 255 255 / 22%);
+	color: inherit;
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.tag-chip-remove:hover {
+	background: rgb(255 255 255 / 40%);
+}
+
+.tag-picker-input {
+	flex: 1 1 160px;
+	min-width: 120px;
+	height: 32px;
+	padding: 0 4px;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	outline: none;
+}
+
+.tag-picker-menu {
+	position: absolute;
+	z-index: 50;
+	top: calc(100% + 6px);
+	left: 0;
+	width: 100%;
+	box-sizing: border-box;
+	max-height: 240px;
+	overflow-y: auto;
+	padding: 6px;
+	border: 1px solid var(--a-field-border);
+	border-radius: 10px;
+	background: var(--a-card);
+	box-shadow: 0 12px 30px rgb(15 23 42 / 18%);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transform: translateY(-4px);
+	transition:
+		opacity 0.15s ease,
+		transform 0.15s ease,
+		visibility 0s linear 0.15s;
+}
+
+.tag-picker-menu.open {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+	transform: translateY(0);
+	transition:
+		opacity 0.15s ease,
+		transform 0.15s ease,
+		visibility 0s linear 0s;
+}
+
+.tag-picker-menu button {
+	display: block;
+	width: 100%;
+	min-height: 40px;
+	padding: 9px 12px;
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.tag-picker-menu button.active,
+.tag-picker-menu button:hover {
+	background: var(--a-fill-hover);
+}
+
+.tag-picker-empty {
+	margin: 0;
+	padding: 10px 12px;
+	color: var(--a-muted);
+	font-size: 0.92rem;
+}
+
+.tag-picker-count {
+	display: block;
+	margin-top: 6px;
+	color: var(--a-muted);
 }
