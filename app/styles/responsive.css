@@ -134,6 +134,12 @@
 		flex-direction: column;
 	}
 
+	.article-search,
+	.tag-filter {
+		flex: none;
+		min-width: 0;
+	}
+
 	.article-filters select {
 		width: 100%;
 		min-width: 0;

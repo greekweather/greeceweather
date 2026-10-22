@@ -3,6 +3,7 @@ import { IBM_Plex_Sans, Noto_Serif } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
+import { RefreshOnNavigate } from "@/components/RefreshOnNavigate";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { WeatherBanner } from "@/components/WeatherBanner";
 
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 		>
 			<head>{typeof window === "undefined" ? <script src="/theme-init.js" /> : null}</head>
 			<body>
+				<RefreshOnNavigate />
 				<Link className="skip-link" href="#content">
 					Μετάβαση στο περιεχόμενο
 				</Link>
