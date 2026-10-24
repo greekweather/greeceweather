@@ -24,7 +24,7 @@ export default async function OutlooksPage() {
 				<p className="eyebrow">ΧΑΡΤΕΣ</p>
 				<h1>Χάρτες καιρού</h1>
 				<p className="outlook-disclaimer" role="note">
-					<strong>Ανεπίσημο.</strong> {UNOFFICIAL_NOTE}
+					<strong>Ανεπίσημο:</strong> {UNOFFICIAL_NOTE}
 				</p>
 			</header>
 
