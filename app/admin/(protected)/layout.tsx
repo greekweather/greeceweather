@@ -23,6 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 						<Link href="/admin/tags">Ετικέτες</Link>
 						<Link href="/admin/media">Πολυμέσα</Link>
 						<Link href="/admin/banner">Μπάνερ</Link>
+						<Link href="/admin/outlooks">Χάρτες</Link>
 					</div>
 				</nav>
 

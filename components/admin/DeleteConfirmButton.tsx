@@ -13,8 +13,8 @@ export function DeleteConfirmButton({
 	id: string;
 	name: string;
 	action: (formData: FormData) => void;
-	itemType: "άρθρου" | "ετικέτας" | "μπάνερ";
-	grammar: "το άρθρο" | "την ετικέτα" | "το μπάνερ";
+	itemType: "άρθρου" | "ετικέτας" | "μπάνερ" | "χάρτη";
+	grammar: "το άρθρο" | "την ετικέτα" | "το μπάνερ" | "τον χάρτη";
 	useParentForm?: boolean;
 }) {
 	const [showConfirm, setShowConfirm] = useState(false);

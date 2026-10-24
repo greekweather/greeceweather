@@ -128,3 +128,57 @@ end;
 $$;
 
 grant execute on function public.increment_post_views(text) to anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Outlooks (Χάρτες): unofficial hand-drawn development-chance maps.
+-- The map itself (areas, X markers, storms) is stored as validated JSON.
+-- ---------------------------------------------------------------------------
+create table if not exists public.outlooks (
+  id uuid primary key default gen_random_uuid(),
+  title text not null check (char_length(title) between 3 and 140),
+  slug text not null unique check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and char_length(slug) <= 100),
+  summary text not null default '' check (char_length(summary) <= 20000),
+  map_data jsonb not null check (jsonb_typeof(map_data) = 'object' and pg_column_size(map_data) <= 200000),
+  legend_position text not null default 'tr' check (legend_position in ('tr', 'tl', 'br', 'bl')),
+  issued_at timestamptz not null default now(),
+  valid_until timestamptz,
+  published boolean not null default false,
+  published_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists outlooks_published_idx on public.outlooks (published, published_at desc);
+
+drop trigger if exists outlooks_set_updated_at on public.outlooks;
+create trigger outlooks_set_updated_at
+before update on public.outlooks
+for each row execute function public.set_updated_at();
+
+alter table public.outlooks enable row level security;
+
+drop policy if exists "public_can_read_published_outlooks" on public.outlooks;
+create policy "public_can_read_published_outlooks" on public.outlooks
+for select to anon, authenticated
+using (published = true and published_at is not null and published_at <= now() and issued_at <= now());
+
+drop policy if exists "admins_can_read_outlooks" on public.outlooks;
+create policy "admins_can_read_outlooks" on public.outlooks
+for select to authenticated
+using (public.is_admin());
+
+drop policy if exists "admins_can_insert_outlooks" on public.outlooks;
+create policy "admins_can_insert_outlooks" on public.outlooks
+for insert to authenticated
+with check (public.is_admin());
+
+drop policy if exists "admins_can_update_outlooks" on public.outlooks;
+create policy "admins_can_update_outlooks" on public.outlooks
+for update to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "admins_can_delete_outlooks" on public.outlooks;
+create policy "admins_can_delete_outlooks" on public.outlooks
+for delete to authenticated
+using (public.is_admin());

@@ -70,6 +70,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 							<nav className="site-nav" aria-label="Κύρια πλοήγηση">
 								<Link href="/">Αρχική</Link>
 								<Link href="/posts">Άρθρα</Link>
+								<Link href="/outlooks">Χάρτες</Link>
 							</nav>
 							<ThemeToggle />
 						</div>
