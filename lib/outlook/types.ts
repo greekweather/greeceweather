@@ -9,19 +9,22 @@ export const HORIZONS: { id: Horizon; label: string }[] = [
 
 // ---- formation chance -------------------------------------------------------
 
-export type ChanceCategory = "low" | "medium" | "high";
+export type ChanceCategory = "none" | "low" | "medium" | "high";
 
 export const CHANCE_STYLE: Record<
 	ChanceCategory,
 	{ label: string; range: string; fill: string; stroke: string }
 > = {
+	// NHC: gray = "development not expected (near 0%)"
+	none: { label: "Μηδενική", range: "≈0%", fill: "#9aa3ab", stroke: "#5f6870" },
 	low: { label: "Χαμηλή", range: "<40%", fill: "#ffe600", stroke: "#b89b00" },
 	medium: { label: "Μέση", range: "40–60%", fill: "#ff9a00", stroke: "#b86b00" },
 	high: { label: "Υψηλή", range: ">60%", fill: "#ff2b1c", stroke: "#a30f06" },
 };
 
-/** Low: below 40 %. Medium: 40-60 %. High: above 60 %. */
+/** None (gray): near 0 %. Low: below 40 %. Medium: 40-60 %. High: above 60 %. */
 export function chanceCategory(chance: number): ChanceCategory {
+	if (chance < 5) return "none";
 	if (chance < 40) return "low";
 	if (chance <= 60) return "medium";
 	return "high";
@@ -166,6 +169,8 @@ export type XMarker = {
 	x: number;
 	y: number;
 	label: string;
+	/** 48-hour chance that colours the X like the NHC does; null/absent = plain black X. */
+	chance?: number | null;
 };
 
 export type Storm = {

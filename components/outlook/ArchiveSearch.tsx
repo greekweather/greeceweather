@@ -85,7 +85,7 @@ export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; lates
 			<p className="outlook-hint" aria-live="polite">
 				{filtering
 					? `${results.length} ${results.length === 1 ? "αποτέλεσμα" : "αποτελέσματα"}`
-					: `${results.length} ${results.length === 1 ? "παλαιότερος χάρτης" : "παλαιότερη χάρτες"}`}
+					: `${results.length} ${results.length === 1 ? "παλαιότερος χάρτης" : "παλαιότεροι χάρτες"}`}
 			</p>
 
 			{results.length > 0 ? (

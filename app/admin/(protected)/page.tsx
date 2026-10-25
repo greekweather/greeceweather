@@ -3,11 +3,16 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AdminPage() {
 	const supabase = await createClient();
 
-	const [{ count: posts }, { count: publishedPosts }, { count: drafts }] = await Promise.all([
-		supabase.from("posts").select("*", { count: "exact", head: true }),
-		supabase.from("posts").select("*", { count: "exact", head: true }).eq("published", true),
-		supabase.from("posts").select("*", { count: "exact", head: true }).eq("published", false),
-	]);
+	const [{ count: posts }, { count: publishedPosts }, { count: drafts }, { data: viewRows }] =
+		await Promise.all([
+			supabase.from("posts").select("*", { count: "exact", head: true }),
+			supabase.from("posts").select("*", { count: "exact", head: true }).eq("published", true),
+			supabase.from("posts").select("*", { count: "exact", head: true }).eq("published", false),
+			supabase.from("posts").select("title,slug,views").eq("published", true),
+		]);
+
+	const totalViews = (viewRows ?? []).reduce((sum, row) => sum + Number(row.views ?? 0), 0);
+	const topPost = [...(viewRows ?? [])].sort((a, b) => Number(b.views) - Number(a.views))[0];
 
 	return (
 		<>
@@ -36,6 +41,16 @@ export default async function AdminPage() {
 					<span>Πρόχειρα</span>
 					<strong>{drafts ?? 0}</strong>
 					<small>Μη δημοσιευμένα άρθρα</small>
+				</a>
+
+				<a className="admin-stat-card" href="/admin/posts?sort=views">
+					<span>Προβολές</span>
+					<strong>{totalViews.toLocaleString("el-GR")}</strong>
+					<small>
+						{topPost && Number(topPost.views) > 0
+							? `Πρώτο: ${topPost.title || topPost.slug} (${Number(topPost.views).toLocaleString("el-GR")})`
+							: "Σύνολο δημοσιευμένων άρθρων"}
+					</small>
 				</a>
 			</section>
 

@@ -60,18 +60,34 @@ export default async function AdminOutlooksPage() {
 									<td>{formatOutlookDate(outlook.issued_at)}</td>
 									<td>{formatOutlookDate(outlook.updated_at)}</td>
 
-									<td style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-										<a className="button secondary" href={`/admin/outlooks/${outlook.id}/edit`}>
-											Επεξεργασία
-										</a>
+									<td>
+										<div className="outlook-row-actions">
+											<div className="outlook-row-actions-top">
+												<a
+													className="button secondary"
+													href={`/admin/outlooks/${outlook.id}/edit`}
+												>
+													Επεξεργασία
+												</a>
 
-										<DeleteConfirmButton
-											id={outlook.id}
-											name={outlook.title}
-											action={deleteOutlookAction}
-											itemType="χάρτη"
-											grammar="τον χάρτη"
-										/>
+												<a
+													className="button secondary"
+													href={`/admin/outlooks/new?from=${outlook.id}`}
+												>
+													Αντίγραφο
+												</a>
+											</div>
+
+											<div className="outlook-row-actions-bottom">
+												<DeleteConfirmButton
+													id={outlook.id}
+													name={outlook.title}
+													action={deleteOutlookAction}
+													itemType="χάρτη"
+													grammar="τον χάρτη"
+												/>
+											</div>
+										</div>
 									</td>
 								</tr>
 							))}

@@ -32,9 +32,14 @@ export default async function EditOutlookPage({ params }: { params: Promise<{ id
 					<p>{outlook.title}</p>
 				</div>
 
-				<a className="button secondary" href="/admin/outlooks">
-					← Επιστροφή
-				</a>
+				<div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+					<a className="button secondary" href={`/admin/outlooks/new?from=${outlook.id}`}>
+						Δημιουργία αντιγράφου
+					</a>
+					<a className="button secondary" href="/admin/outlooks">
+						← Επιστροφή
+					</a>
+				</div>
 			</header>
 
 			<section className="admin-section">

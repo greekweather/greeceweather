@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
-import { bannerUrlError, parseBannerSchedule } from "@/lib/banner";
+import { bannerUrlError, parseBannerSchedule, parseForecastEntries } from "@/lib/banner";
 import { athensLocalToUTC } from "@/lib/date";
 import { createClient } from "@/lib/supabase/server";
 import { postInputSchema } from "@/lib/validation";
@@ -16,6 +16,7 @@ function formDataToInput(formData: FormData) {
 		content: formData.get("content"),
 		image_url: formData.get("image_url") ?? "",
 		image_alt: formData.get("image_alt") ?? "",
+		image_caption: formData.get("image_caption") ?? "",
 		published: formData.get("published") === "on",
 		published_at: formData.get("published_at") ?? "",
 	});
@@ -67,6 +68,7 @@ export async function createPostAction(formData: FormData) {
 			content: input.content,
 			image_url: input.image_url || null,
 			image_alt: input.image_alt,
+			image_caption: input.image_caption,
 			published: input.published,
 			published_at: publishedAt,
 		})
@@ -151,6 +153,7 @@ export async function updatePostAction(formData: FormData) {
 			content: input.content,
 			image_url: input.image_url || null,
 			image_alt: input.image_alt,
+			image_caption: input.image_caption,
 			published: input.published,
 			published_at: publishedAt,
 		})
@@ -335,22 +338,44 @@ export async function deleteTagAction(formData: FormData) {
 	redirect("/admin/tags");
 }
 
+type ForecastEntry = { post_id: string; starts_at: string | null; ends_at: string | null };
+
+// Replaces the banner's forecast posts with the submitted list.
+async function saveForecastEntries(
+	supabase: Awaited<ReturnType<typeof createClient>>,
+	bannerId: string,
+	entries: ForecastEntry[],
+): Promise<boolean> {
+	const { error: deleteError } = await supabase
+		.from("banner_forecast_posts")
+		.delete()
+		.eq("banner_id", bannerId);
+
+	if (deleteError) return false;
+	if (entries.length === 0) return true;
+
+	const { error } = await supabase
+		.from("banner_forecast_posts")
+		.insert(entries.map((entry) => ({ ...entry, banner_id: bannerId })));
+
+	return !error;
+}
+
 export async function createBannerAction(_prevState: { error?: string }, formData: FormData) {
 	await requireAdmin();
 
-	const forecastEnabled = formData.get("forecast_enabled") === "on";
+	const forecasts = parseForecastEntries(formData);
+
+	if (!forecasts.ok) {
+		return { error: forecasts.error };
+	}
+
+	const forecastEnabled = forecasts.value.length > 0;
 	const emergencyEnabled = formData.get("emergency_enabled") === "on";
 	const updateEnabled = formData.get("update_enabled") === "on";
 
-	const forecastUrl = String(formData.get("forecast_url") ?? "").trim();
 	const emergencyUrl = String(formData.get("emergency_url") ?? "").trim();
 	const updateUrl = String(formData.get("update_url") ?? "").trim();
-
-	if (forecastEnabled && !forecastUrl) {
-		return {
-			error: "Το URL της πρόγνωσης είναι υποχρεωτικό.",
-		};
-	}
 
 	if (emergencyEnabled && !emergencyUrl) {
 		return {
@@ -370,7 +395,7 @@ export async function createBannerAction(_prevState: { error?: string }, formDat
 		};
 	}
 
-	const urlError = bannerUrlError([forecastUrl, emergencyUrl, updateUrl]);
+	const urlError = bannerUrlError([emergencyUrl, updateUrl]);
 
 	if (urlError) {
 		return { error: urlError };
@@ -382,23 +407,42 @@ export async function createBannerAction(_prevState: { error?: string }, formDat
 		return { error: schedule.error };
 	}
 
+	const bannerTitle = String(formData.get("title") ?? "").trim();
+
+	if (bannerTitle.length > 80) {
+		return { error: "Ο τίτλος μπορεί να έχει έως 80 χαρακτήρες." };
+	}
+
 	const supabase = await createClient();
 
-	const { error } = await supabase.from("weather_banner").insert({
-		forecast_enabled: forecastEnabled,
-		forecast_url: forecastUrl || null,
-		emergency_enabled: emergencyEnabled,
-		emergency_url: emergencyUrl || null,
-		update_enabled: updateEnabled,
-		update_url: updateUrl || null,
-		updated_at: new Date().toISOString(),
-		starts_at: schedule.value.starts_at,
-		ends_at: schedule.value.ends_at,
-	});
+	const { data: created, error } = await supabase
+		.from("weather_banner")
+		.insert({
+			title: bannerTitle || null,
+			forecast_enabled: forecastEnabled,
+			forecast_url: null,
+			emergency_enabled: emergencyEnabled,
+			emergency_url: emergencyUrl || null,
+			update_enabled: updateEnabled,
+			update_url: updateUrl || null,
+			updated_at: new Date().toISOString(),
+			starts_at: schedule.value.starts_at,
+			ends_at: schedule.value.ends_at,
+		})
+		.select("id")
+		.single();
 
-	if (error) {
+	if (error || !created) {
 		return {
 			error: "Δεν ήταν δυνατή η αποθήκευση του μπάνερ.",
+		};
+	}
+
+	const saved = await saveForecastEntries(supabase, created.id, forecasts.value);
+
+	if (!saved) {
+		return {
+			error: "Το μπάνερ αποθηκεύτηκε, αλλά όχι τα άρθρα πρόγνωσης. Άνοιξέ το και δοκίμασε ξανά.",
 		};
 	}
 
@@ -420,19 +464,18 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		};
 	}
 
-	const forecastEnabled = formData.get("forecast_enabled") === "on";
+	const forecasts = parseForecastEntries(formData);
+
+	if (!forecasts.ok) {
+		return { error: forecasts.error };
+	}
+
+	const forecastEnabled = forecasts.value.length > 0;
 	const emergencyEnabled = formData.get("emergency_enabled") === "on";
 	const updateEnabled = formData.get("update_enabled") === "on";
 
-	const forecastUrl = String(formData.get("forecast_url") ?? "").trim();
 	const emergencyUrl = String(formData.get("emergency_url") ?? "").trim();
 	const updateUrl = String(formData.get("update_url") ?? "").trim();
-
-	if (forecastEnabled && !forecastUrl) {
-		return {
-			error: "Το URL της πρόγνωσης είναι υποχρεωτικό.",
-		};
-	}
 
 	if (emergencyEnabled && !emergencyUrl) {
 		return {
@@ -452,7 +495,7 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		};
 	}
 
-	const urlError = bannerUrlError([forecastUrl, emergencyUrl, updateUrl]);
+	const urlError = bannerUrlError([emergencyUrl, updateUrl]);
 
 	if (urlError) {
 		return { error: urlError };
@@ -464,13 +507,20 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		return { error: schedule.error };
 	}
 
+	const bannerTitle = String(formData.get("title") ?? "").trim();
+
+	if (bannerTitle.length > 80) {
+		return { error: "Ο τίτλος μπορεί να έχει έως 80 χαρακτήρες." };
+	}
+
 	const supabase = await createClient();
 
 	const { error } = await supabase
 		.from("weather_banner")
 		.update({
+			title: bannerTitle || null,
 			forecast_enabled: forecastEnabled,
-			forecast_url: forecastUrl || null,
+			forecast_url: null,
 			emergency_enabled: emergencyEnabled,
 			emergency_url: emergencyUrl || null,
 			update_enabled: updateEnabled,
@@ -485,6 +535,12 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		return {
 			error: "Δεν ήταν δυνατή η αποθήκευση του μπάνερ.",
 		};
+	}
+
+	const saved = await saveForecastEntries(supabase, id, forecasts.value);
+
+	if (!saved) {
+		return { error: "Δεν ήταν δυνατή η αποθήκευση των άρθρων πρόγνωσης." };
 	}
 
 	revalidatePath("/", "layout");

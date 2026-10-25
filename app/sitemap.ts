@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
-import { getPublishedPosts } from "@/lib/posts";
 import { getPublishedOutlooks } from "@/lib/outlooks";
+import { getPublishedPosts } from "@/lib/posts";
 
 const siteUrl = "https://www.greeceweather.gr";
 
@@ -17,9 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		},
 		{
 			url: `${siteUrl}/posts`,
-			lastModified: posts[0]?.updated_at
-				? new Date(posts[0].updated_at)
-				: new Date(),
+			lastModified: posts[0]?.updated_at ? new Date(posts[0].updated_at) : new Date(),
 			changeFrequency: "daily",
 			priority: 0.9,
 		},

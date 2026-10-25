@@ -20,6 +20,8 @@ import {
 	type XMarker,
 } from "@/lib/outlook/types";
 
+const CHANCE_PRESETS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
 type Patch = (next: MapElement, coalesceKey?: string) => void;
 
 function Position({
@@ -103,13 +105,33 @@ function AreaFields({ area, onChange }: { area: Area; onChange: Patch }) {
 				/>
 			</div>
 
+			<div className="outlook-field">
+				<span className="outlook-field-label">Γρήγορη επιλογή</span>
+				<div className="outlook-presets" role="group" aria-label="Γρήγορη επιλογή πιθανότητας">
+					{CHANCE_PRESETS.map((value) => (
+						<button
+							key={value}
+							type="button"
+							className={area.chance === value ? "active" : ""}
+							aria-pressed={area.chance === value}
+							onClick={() => onChange({ ...area, chance: value }, `chance-${area.id}`)}
+						>
+							{value}%
+						</button>
+					))}
+				</div>
+				<small>Το 0% σημαίνει σχεδόν μηδενική πιθανότητα (στο NHC: «near 0%»).</small>
+			</div>
+
 			<NumberField
 				label="Ακριβής τιμή (%)"
 				value={area.chance}
 				min={0}
 				max={100}
 				step={5}
-				onCommit={(chance) => onChange({ ...area, chance: Math.round(chance) }, `chance-${area.id}`)}
+				onCommit={(chance) =>
+					onChange({ ...area, chance: Math.round(chance) }, `chance-${area.id}`)
+				}
 			/>
 
 			{area.shape === "ellipse" ? (
@@ -148,17 +170,49 @@ function AreaFields({ area, onChange }: { area: Area; onChange: Patch }) {
 			) : (
 				<p className="outlook-hint">
 					Ελεύθερο σχήμα με {area.points.length} κορυφές. Σύρε τις κορυφές για να αλλάξεις το
-					σχήμα· πάτα τα μικρά + στις πλευρές για να προσθέσεις κορυφή· διπλό κλικ σε κορυφή για
-					να τη σβήσεις.
+					σχήμα· πάτα τα μικρά + στις πλευρές για να προσθέσεις κορυφή· διπλό κλικ σε κορυφή για να
+					τη σβήσεις.
 				</p>
 			)}
 		</>
 	);
 }
 
+const MARKER_COLORS: { value: string; label: string; chance: number | null }[] = [
+	{ value: "black", label: "Μαύρο (χωρίς πιθανότητα)", chance: null },
+	{ value: "none", label: "Γκρι · δεν αναμένεται (≈0%)", chance: 0 },
+	{ value: "low", label: "Κίτρινο · χαμηλή (<40%)", chance: 20 },
+	{ value: "medium", label: "Πορτοκαλί · μέση (40–60%)", chance: 50 },
+	{ value: "high", label: "Κόκκινο · υψηλή (>60%)", chance: 80 },
+];
+
+function markerColorValue(chance: number | null | undefined) {
+	if (chance === null || chance === undefined) return "black";
+	return chanceCategory(chance);
+}
+
 function MarkerFields({ marker, onChange }: { marker: XMarker; onChange: Patch }) {
 	return (
 		<>
+			<div className="outlook-field">
+				<label htmlFor="outlook-marker-color">Χρώμα X (πιθανότητα 48 ωρών)</label>
+				<select
+					id="outlook-marker-color"
+					value={markerColorValue(marker.chance)}
+					onChange={(event) => {
+						const option = MARKER_COLORS.find((item) => item.value === event.target.value);
+						onChange({ ...marker, chance: option ? option.chance : null });
+					}}
+				>
+					{MARKER_COLORS.map((option) => (
+						<option key={option.value} value={option.value}>
+							{option.label}
+						</option>
+					))}
+				</select>
+				<small>Όπως στο NHC: γκρι X όταν δεν αναμένεται ανάπτυξη.</small>
+			</div>
+
 			<TextField
 				label="Ετικέτα (προαιρετικά)"
 				value={marker.label}

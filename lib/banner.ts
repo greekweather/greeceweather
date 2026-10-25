@@ -81,3 +81,63 @@ export function bannerUrlError(urls: string[]): string | null {
 
 	return null;
 }
+
+// ---- forecast posts shown on the "ΠΡΟΓΝΩΣΗ" button ---------------------------------------
+
+export const MAX_FORECAST_ENTRIES = 4;
+
+export type ForecastEntry = {
+	post_id: string;
+	starts_at: string | null;
+	ends_at: string | null;
+};
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function localOrNull(value: string): string | null {
+	return value ? athensLocalToUTC(value) : null;
+}
+
+/** Reads the parallel forecast_post_id[] / forecast_starts_at[] / forecast_ends_at[] fields. */
+export function parseForecastEntries(
+	formData: FormData,
+): { ok: true; value: ForecastEntry[] } | { ok: false; error: string } {
+	const ids = formData.getAll("forecast_post_id").map((v) => String(v).trim());
+	const starts = formData.getAll("forecast_starts_at").map((v) => String(v).trim());
+	const ends = formData.getAll("forecast_ends_at").map((v) => String(v).trim());
+
+	const entries: ForecastEntry[] = [];
+
+	for (let i = 0; i < ids.length; i++) {
+		if (!ids[i]) continue; // an empty row is simply ignored
+
+		if (!UUID.test(ids[i])) {
+			return { ok: false, error: "Μη έγκυρο άρθρο πρόγνωσης." };
+		}
+
+		let starts_at: string | null;
+		let ends_at: string | null;
+
+		try {
+			starts_at = localOrNull(starts[i] ?? "");
+			ends_at = localOrNull(ends[i] ?? "");
+		} catch {
+			return { ok: false, error: "Μη έγκυρη ημερομηνία στα άρθρα πρόγνωσης." };
+		}
+
+		if (starts_at && ends_at && new Date(ends_at) <= new Date(starts_at)) {
+			return {
+				ok: false,
+				error: "Σε κάθε άρθρο πρόγνωσης η λήξη πρέπει να είναι μετά την έναρξη.",
+			};
+		}
+
+		entries.push({ post_id: ids[i], starts_at, ends_at });
+	}
+
+	if (entries.length > MAX_FORECAST_ENTRIES) {
+		return { ok: false, error: `Έως ${MAX_FORECAST_ENTRIES} άρθρα πρόγνωσης ανά μπάνερ.` };
+	}
+
+	return { ok: true, value: entries };
+}

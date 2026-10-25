@@ -1,14 +1,24 @@
 import { memo } from "react";
 import { BORDERS_PATH, LAKES_PATH, LAND_PATH } from "@/lib/outlook/basemap";
-import { LAT_MAX, LAT_MIN, LON_MAX, LON_MIN, MAP_H, MAP_W, mercY, SCALE, toUnits } from "@/lib/outlook/geo";
+import {
+	LAT_MAX,
+	LAT_MIN,
+	LON_MAX,
+	LON_MIN,
+	MAP_H,
+	MAP_W,
+	mercY,
+	SCALE,
+	toUnits,
+} from "@/lib/outlook/geo";
 import { closedSplinePath, ellipsePathUnits, polygonCentroid } from "@/lib/outlook/shapes";
 import {
 	type Area,
 	CHANCE_STYLE,
 	type ChanceCategory,
 	chanceCategory,
-	type PressureClass,
 	PLAIN_LOW_CODE,
+	type PressureClass,
 	pressureClass,
 	type Storm,
 	type StormType,
@@ -31,8 +41,8 @@ const HALO = {
 
 // ---- base map -------------------------------------------------------------------
 
-const LON_LINES = [-30, -20, -10, 0, 10, 20, 30, 40, 50];
-const LAT_LINES = [30, 40, 50, 60];
+const LON_LINES = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60];
+const LAT_LINES = [30, 40, 50, 60, 70, 80];
 
 type MapLabel = {
 	text: string;
@@ -122,7 +132,14 @@ function Graticule() {
 				})}
 			</g>
 
-			<g fontFamily={FONT} fontSize={10.5} fill="#34536f" fontWeight={600} style={HALO} strokeWidth={3}>
+			<g
+				fontFamily={FONT}
+				fontSize={10.5}
+				fill="#34536f"
+				fontWeight={600}
+				style={HALO}
+				strokeWidth={3}
+			>
 				{LON_LINES.filter((lon) => lon > LON_MIN && lon < LON_MAX).map((lon) => {
 					const x = (lon - LON_MIN) * SCALE;
 					const text = `${Math.abs(lon)}°${lon < 0 ? "Δ" : lon > 0 ? "Α" : ""}`;
@@ -159,7 +176,13 @@ export const BaseMap = memo(function BaseMap() {
 				strokeLinejoin="round"
 			/>
 			<path d={LAKES_PATH} fill={OCEAN} fillRule="evenodd" stroke={COAST} strokeWidth={0.5} />
-			<path d={BORDERS_PATH} fill="none" stroke={BORDER} strokeWidth={0.55} strokeLinejoin="round" />
+			<path
+				d={BORDERS_PATH}
+				fill="none"
+				stroke={BORDER}
+				strokeWidth={0.55}
+				strokeLinejoin="round"
+			/>
 			<Graticule />
 			<MapLabels />
 		</g>
@@ -168,7 +191,7 @@ export const BaseMap = memo(function BaseMap() {
 
 // ---- formation chance areas -------------------------------------------------------
 
-const CATEGORIES: ChanceCategory[] = ["low", "medium", "high"];
+const CATEGORIES: ChanceCategory[] = ["none", "low", "medium", "high"];
 
 export function hatchId(prefix: string, category: ChanceCategory) {
 	return `${prefix}-hatch-${category}`;
@@ -190,7 +213,15 @@ export function ChanceDefs({ prefix }: { prefix: string }) {
 						patternTransform="rotate(45)"
 					>
 						<rect width={9} height={9} fill={style.fill} fillOpacity={0.14} />
-						<line x1={0} y1={0} x2={0} y2={9} stroke={style.fill} strokeWidth={4} strokeOpacity={0.95} />
+						<line
+							x1={0}
+							y1={0}
+							x2={0}
+							y2={9}
+							stroke={style.fill}
+							strokeWidth={4}
+							strokeOpacity={0.95}
+						/>
 					</pattern>
 				);
 			})}
@@ -266,11 +297,24 @@ export function AreasLayer({ areas, prefix }: { areas: Area[]; prefix: string })
 
 // ---- X markers --------------------------------------------------------------------
 
-export function XGlyph({ size = 8.5 }: { size?: number }) {
+export function XGlyph({ size = 8.5, chance = null }: { size?: number; chance?: number | null }) {
+	const d = `M${-size} ${-size}L${size} ${size}M${-size} ${size}L${size} ${-size}`;
+
+	// plain black X, or an X coloured by chance (gray for "near 0%") like the NHC's
+	if (chance === null || chance === undefined) {
+		return (
+			<g strokeLinecap="round" pointerEvents="none">
+				<path d={d} stroke="#fff" strokeWidth={7.5} />
+				<path d={d} stroke="#111" strokeWidth={4} />
+			</g>
+		);
+	}
+
 	return (
 		<g strokeLinecap="round" pointerEvents="none">
-			<path d={`M${-size} ${-size}L${size} ${size}M${-size} ${size}L${size} ${-size}`} stroke="#fff" strokeWidth={7.5} />
-			<path d={`M${-size} ${-size}L${size} ${size}M${-size} ${size}L${size} ${-size}`} stroke="#111" strokeWidth={4} />
+			<path d={d} stroke="#fff" strokeWidth={9.5} />
+			<path d={d} stroke="#111" strokeWidth={7} />
+			<path d={d} stroke={CHANCE_STYLE[chanceCategory(chance)].fill} strokeWidth={3.8} />
 		</g>
 	);
 }
@@ -283,7 +327,7 @@ export function MarkersLayer({ markers }: { markers: XMarker[] }) {
 				return (
 					<g key={marker.id} data-oid={marker.id} transform={`translate(${x} ${y})`}>
 						<circle r={14} fill="transparent" style={{ pointerEvents: "all" }} />
-						<XGlyph />
+						<XGlyph chance={marker.chance ?? null} />
 						{marker.label && (
 							<text
 								y={24}
@@ -349,7 +393,12 @@ export function StormSymbol({ cls, type }: { cls: PressureClass; type: StormType
 	const radii = RING_RADII.slice(0, cls.rings);
 	const outer = radii[radii.length - 1];
 	const code = type?.code ?? PLAIN_LOW_CODE;
-	const arms = family === "tropical" || family === "medicane" ? [-90, 90] : family === "subtropical" ? [-90] : [];
+	const arms =
+		family === "tropical" || family === "medicane"
+			? [-90, 90]
+			: family === "subtropical"
+				? [-90]
+				: [];
 
 	return (
 		<g pointerEvents="none">
@@ -397,7 +446,15 @@ export function StormSymbol({ cls, type }: { cls: PressureClass; type: StormType
 
 const LINE_H = 14;
 
-export function StormLabel({ storm, cls, type }: { storm: Storm; cls: PressureClass; type: StormType | null }) {
+export function StormLabel({
+	storm,
+	cls,
+	type,
+}: {
+	storm: Storm;
+	cls: PressureClass;
+	type: StormType | null;
+}) {
 	const lines: { text: string; weight: number; size: number; style?: "italic" }[] = [];
 
 	if (storm.name) {
@@ -430,7 +487,14 @@ export function StormLabel({ storm, cls, type }: { storm: Storm; cls: PressureCl
 	}
 
 	return (
-		<g fontFamily={FONT} textAnchor={anchor} fill="#101820" style={HALO} strokeWidth={3.4} pointerEvents="none">
+		<g
+			fontFamily={FONT}
+			textAnchor={anchor}
+			fill="#101820"
+			style={HALO}
+			strokeWidth={3.4}
+			pointerEvents="none"
+		>
 			{lines.map((line, i) => (
 				<text
 					key={line.text}
@@ -458,7 +522,11 @@ export function StormsLayer({ storms }: { storms: Storm[] }) {
 
 				return (
 					<g key={storm.id} data-oid={storm.id} transform={`translate(${x} ${y})`}>
-						<circle r={symbolRadius(cls, type)} fill="transparent" style={{ pointerEvents: "all" }} />
+						<circle
+							r={symbolRadius(cls, type)}
+							fill="transparent"
+							style={{ pointerEvents: "all" }}
+						/>
 						<StormSymbol cls={cls} type={type} />
 						<StormLabel storm={storm} cls={cls} type={type} />
 					</g>

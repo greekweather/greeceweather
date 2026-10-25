@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { round3 } from "@/lib/outlook/geo";
-import { LIMITS, type MapData, MAX_PRESSURE, MIN_PRESSURE } from "@/lib/outlook/types";
+import { LIMITS, MAX_PRESSURE, type MapData, MIN_PRESSURE } from "@/lib/outlook/types";
 
 // Everything that comes from the browser is checked again here, on the server.
 
@@ -28,7 +28,10 @@ const polygon = z.object({
 	shape: z.literal("polygon"),
 	horizon,
 	chance,
-	points: z.array(z.tuple([coord, coord])).min(3).max(LIMITS.polygonPoints),
+	points: z
+		.array(z.tuple([coord, coord]))
+		.min(3)
+		.max(LIMITS.polygonPoints),
 });
 
 const marker = z.object({
@@ -37,6 +40,7 @@ const marker = z.object({
 	x: coord,
 	y: coord,
 	label: z.string().trim().max(30),
+	chance: z.number().int().min(0).max(100).nullable().optional(),
 });
 
 const storm = z.object({

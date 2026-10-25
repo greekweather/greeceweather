@@ -58,8 +58,11 @@ export function OutlookForm({
 	const [issued, setIssued] = useState(
 		outlook?.issued_at ? utcToAthensLocal(outlook.issued_at) : defaultIssuedLocal,
 	);
-	const [slug, setSlug] = useState(outlook?.slug ?? `outlook-${defaultIssuedLocal.slice(0, 10)}`);
-	const [slugTouched, setSlugTouched] = useState(Boolean(outlook));
+	// date + time, so two maps issued on the same day (e.g. every 12 hours) get different slugs
+	const slugFor = (local: string) =>
+		`outlook-${local.slice(0, 10)}-${local.slice(11, 16).replace(":", "")}`;
+	const [slug, setSlug] = useState(outlook?.slug || slugFor(defaultIssuedLocal));
+	const [slugTouched, setSlugTouched] = useState(Boolean(outlook?.slug));
 	const [validUntil, setValidUntil] = useState(utcToAthensLocal(outlook?.valid_until));
 	const [legend, setLegend] = useState<LegendPosition>(outlook?.legend_position ?? "tr");
 	const [data, setData] = useState<MapData>(outlook?.map_data ?? EMPTY_MAP_DATA);
@@ -124,7 +127,7 @@ export function OutlookForm({
 							onChange={(event) => {
 								setIssued(event.target.value);
 								if (!slugTouched && event.target.value) {
-									setSlug(`outlook-${event.target.value.slice(0, 10)}`);
+									setSlug(slugFor(event.target.value));
 								}
 							}}
 						/>

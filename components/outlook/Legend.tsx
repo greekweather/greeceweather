@@ -1,3 +1,4 @@
+import { FONT, hatchId, StormSymbol, XGlyph } from "@/components/outlook/parts";
 import {
 	CHANCE_STYLE,
 	type ChanceCategory,
@@ -5,13 +6,12 @@ import {
 	PRESSURE_CLASSES,
 	STORM_TYPES,
 } from "@/lib/outlook/types";
-import { FONT, hatchId, StormSymbol, XGlyph } from "@/components/outlook/parts";
 
 export const LEGEND_W = 296;
-export const LEGEND_H = 420;
+export const LEGEND_H = 452;
 const PAD = 12;
 
-const CATEGORIES: ChanceCategory[] = ["low", "medium", "high"];
+const CATEGORIES: ChanceCategory[] = ["low", "medium", "high", "none"];
 
 function Rule({ y }: { y: number }) {
 	return <line x1={PAD} y1={y} x2={LEGEND_W - PAD} y2={y} stroke="#c3ccd4" strokeWidth={1} />;
@@ -76,7 +76,7 @@ export function Legend({
 						<text x={PAD} y={rowY + 12} fontSize={11} fontWeight={700} fill="#16324f">
 							{style.label}
 						</text>
-						<text x={PAD + 52} y={rowY + 12} fontSize={10} fill="#5b6773">
+						<text x={PAD + 58} y={rowY + 12} fontSize={10} fill="#5b6773">
 							{style.range}
 						</text>
 						<rect
@@ -102,62 +102,67 @@ export function Legend({
 				);
 			})}
 
-			<g transform={`translate(${PAD + 9} ${125})`}>
-				<XGlyph size={6.5} />
-			</g>
-			<text x={PAD + 28} y={129} fontSize={10.5} fill="#16324f">
-				Θέση υφιστάμενης διαταραχής
-			</text>
+			<g transform="translate(0 32)">
+				<g transform={`translate(${PAD + 9} ${121})`}>
+					<XGlyph size={6.5} />
+				</g>
+				<text x={PAD + 28} y={125} fontSize={10.5} fill="#16324f">
+					Θέση υφιστάμενης διαταραχής
+				</text>
+				<text x={PAD + 28} y={136} fontSize={9} fill="#5b6773">
+					Χρώμα X = πιθανότητα 48 ωρών
+				</text>
 
-			<Rule y={142} />
+				<Rule y={142} />
 
-			{/* storm symbols by pressure */}
-			<Heading y={160}>ΣΥΣΤΗΜΑΤΑ ΧΑΜΗΛΗΣ ΠΙΕΣΗΣ</Heading>
-			{PRESSURE_CLASSES.map((cls, i) => {
-				const rowY = 168 + i * 31;
-				return (
-					<g key={cls.id}>
-						<g transform={`translate(${PAD + 17} ${rowY + 15}) scale(0.56)`}>
-							<StormSymbol cls={cls} type={null} />
+				{/* storm symbols by pressure */}
+				<Heading y={160}>ΣΥΣΤΗΜΑΤΑ ΧΑΜΗΛΗΣ ΠΙΕΣΗΣ</Heading>
+				{PRESSURE_CLASSES.map((cls, i) => {
+					const rowY = 168 + i * 31;
+					return (
+						<g key={cls.id}>
+							<g transform={`translate(${PAD + 17} ${rowY + 15}) scale(0.56)`}>
+								<StormSymbol cls={cls} type={null} />
+							</g>
+							<text x={PAD + 44} y={rowY + 13} fontSize={11.5} fontWeight={700} fill="#16324f">
+								{cls.name}
+							</text>
+							<text x={PAD + 44} y={rowY + 27} fontSize={10.5} fill="#5b6773">
+								{cls.range}
+							</text>
 						</g>
-						<text x={PAD + 44} y={rowY + 13} fontSize={11.5} fontWeight={700} fill="#16324f">
-							{cls.name}
-						</text>
-						<text x={PAD + 44} y={rowY + 27} fontSize={10.5} fill="#5b6773">
-							{cls.range}
-						</text>
-					</g>
-				);
-			})}
+					);
+				})}
 
-			<Rule y={300} />
+				<Rule y={300} />
 
-			{/* storm types */}
-			<Heading y={318}>ΤΥΠΟΙ ΣΥΣΤΗΜΑΤΩΝ</Heading>
-			{STORM_TYPES.map((type, i) => {
-				const column = i < 4 ? 0 : 1;
-				const row = i < 4 ? i : i - 4;
-				const tx = PAD + column * 142;
-				const ty = 334 + row * 16;
-				return (
-					<g key={type.id}>
-						<text x={tx} y={ty} fontSize={10.5} fontWeight={700} fill="#16324f">
-							{type.code}
-						</text>
-						<text x={tx + 22} y={ty} fontSize={10} fill="#38485a">
-							{type.name}
-						</text>
-					</g>
-				);
-			})}
+				{/* storm types */}
+				<Heading y={318}>ΤΥΠΟΙ ΣΥΣΤΗΜΑΤΩΝ</Heading>
+				{STORM_TYPES.map((type, i) => {
+					const column = i < 4 ? 0 : 1;
+					const row = i < 4 ? i : i - 4;
+					const tx = PAD + column * 142;
+					const ty = 334 + row * 16;
+					return (
+						<g key={type.id}>
+							<text x={tx} y={ty} fontSize={10.5} fontWeight={700} fill="#16324f">
+								{type.code}
+							</text>
+							<text x={tx + 22} y={ty} fontSize={10} fill="#38485a">
+								{type.name}
+							</text>
+						</g>
+					);
+				})}
 
-			<g fontSize={9} fill="#5b6773">
-				<text x={PAD} y={402}>
-					Δακτύλιοι = κλάση πίεσης · διακεκομμένοι = εξωτροπικό
-				</text>
-				<text x={PAD} y={413}>
-					μισοί δακτύλιοι = υποτροπικό · σπείρες = τροπικό / medicane
-				</text>
+				<g fontSize={9} fill="#5b6773">
+					<text x={PAD} y={402}>
+						Δακτύλιοι = κλάση πίεσης · διακεκομμένοι = εξωτροπικό
+					</text>
+					<text x={PAD} y={413}>
+						μισοί δακτύλιοι = υποτροπικό · σπείρες = τροπικό / medicane
+					</text>
+				</g>
 			</g>
 		</g>
 	);

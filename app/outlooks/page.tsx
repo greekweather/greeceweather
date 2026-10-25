@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArchiveSearch } from "@/components/outlook/ArchiveSearch";
+import { OutlookViewer } from "@/components/outlook/OutlookViewer";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
 import { formatOutlookDate, outlookDateKey } from "@/lib/outlook/format";
 import { UNOFFICIAL_NOTE } from "@/lib/outlook/types";
@@ -39,20 +40,16 @@ export default async function OutlooksPage() {
 
 						<p className="post-meta">Έκδοση: {formatOutlookDate(latest.issued_at)}</p>
 
-						<div className="outlook-scroll" data-outlook-graphic>
-							<div className="outlook-graphic-wrap">
-								<OutlookGraphic
-									title={latest.title}
-									data={latest.map_data}
-									issuedText={formatOutlookDate(latest.issued_at)}
-									validText={
-										latest.valid_until ? formatOutlookDate(latest.valid_until) : undefined
-									}
-									legendPosition={latest.legend_position}
-									idPrefix="latest"
-								/>
-							</div>
-						</div>
+						<OutlookViewer>
+							<OutlookGraphic
+								title={latest.title}
+								data={latest.map_data}
+								issuedText={formatOutlookDate(latest.issued_at)}
+								validText={latest.valid_until ? formatOutlookDate(latest.valid_until) : undefined}
+								legendPosition={latest.legend_position}
+								idPrefix="latest"
+							/>
+						</OutlookViewer>
 
 						<p>
 							<Link className="button secondary" href={`/outlooks/${latest.slug}`}>

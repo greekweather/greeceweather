@@ -124,31 +124,31 @@ function ToolIcon({ tool }: { tool: Tool }) {
 	switch (tool) {
 		case "select":
 			return (
-				<svg {...common}>
+				<svg {...common} aria-hidden="true">
 					<path d="M5 3l14 8-6 2-2 6z" />
 				</svg>
 			);
 		case "ellipse":
 			return (
-				<svg {...common}>
+				<svg {...common} aria-hidden="true">
 					<ellipse cx="12" cy="12" rx="9.5" ry="5" transform="rotate(-25 12 12)" />
 				</svg>
 			);
 		case "polygon":
 			return (
-				<svg {...common}>
+				<svg {...common} aria-hidden="true">
 					<path d="M4 15c-1-5 3-10 8-10s9 3 7 8-6 6-9 6-5-1-6-4z" />
 				</svg>
 			);
 		case "x":
 			return (
-				<svg {...common} strokeWidth={3}>
+				<svg {...common} strokeWidth={3} aria-hidden="true">
 					<path d="M6 6l12 12M18 6L6 18" />
 				</svg>
 			);
 		case "storm":
 			return (
-				<svg {...common}>
+				<svg {...common} aria-hidden="true">
 					<circle cx="12" cy="12" r="3" />
 					<circle cx="12" cy="12" r="6.5" />
 					<path d="M12 5.5A6.5 6.5 0 0 1 18.5 12" />
@@ -157,7 +157,7 @@ function ToolIcon({ tool }: { tool: Tool }) {
 			);
 		default:
 			return (
-				<svg {...common}>
+				<svg {...common} aria-hidden="true">
 					<path d="M8 11V6a1.5 1.5 0 0 1 3 0v5m0-1V4.5a1.5 1.5 0 0 1 3 0V10m0-.5a1.5 1.5 0 0 1 3 0V14c0 4-2.5 7-6 7-2.5 0-4-1.5-5.5-4l-1.5-3a1.5 1.5 0 0 1 2.5-1.5L8 14" />
 				</svg>
 			);
@@ -167,10 +167,11 @@ function ToolIcon({ tool }: { tool: Tool }) {
 function clampView(v: View): View {
 	const w = Math.min(MAP_W, Math.max(MIN_VIEW_W, v.w));
 	const h = (w * MAP_H) / MAP_W;
+
 	return {
 		w,
-		x: Math.min(MAP_W - w, Math.max(0, v.x)),
-		y: Math.min(MAP_H - h, Math.max(0, v.y)),
+		x: Math.max(0, Math.min(MAP_W - w, v.x)),
+		y: Math.max(0, Math.min(Math.max(0, MAP_H - h), v.y)),
 	};
 }
 
@@ -280,10 +281,7 @@ export function OutlookEditor({
 		const matrix = svg?.getScreenCTM();
 		if (!svg || !matrix) return [0, 0];
 		const inv = matrix.inverse();
-		return [
-			inv.a * clientX + inv.c * clientY + inv.e,
-			inv.b * clientX + inv.d * clientY + inv.f,
-		];
+		return [inv.a * clientX + inv.c * clientY + inv.e, inv.b * clientX + inv.d * clientY + inv.f];
 	}
 
 	function mapPoint(clientX: number, clientY: number): Pt {
@@ -301,6 +299,9 @@ export function OutlookEditor({
 		if (next !== "select") setSelectedId(null);
 	}
 
+	const changeToolRef = useRef(changeTool);
+	changeToolRef.current = changeTool;
+
 	function say(text: string) {
 		setNotice(text);
 	}
@@ -315,6 +316,9 @@ export function OutlookEditor({
 		const fy = (uy - current.y) / currentH;
 		setView(clampView({ w, x: ux - fx * w, y: uy - fy * h }));
 	}
+
+	const zoomAtRef = useRef(zoomAt);
+	zoomAtRef.current = zoomAt;
 
 	function zoomCentre(factor: number) {
 		const svg = svgRef.current;
@@ -352,6 +356,9 @@ export function OutlookEditor({
 		setSelectedId(area.id);
 		setTool("select");
 	}
+
+	const finishPolygonRef = useRef(finishPolygon);
+	finishPolygonRef.current = finishPolygon;
 
 	function addAt(p: Pt, kind: "ellipse" | "x" | "storm") {
 		const data = valueRef.current;
@@ -417,6 +424,9 @@ export function OutlookEditor({
 		commit(removeElement(valueRef.current, id));
 		setSelectedId(null);
 	}
+
+	const deleteSelectedRef = useRef(deleteSelected);
+	deleteSelectedRef.current = deleteSelected;
 
 	function duplicateSelected() {
 		const el = findElement(valueRef.current, selectedRef.current);
@@ -640,11 +650,13 @@ export function OutlookEditor({
 
 		if (g.kind === "handle") {
 			const el = findElement(g.base, g.id);
-			if (!el || el.kind !== "area") return;
+			if (el?.kind !== "area") return;
 			g.moved = true;
 
 			if (el.shape === "polygon") {
-				const points = el.points.map((q, i): [number, number] => (i === g.index ? [p[0], p[1]] : q));
+				const points = el.points.map((q, i): [number, number] =>
+					i === g.index ? [p[0], p[1]] : q,
+				);
 				onChange(replaceElement(g.base, { ...el, points }));
 				return;
 			}
@@ -672,7 +684,9 @@ export function OutlookEditor({
 				const ux = -Math.sin(r);
 				const uy = Math.cos(r);
 				const ry = Math.abs((p[0] - el.x) * ux + (p[1] - el.y) * uy);
-				onChange(replaceElement(g.base, { ...el, ry: round3(Math.min(el.rx, Math.max(0.1, ry))) }));
+				onChange(
+					replaceElement(g.base, { ...el, ry: round3(Math.min(el.rx, Math.max(0.1, ry))) }),
+				);
 			}
 		}
 	}
@@ -749,12 +763,11 @@ export function OutlookEditor({
 		function onWheel(event: WheelEvent) {
 			if (!event.ctrlKey && !event.metaKey) return;
 			event.preventDefault();
-			zoomAt(event.clientX, event.clientY, Math.exp(-event.deltaY * 0.0025));
+			zoomAtRef.current(event.clientX, event.clientY, Math.exp(-event.deltaY * 0.0025));
 		}
 
 		svg.addEventListener("wheel", onWheel, { passive: false });
 		return () => svg.removeEventListener("wheel", onWheel);
-		// biome-ignore lint/correctness/useExhaustiveDependencies: zoomAt only reads refs
 	}, []);
 
 	useEffect(() => {
@@ -796,7 +809,7 @@ export function OutlookEditor({
 			}
 
 			if (event.key === "Enter" && tool === "polygon") {
-				finishPolygon(polyDraft);
+				finishPolygonRef.current(polyDraft);
 				return;
 			}
 
@@ -806,13 +819,13 @@ export function OutlookEditor({
 					setPolyDraft(polyDraft.slice(0, -1));
 				} else if (selectedRef.current) {
 					event.preventDefault();
-					deleteSelected();
+					deleteSelectedRef.current();
 				}
 				return;
 			}
 
 			const shortcut = TOOLS.find((t) => t.key.toLowerCase() === event.key.toLowerCase());
-			if (shortcut) changeTool(shortcut.id);
+			if (shortcut) changeToolRef.current(shortcut.id);
 		}
 
 		function onKeyUp(event: KeyboardEvent) {
@@ -825,7 +838,6 @@ export function OutlookEditor({
 			window.removeEventListener("keydown", onKeyDown);
 			window.removeEventListener("keyup", onKeyUp);
 		};
-		// biome-ignore lint/correctness/useExhaustiveDependencies: handlers read the latest state through refs
 	}, [tool, polyDraft, undo, redo]);
 
 	// ---- overlay (selection, handles, drafts) ----------------------------------------
@@ -1033,7 +1045,8 @@ export function OutlookEditor({
 			const pts = polyDraft.map((p) => toUnits(p[0], p[1]));
 			const path = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]} ${p[1]}`).join("");
 			const rubber = hover ? toUnits(hover[0], hover[1]) : null;
-			const preview = polyDraft.length >= 3 ? closedSplinePath(polyDraft, (p) => toUnits(p[0], p[1])) : "";
+			const preview =
+				polyDraft.length >= 3 ? closedSplinePath(polyDraft, (p) => toUnits(p[0], p[1])) : "";
 
 			return (
 				<g pointerEvents="none">
@@ -1048,7 +1061,13 @@ export function OutlookEditor({
 							vectorEffect="non-scaling-stroke"
 						/>
 					)}
-					<path d={path} fill="none" stroke={stroke} strokeWidth={2} vectorEffect="non-scaling-stroke" />
+					<path
+						d={path}
+						fill="none"
+						stroke={stroke}
+						strokeWidth={2}
+						vectorEffect="non-scaling-stroke"
+					/>
 					{rubber && (
 						<line
 							x1={pts[pts.length - 1][0]}
@@ -1098,7 +1117,12 @@ export function OutlookEditor({
 
 	return (
 		<div className="outlook-editor">
-			<div className="outlook-toolbar" data-editor-toolbar role="toolbar" aria-label="Εργαλεία χάρτη">
+			<div
+				className="outlook-toolbar"
+				data-editor-toolbar
+				role="toolbar"
+				aria-label="Εργαλεία χάρτη"
+			>
 				<div className="outlook-toolbar-group">
 					{TOOLS.map((t) => (
 						<button
@@ -1116,23 +1140,47 @@ export function OutlookEditor({
 				</div>
 
 				<div className="outlook-toolbar-group">
-					<button type="button" onClick={undo} disabled={past.length === 0} title="Αναίρεση (Ctrl+Z)">
+					<button
+						type="button"
+						onClick={undo}
+						disabled={past.length === 0}
+						title="Αναίρεση (Ctrl+Z)"
+					>
 						↶<span className="sr-only"> Αναίρεση</span>
 					</button>
-					<button type="button" onClick={redo} disabled={future.length === 0} title="Επανάληψη (Ctrl+Y)">
+					<button
+						type="button"
+						onClick={redo}
+						disabled={future.length === 0}
+						title="Επανάληψη (Ctrl+Y)"
+					>
 						↷<span className="sr-only"> Επανάληψη</span>
 					</button>
 				</div>
 
 				<div className="outlook-toolbar-group">
-					<button type="button" onClick={() => zoomCentre(1 / 1.5)} title="Σμίκρυνση" disabled={view.w >= MAP_W}>
+					<button
+						type="button"
+						onClick={() => zoomCentre(1 / 1.5)}
+						title="Σμίκρυνση"
+						disabled={view.w >= MAP_W}
+					>
 						−<span className="sr-only"> Σμίκρυνση</span>
 					</button>
 					<span className="outlook-zoom">{zoomPercent}%</span>
-					<button type="button" onClick={() => zoomCentre(1.5)} title="Μεγέθυνση" disabled={view.w <= MIN_VIEW_W + 0.01}>
+					<button
+						type="button"
+						onClick={() => zoomCentre(1.5)}
+						title="Μεγέθυνση"
+						disabled={view.w <= MIN_VIEW_W + 0.01}
+					>
 						+<span className="sr-only"> Μεγέθυνση</span>
 					</button>
-					<button type="button" onClick={() => setView({ x: 0, y: 0, w: MAP_W })} title="Όλος ο χάρτης">
+					<button
+						type="button"
+						onClick={() => setView({ x: 0, y: 0, w: MAP_W })}
+						title="Όλος ο χάρτης"
+					>
 						⤢<span className="sr-only"> Όλος ο χάρτης</span>
 					</button>
 				</div>
@@ -1144,7 +1192,6 @@ export function OutlookEditor({
 
 			<div className="outlook-workspace">
 				<div className="outlook-stage">
-					{/* biome-ignore lint/a11y/noSvgWithoutTitle: the title is set below */}
 					<svg
 						ref={svgRef}
 						className="outlook-svg"

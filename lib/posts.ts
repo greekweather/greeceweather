@@ -9,6 +9,7 @@ export type Post = {
 	content: string;
 	image_url: string | null;
 	image_alt: string;
+	image_caption: string;
 	tags: string[];
 	published: boolean;
 	published_at: string | null;
@@ -18,7 +19,7 @@ export type Post = {
 };
 
 // What list pages (home, archive, sitemap) need: everything except the article text.
-export type PostSummary = Omit<Post, "content">;
+export type PostSummary = Omit<Post, "content" | "image_caption">;
 
 type TagRef = { name: string };
 
@@ -31,7 +32,8 @@ function tagNames(rows: PostTagRow[] | null | undefined): string[] {
 	return (rows ?? [])
 		.flatMap((row) => (Array.isArray(row.tags) ? row.tags : row.tags ? [row.tags] : []))
 		.map((tag) => tag.name)
-		.filter((name): name is string => Boolean(name));
+		.filter((name): name is string => Boolean(name))
+		.sort((a, b) => a.localeCompare(b, "el"));
 }
 
 const SUMMARY_COLUMNS = `
@@ -55,7 +57,7 @@ const SUMMARY_COLUMNS = `
 `;
 
 type SummaryRow = Omit<PostSummary, "tags"> & { post_tags: PostTagRow[] | null };
-type PostRow = SummaryRow & { content: string };
+type PostRow = SummaryRow & { content: string; image_caption: string };
 
 export async function getPublishedPosts(limit?: number): Promise<PostSummary[]> {
 	const supabase = createPublicClient();
@@ -90,7 +92,7 @@ export const getPublishedPostBySlug = cache(async (slug: string): Promise<Post |
 
 	const { data, error } = await supabase
 		.from("posts")
-		.select(`${SUMMARY_COLUMNS}, content`)
+		.select(`${SUMMARY_COLUMNS}, content, image_caption`)
 		.eq("slug", slug)
 		.eq("published", true)
 		.not("published_at", "is", null)

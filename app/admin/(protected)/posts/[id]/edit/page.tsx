@@ -19,6 +19,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 					content,
 					image_url,
 					image_alt,
+					image_caption,
 					published,
 					published_at,
 					post_tags (
@@ -80,6 +81,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 						content: data.content,
 						image_url: data.image_url ?? "",
 						image_alt: data.image_alt,
+						image_caption: data.image_caption ?? "",
 						tag_ids: tagIds,
 						published: data.published,
 						published_at: publishedAtValue,

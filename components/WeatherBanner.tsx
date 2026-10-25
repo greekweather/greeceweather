@@ -2,6 +2,8 @@ import { isSafeBannerUrl } from "@/lib/banner";
 import { createPublicClient } from "@/lib/supabase/public";
 
 type WeatherBannerData = {
+	id: string;
+	title: string | null;
 	forecast_enabled: boolean;
 	forecast_url: string | null;
 	emergency_enabled: boolean;
@@ -21,6 +23,37 @@ function pickUrl(enabled: boolean, url: string | null): string | null {
 	return enabled && url && isSafeBannerUrl(url) ? url : null;
 }
 
+type PostRef = { slug: string; published: boolean; published_at: string | null };
+
+type ForecastRow = { posts: PostRef | PostRef[] | null };
+
+// The forecast button opens the forecast post whose window is open right now. When several
+// windows overlap, the one that started last wins, so a second post takes over from the
+// first as soon as its start time arrives (or the first one ends). No post: no button.
+async function getActiveForecastUrl(
+	supabase: ReturnType<typeof createPublicClient>,
+	bannerId: string,
+	now: string,
+): Promise<string | null> {
+	const { data } = await supabase
+		.from("banner_forecast_posts")
+		.select("posts(slug,published,published_at)")
+		.eq("banner_id", bannerId)
+		.or(`starts_at.is.null,starts_at.lte.${now}`)
+		.or(`ends_at.is.null,ends_at.gt.${now}`)
+		.order("starts_at", { ascending: false, nullsFirst: false });
+
+	for (const row of (data ?? []) as unknown as ForecastRow[]) {
+		const post = Array.isArray(row.posts) ? row.posts[0] : row.posts;
+
+		if (post?.published && post.published_at && post.published_at <= now) {
+			return `/posts/${post.slug}`;
+		}
+	}
+
+	return null;
+}
+
 export async function WeatherBanner() {
 	const supabase = await createPublicClient();
 	const now = new Date().toISOString();
@@ -28,7 +61,7 @@ export async function WeatherBanner() {
 	const { data } = await supabase
 		.from("weather_banner")
 		.select(
-			"forecast_enabled,forecast_url,emergency_enabled,emergency_url,update_enabled,update_url",
+			"id,title,forecast_enabled,forecast_url,emergency_enabled,emergency_url,update_enabled,update_url",
 		)
 		.or(`starts_at.is.null,starts_at.lte.${now}`)
 		.or(`ends_at.is.null,ends_at.gt.${now}`)
@@ -40,7 +73,7 @@ export async function WeatherBanner() {
 		return null;
 	}
 
-	const forecastUrl = pickUrl(data.forecast_enabled, data.forecast_url);
+	const forecastUrl = await getActiveForecastUrl(supabase, data.id, now);
 	const emergencyUrl = pickUrl(data.emergency_enabled, data.emergency_url);
 	const updateUrl = pickUrl(data.update_enabled, data.update_url);
 
@@ -68,7 +101,7 @@ export async function WeatherBanner() {
 		<section className="weather-banner" aria-labelledby="weather-banner-title">
 			<div className="weather-banner-inner">
 				<h2 id="weather-banner-title" className="weather-banner-title">
-					Ισχυρή κακοκαιρία σε εξέλιξη
+					{data.title?.trim() || "Ισχυρή κακοκαιρία σε εξέλιξη"}
 				</h2>
 
 				<div className="weather-banner-items">

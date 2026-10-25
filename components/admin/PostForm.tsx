@@ -14,6 +14,7 @@ export type FormPost = {
 	content: string;
 	image_url: string;
 	image_alt: string;
+	image_caption?: string;
 	tag_ids: string[];
 	published: boolean;
 	published_at: string;
@@ -54,6 +55,7 @@ export function PostForm({
 }) {
 	const [imageUrl, setImageUrl] = useState(post?.image_url ?? "");
 	const [imageAlt, setImageAlt] = useState(post?.image_alt ?? "");
+	const [imageCaption, setImageCaption] = useState(post?.image_caption ?? "");
 	const [title, setTitle] = useState(post?.title ?? "");
 	const [description, setDescription] = useState(post?.description ?? "");
 	const [content, setContent] = useState(post?.content ?? "");
@@ -268,6 +270,24 @@ export function PostForm({
 				</div>
 			</div>
 
+			<div className="form-field">
+				<label htmlFor="image_caption">Λεζάντα κύριας εικόνας (προαιρετικό)</label>
+
+				<input
+					id="image_caption"
+					name="image_caption"
+					maxLength={300}
+					placeholder="π.χ. Δορυφορική εικόνα, 24/10 06:00 · Πηγή: ΕΜΥ"
+					value={imageCaption}
+					onChange={(e) => setImageCaption(e.target.value)}
+				/>
+
+				<small>
+					Για εικόνες μέσα στο κείμενο βάλε τη λεζάντα σε εισαγωγικά μετά το link:{" "}
+					<code>![alt](https://… "Λεζάντα")</code>
+				</small>
+			</div>
+
 			<p className={`form-warning-slot ${showImageWarning ? "visible" : ""}`} role="alert">
 				⚠ Για δημοσίευση πρέπει να υπάρχει εικόνα άρθρου.
 			</p>
@@ -286,7 +306,11 @@ export function PostForm({
 			<div className="form-field">
 				<div className="form-label">Ετικέτες</div>
 
-				<TagPicker tags={availableTags} selectedIds={selectedTagIds} onChange={setSelectedTagIds} />
+				<TagPicker
+					tags={availableTags}
+					selectedIds={selectedTagIds}
+					onChange={setSelectedTagIds}
+				/>
 
 				<p className={`form-warning-slot ${showTagWarning ? "visible" : ""}`} role="alert">
 					⚠ Για δημοσίευση πρέπει να επιλέξεις τουλάχιστον μία ετικέτα.

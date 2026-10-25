@@ -24,6 +24,7 @@ export const postInputSchema = z.object({
 		])
 		.default(""),
 	image_alt: z.string().trim().max(180).default(""),
+	image_caption: z.string().trim().max(300).default(""),
 	tags: z.string().trim().max(500).default(""),
 	published: z.coerce.boolean().default(false),
 	published_at: z.string().trim().optional().default(""),

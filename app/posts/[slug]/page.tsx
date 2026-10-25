@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ImageLightbox } from "@/components/ImageLightbox";
 import { Markdown } from "@/components/Markdown";
 import { formatDate } from "@/components/PostCard";
 import { ViewCounter } from "@/components/ViewCounter";
@@ -68,12 +69,15 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 							height={675}
 							loading="eager"
 							sizes="(max-width: 900px) 100vw, 900px"
+							data-full={post.image_url}
 						/>
+						{post.image_caption && <figcaption>{post.image_caption}</figcaption>}
 					</figure>
 				)}
 				<div className="article-body">
 					<Markdown content={post.content} />
 				</div>
+				<ImageLightbox />
 				{post.tags.length > 0 && (
 					<footer className="article-footer">
 						<span>Ετικέτες:</span>

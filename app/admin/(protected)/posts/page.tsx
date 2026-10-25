@@ -10,7 +10,7 @@ export default async function AdminPostsPage({
 }) {
 	const { sort } = await searchParams;
 
-	const sortOrder = sort === "oldest" ? "oldest" : "latest";
+	const sortOrder = sort === "oldest" ? "oldest" : sort === "views" ? "views" : "latest";
 	const ascending = sortOrder === "oldest";
 
 	const supabase = await createClient();
@@ -18,7 +18,10 @@ export default async function AdminPostsPage({
 	const { data, error } = await supabase
 		.from("posts")
 		.select("id,title,slug,published,published_at,views,updated_at")
-		.order("published_at", { ascending });
+		.order(sortOrder === "views" ? "views" : "published_at", {
+			ascending: sortOrder === "views" ? false : ascending,
+			nullsFirst: false,
+		});
 
 	if (error) throw new Error(error.message);
 
@@ -56,6 +59,13 @@ export default async function AdminPostsPage({
 						>
 							Παλαιότερα πρώτα
 						</a>
+
+						<a
+							className={`button secondary ${sortOrder === "views" ? "active" : ""}`}
+							href="/admin/posts?sort=views"
+						>
+							Περισσότερες προβολές
+						</a>
 					</div>
 				</div>
 
@@ -90,7 +100,7 @@ export default async function AdminPostsPage({
 
 									<td>{formatDate(post.published_at)}</td>
 
-									<td>{post.views}</td>
+									<td>{Number(post.views ?? 0).toLocaleString("el-GR")}</td>
 
 									<td
 										style={{

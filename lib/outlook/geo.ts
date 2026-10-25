@@ -6,13 +6,13 @@
 //
 // The extent and SCALE MUST match scripts/build-outlook-basemap.py.
 
-export const LON_MIN = -30;
-export const LON_MAX = 50;
-export const LAT_MIN = 25;
-export const LAT_MAX = 62;
+export const LON_MIN = -45;
+export const LON_MAX = 55;
+export const LAT_MIN = 33;
+export const LAT_MAX = 72;
 
 /** Map units (SVG user units) per map degree. */
-export const SCALE = 15;
+export const SCALE = 11;
 
 export function mercY(lat: number): number {
 	const rad = (lat * Math.PI) / 180;

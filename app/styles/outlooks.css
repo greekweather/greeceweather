@@ -27,7 +27,7 @@
 }
 
 .outlook-graphic-wrap {
-	min-width: 760px;
+	min-width: 900px;
 }
 
 .outlook-actions {
@@ -188,7 +188,7 @@
 	display: block;
 	width: 100%;
 	height: auto;
-	aspect-ratio: 1200 / 806;
+	aspect-ratio: auto;
 	outline: none;
 }
 
@@ -426,4 +426,98 @@
 
 .outlook-summary img {
 	height: auto;
+}
+
+.outlook-presets {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.outlook-presets button {
+	min-width: 44px;
+	min-height: 32px;
+	padding: 0 8px;
+	border: 1px solid var(--a-field-border, #d9e1ea);
+	border-radius: 7px;
+	background: var(--a-card, #fff);
+	color: inherit;
+	font: inherit;
+	font-size: 0.82rem;
+	cursor: pointer;
+}
+
+.outlook-presets button.active {
+	border-color: #1a5a96;
+	background: #1a5a96;
+	color: #fff;
+	font-weight: 700;
+}
+
+.outlook-viewer-bar {
+	display: none;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin: -4px 0 16px;
+}
+
+.outlook-row-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 8px;
+}
+
+.outlook-row-actions-top {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+
+.outlook-row-actions-bottom {
+	display: flex;
+	justify-content: center;
+}
+
+@media (max-width: 900px) {
+	.outlook-viewer-bar {
+		display: flex;
+	}
+}
+
+.outlook-full {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+	background: #0b141c;
+}
+
+.outlook-full-close {
+	align-self: flex-end;
+	margin: 10px 12px;
+	min-height: 44px;
+	padding: 0 16px;
+	border: 1px solid rgb(255 255 255 / 25%);
+	border-radius: 10px;
+	background: rgb(255 255 255 / 12%);
+	color: #fff;
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.outlook-full-scroll {
+	flex: 1;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	touch-action: pan-x pan-y pinch-zoom;
+	background: #fff;
+}
+
+.outlook-full-inner {
+	width: 1500px;
 }

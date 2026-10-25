@@ -24,7 +24,7 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 	const { data: banner, error } = await supabase
 		.from("weather_banner")
 		.select(
-			"id,created_at,updated_at,starts_at,ends_at,forecast_enabled,forecast_url,emergency_enabled,emergency_url,update_enabled,update_url",
+			"id,title,created_at,updated_at,starts_at,ends_at,forecast_enabled,forecast_url,emergency_enabled,emergency_url,update_enabled,update_url",
 		)
 		.eq("id", id)
 		.single();
@@ -32,6 +32,20 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 	if (error || !banner) {
 		notFound();
 	}
+
+	const [{ data: posts }, { data: forecasts }] = await Promise.all([
+		supabase
+			.from("posts")
+			.select("id,title")
+			.eq("published", true)
+			.order("published_at", { ascending: false })
+			.limit(100),
+		supabase
+			.from("banner_forecast_posts")
+			.select("post_id,starts_at,ends_at")
+			.eq("banner_id", id)
+			.order("starts_at", { ascending: true, nullsFirst: true }),
+	]);
 
 	return (
 		<>
@@ -48,7 +62,12 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 			</header>
 
 			<section className="admin-section">
-				<BannerForm action={updateBannerAction} banner={banner}>
+				<BannerForm
+					action={updateBannerAction}
+					banner={banner}
+					posts={posts ?? []}
+					forecasts={forecasts ?? []}
+				>
 					<DeleteConfirmButton
 						id={banner.id}
 						name="Μπάνερ καιρού"

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Markdown } from "@/components/Markdown";
 import { DownloadPng } from "@/components/outlook/DownloadPng";
+import { OutlookViewer } from "@/components/outlook/OutlookViewer";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
 import { formatOutlookDate } from "@/lib/outlook/format";
 import { UNOFFICIAL_NOTE } from "@/lib/outlook/types";
@@ -46,18 +47,16 @@ export default async function OutlookPage({ params }: { params: Promise<{ slug: 
 				</p>
 			</header>
 
-			<div className="outlook-scroll" data-outlook-graphic>
-				<div className="outlook-graphic-wrap">
-					<OutlookGraphic
-						title={outlook.title}
-						data={outlook.map_data}
-						issuedText={formatOutlookDate(outlook.issued_at)}
-						validText={outlook.valid_until ? formatOutlookDate(outlook.valid_until) : undefined}
-						legendPosition={outlook.legend_position}
-						idPrefix="page"
-					/>
-				</div>
-			</div>
+			<OutlookViewer>
+				<OutlookGraphic
+					title={outlook.title}
+					data={outlook.map_data}
+					issuedText={formatOutlookDate(outlook.issued_at)}
+					validText={outlook.valid_until ? formatOutlookDate(outlook.valid_until) : undefined}
+					legendPosition={outlook.legend_position}
+					idPrefix="page"
+				/>
+			</OutlookViewer>
 
 			<p className="outlook-actions">
 				<DownloadPng fileName={outlook.slug} />
