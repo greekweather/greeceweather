@@ -16,3 +16,6 @@ tsconfig.tsbuildinfo
 npm-debug.log*
 *.pem
 .vercel
+
+# Natural Earth source data
+data/
