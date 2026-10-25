@@ -18,4 +18,4 @@ npm-debug.log*
 .vercel
 
 # Natural Earth source data
-data/
+data
