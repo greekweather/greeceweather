@@ -27,7 +27,7 @@
 }
 
 .outlook-graphic-wrap {
-	min-width: 900px;
+	min-width: 100%;
 }
 
 .outlook-actions {
@@ -454,14 +454,6 @@
 	font-weight: 700;
 }
 
-.outlook-viewer-bar {
-	display: none;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	margin: -4px 0 16px;
-}
-
 .outlook-row-actions {
 	display: flex;
 	flex-direction: column;
@@ -481,43 +473,85 @@
 	justify-content: center;
 }
 
-@media (max-width: 900px) {
-	.outlook-viewer-bar {
-		display: flex;
-	}
+/* <fieldset> used as a plain group: drop the browser's default frame */
+fieldset.outlook-segment,
+fieldset.outlook-presets {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
 }
 
-.outlook-full {
-	position: fixed;
-	inset: 0;
-	z-index: 1000;
+fieldset.outlook-presets {
+	border: 0;
+}
+
+.outlook-presets-row {
 	display: flex;
-	flex-direction: column;
-	background: #0b141c;
+	flex-wrap: wrap;
+	gap: 4px;
 }
 
-.outlook-full-close {
-	align-self: flex-end;
-	margin: 10px 12px;
-	min-height: 44px;
-	padding: 0 16px;
-	border: 1px solid rgb(255 255 255 / 25%);
-	border-radius: 10px;
-	background: rgb(255 255 255 / 12%);
-	color: #fff;
+.outlook-presets-row button {
+	min-height: 32px;
+	padding: 0 10px;
+	border: 1px solid var(--a-field-border, #d9e1ea);
+	border-radius: 7px;
+	background: var(--a-card, #fff);
+	color: inherit;
 	font: inherit;
-	font-weight: 700;
+	font-size: 0.82rem;
 	cursor: pointer;
 }
 
-.outlook-full-scroll {
-	flex: 1;
-	overflow: auto;
-	-webkit-overflow-scrolling: touch;
-	touch-action: pan-x pan-y pinch-zoom;
-	background: #fff;
+.outlook-presets-row button.active {
+	border-color: #1a5a96;
+	background: #1a5a96;
+	color: #fff;
+	font-weight: 700;
 }
 
-.outlook-full-inner {
-	width: 1500px;
+/* ---- map viewer: fitted to the screen, zoom with tap or + / - ---- */
+.outlook-scroll {
+	cursor: zoom-in;
+	touch-action: pan-x pan-y pinch-zoom;
+}
+
+.outlook-scroll.zoomed {
+	max-height: 78vh;
+	overflow: auto;
+	cursor: zoom-out;
+}
+
+.outlook-viewer-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin: -4px 0 16px;
+}
+
+.outlook-zoom-controls {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.outlook-zoom-controls .button {
+	min-width: 44px;
+	min-height: 44px;
+	padding: 0 12px;
+	font-size: 1.2rem;
+	line-height: 1;
+}
+
+.outlook-zoom-value {
+	min-width: 48px;
+	text-align: center;
+	font-size: 0.9rem;
+	color: var(--muted);
+}
+
+.outlook-viewer-bar > .button {
+	min-height: 44px;
 }

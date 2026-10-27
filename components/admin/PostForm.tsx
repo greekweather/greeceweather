@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { deletePostAction } from "@/app/actions";
 import { ImagePicker } from "@/components/admin/ImagePicker";
+import { PostPreview } from "@/components/admin/PostPreview";
 import { TagPicker } from "@/components/admin/TagPicker";
 
 export type FormPost = {
@@ -66,25 +67,36 @@ export function PostForm({
 	const [descriptionTooLong, setDescriptionTooLong] = useState(false);
 	const [slugIsInvalid, setSlugIsInvalid] = useState(false);
 	const [publishAttempted, setPublishAttempted] = useState(false);
+	const [showPreview, setShowPreview] = useState(false);
 
 	const measureGridRef = useRef<HTMLDivElement>(null);
 	const titleMeasureRef = useRef<HTMLHeadingElement>(null);
 	const descriptionMeasureRef = useRef<HTMLParagraphElement>(null);
 
+	const measureLines = useCallback(() => {
+		const titleElement = titleMeasureRef.current;
+		const descriptionElement = descriptionMeasureRef.current;
+
+		if (titleElement) {
+			setTitleTooLong(countRenderedLines(titleElement) > 3);
+		}
+
+		if (descriptionElement) {
+			setDescriptionTooLong(countRenderedLines(descriptionElement) > 3);
+		}
+	}, []);
+
+	// Measure again whenever the text changes. The resize observers below are not enough:
+	// the real card clips the description at 3 lines, so its box stops growing and no
+	// resize event arrives once the text goes past that.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: title and description are the triggers
 	useEffect(() => {
-		const measureLines = () => {
-			const titleElement = titleMeasureRef.current;
-			const descriptionElement = descriptionMeasureRef.current;
+		const frame = requestAnimationFrame(measureLines);
 
-			if (titleElement) {
-				setTitleTooLong(countRenderedLines(titleElement) > 3);
-			}
+		return () => cancelAnimationFrame(frame);
+	}, [title, description, measureLines]);
 
-			if (descriptionElement) {
-				setDescriptionTooLong(countRenderedLines(descriptionElement) > 3);
-			}
-		};
-
+	useEffect(() => {
 		const frame = requestAnimationFrame(measureLines);
 
 		const resizeObserver = new ResizeObserver(() => {
@@ -110,7 +122,7 @@ export function PostForm({
 			resizeObserver.disconnect();
 			window.removeEventListener("resize", measureLines);
 		};
-	}, []);
+	}, [measureLines]);
 
 	useEffect(() => {
 		const timer = window.setTimeout(() => {
@@ -126,6 +138,11 @@ export function PostForm({
 	const hasTags = selectedTagIds.length > 0;
 	const hasImage = imageUrl.trim().length > 0;
 	const hasSlug = slug.trim().length > 0;
+
+	const previewTags = availableTags
+		.filter((tag) => selectedTagIds.includes(tag.id))
+		.map((tag) => tag.name)
+		.sort((a, b) => a.localeCompare(b, "el"));
 
 	const showTitleWarning = publishAttempted && !hasTitle;
 	const showDescriptionWarning = publishAttempted && !hasDescription;
@@ -346,6 +363,33 @@ export function PostForm({
 				</div>
 			</div>
 
+			<div className="form-field">
+				<div className="post-preview-head">
+					<div className="form-label">Προεπισκόπηση</div>
+
+					<button
+						type="button"
+						className="button secondary"
+						aria-expanded={showPreview}
+						onClick={() => setShowPreview((value) => !value)}
+					>
+						{showPreview ? "Απόκρυψη" : "Εμφάνιση προεπισκόπησης"}
+					</button>
+				</div>
+
+				{showPreview && (
+					<PostPreview
+						title={title}
+						description={description}
+						content={content}
+						imageUrl={imageUrl}
+						imageAlt={imageAlt}
+						imageCaption={imageCaption}
+						tags={previewTags}
+					/>
+				)}
+			</div>
+
 			<div className="form-actions">
 				<button className="button" type="submit">
 					Αποθήκευση
@@ -379,7 +423,10 @@ export function PostForm({
 						<div className="post-card-body">
 							<h3 ref={titleMeasureRef}>{title || "\u00a0"}</h3>
 
-							<p ref={descriptionMeasureRef}>{description || "\u00a0"}</p>
+							{/* The card clips this paragraph at 3 lines; measure it unclipped to count them. */}
+							<p ref={descriptionMeasureRef} className="post-measure">
+								{description || "\u00a0"}
+							</p>
 						</div>
 					</article>
 				</div>

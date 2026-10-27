@@ -1,78 +1,122 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
+import { DownloadPng } from "@/components/outlook/DownloadPng";
 
-// Greece and the central Mediterranean sit about 62% across the map (-30° to 50° E).
-const START_X = 0.62;
+const ZOOM_STEPS = [100, 150, 200, 300];
+
+type Focus = { fx: number; fy: number };
 
 /**
- * Wraps the server-rendered graphic. On a phone the map keeps a readable width and the
- * visitor scrolls sideways, starting centred on Greece. "Full screen" opens a larger
- * copy that can be panned and pinch-zoomed with the browser's own gestures.
+ * Wraps the server-rendered graphic. It always starts as the whole map fitted to the screen
+ * (small on a phone). Tap the map, or use + / -, to zoom in and scroll around; the save
+ * button downloads the full-size picture.
  */
-export function OutlookViewer({ children }: { children: React.ReactNode }) {
+export function OutlookViewer({
+	children,
+	fileName,
+}: {
+	children: React.ReactNode;
+	fileName: string;
+}) {
 	const scrollRef = useRef<HTMLDivElement>(null);
-	const fullRef = useRef<HTMLDivElement>(null);
-	const [open, setOpen] = useState(false);
+	const wrapRef = useRef<HTMLDivElement>(null);
+	const focusRef = useRef<Focus | null>(null);
+	const [zoom, setZoom] = useState(100);
 
-	useEffect(() => {
-		const el = scrollRef.current;
-		if (!el || el.scrollWidth <= el.clientWidth) return;
-		el.scrollLeft = el.scrollWidth * START_X - el.clientWidth / 2;
-	}, []);
+	// After the width changes, scroll so the point that was tapped (or the centre) stays put.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: runs once per zoom change
+	useLayoutEffect(() => {
+		const scroller = scrollRef.current;
+		const focus = focusRef.current;
+		focusRef.current = null;
 
-	useEffect(() => {
-		if (!open) return;
+		if (!scroller || !focus) return;
 
-		const previous = document.body.style.overflow;
-		document.body.style.overflow = "hidden";
+		scroller.scrollLeft = focus.fx * scroller.scrollWidth - scroller.clientWidth / 2;
+		scroller.scrollTop = focus.fy * scroller.scrollHeight - scroller.clientHeight / 2;
+	}, [zoom]);
 
-		const el = fullRef.current;
-		if (el) {
-			el.scrollLeft = el.scrollWidth * START_X - el.clientWidth / 2;
-			el.scrollTop = 0;
-		}
+	function currentCentre(): Focus {
+		const scroller = scrollRef.current;
 
-		function onKey(event: KeyboardEvent) {
-			if (event.key === "Escape") setOpen(false);
-		}
+		if (!scroller) return { fx: 0.5, fy: 0.5 };
 
-		window.addEventListener("keydown", onKey);
-
-		return () => {
-			document.body.style.overflow = previous;
-			window.removeEventListener("keydown", onKey);
+		return {
+			fx: (scroller.scrollLeft + scroller.clientWidth / 2) / scroller.scrollWidth,
+			fy: (scroller.scrollTop + scroller.clientHeight / 2) / scroller.scrollHeight,
 		};
-	}, [open]);
+	}
+
+	function step(direction: 1 | -1, focus?: Focus) {
+		const index = ZOOM_STEPS.indexOf(zoom);
+		const next = ZOOM_STEPS[Math.min(ZOOM_STEPS.length - 1, Math.max(0, index + direction))];
+
+		if (next === zoom) return;
+
+		focusRef.current = focus ?? currentCentre();
+		setZoom(next);
+	}
+
+	function onTap(event: React.MouseEvent<HTMLDivElement>) {
+		const wrap = wrapRef.current;
+
+		if (!wrap) return;
+
+		if (zoom > 100) {
+			focusRef.current = currentCentre();
+			setZoom(100);
+			return;
+		}
+
+		const rect = wrap.getBoundingClientRect();
+
+		step(1, {
+			fx: (event.clientX - rect.left) / rect.width,
+			fy: (event.clientY - rect.top) / rect.height,
+		});
+	}
 
 	return (
-		<>
-			<div className="outlook-scroll" data-outlook-graphic ref={scrollRef}>
-				<div className="outlook-graphic-wrap">{children}</div>
+		<div className="outlook-viewer">
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: the +/- buttons below do the same */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: tap-to-zoom is a shortcut; the +/- buttons are the accessible control */}
+			<div
+				className={`outlook-scroll ${zoom > 100 ? "zoomed" : ""}`}
+				data-outlook-graphic
+				ref={scrollRef}
+				onClick={onTap}
+			>
+				<div className="outlook-graphic-wrap" ref={wrapRef} style={{ width: `${zoom}%` }}>
+					{children}
+				</div>
 			</div>
 
 			<div className="outlook-viewer-bar">
-				<span className="outlook-hint">Σύρε πλαγίως για να δεις όλον τον χάρτη.</span>
-				<button type="button" className="button secondary" onClick={() => setOpen(true)}>
-					Πλήρης οθόνη
-				</button>
-			</div>
-
-			{open && (
-				<div
-					className="outlook-full"
-					role="dialog"
-					aria-modal="true"
-					aria-label="Χάρτης σε πλήρη οθόνη"
-				>
-					<button type="button" className="outlook-full-close" onClick={() => setOpen(false)}>
-						Κλείσιμο ×
+				<div className="outlook-zoom-controls" role="toolbar" aria-label="Μεγέθυνση χάρτη">
+					<button
+						type="button"
+						className="button secondary"
+						onClick={() => step(-1)}
+						disabled={zoom === ZOOM_STEPS[0]}
+						aria-label="Σμίκρυνση"
+					>
+						−
 					</button>
-					<div className="outlook-full-scroll" ref={fullRef}>
-						<div className="outlook-full-inner">{children}</div>
-					</div>
+					<span className="outlook-zoom-value">{zoom}%</span>
+					<button
+						type="button"
+						className="button secondary"
+						onClick={() => step(1)}
+						disabled={zoom === ZOOM_STEPS[ZOOM_STEPS.length - 1]}
+						aria-label="Μεγέθυνση"
+					>
+						+
+					</button>
 				</div>
-			)}
-		</>
+
+				<DownloadPng fileName={fileName} containerRef={scrollRef} />
+			</div>
+		</div>
 	);
 }

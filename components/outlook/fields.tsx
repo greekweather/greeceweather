@@ -53,6 +53,16 @@ export function NumberField({
 					step="any"
 					value={text}
 					aria-invalid={!valid}
+					onKeyDown={(event) => {
+						// step="any" lets odd decimals through validation, so the arrows are handled here
+						if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+						event.preventDefault();
+						const base = Number.isFinite(parsed) ? parsed : value;
+						const delta = event.key === "ArrowUp" ? step : -step;
+						const next = Math.min(max, Math.max(min, Number((base + delta).toFixed(6))));
+						setText(format(next, decimals));
+						onCommit(next);
+					}}
 					onFocus={() => setFocused(true)}
 					onBlur={() => {
 						setFocused(false);

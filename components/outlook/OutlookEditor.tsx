@@ -49,6 +49,7 @@ import {
 	LIMITS,
 	type MapData,
 	type MapElement,
+	markerScale,
 	type PolygonArea,
 	pressureClass,
 	stormType,
@@ -976,7 +977,7 @@ export function OutlookEditor({
 		}
 
 		const [x, y] = toUnits(selected.x, selected.y);
-		let radius = 18;
+		let radius = selected.kind === "x" ? 18 * markerScale(selected) : 18;
 
 		if (selected.kind === "storm") {
 			const cls = pressureClass(selected.pressure);

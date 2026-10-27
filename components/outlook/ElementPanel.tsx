@@ -10,8 +10,9 @@ import {
 	HORIZONS,
 	LABEL_POSITIONS,
 	type LabelPos,
-	type MapElement,
+	MARKER_SIZE,
 	MAX_PRESSURE,
+	type MapElement,
 	MIN_PRESSURE,
 	pressureClass,
 	STORM_TYPES,
@@ -65,7 +66,7 @@ function AreaFields({ area, onChange }: { area: Area; onChange: Patch }) {
 		<>
 			<div className="outlook-field">
 				<span className="outlook-field-label">Χρονικός ορίζοντας</span>
-				<div className="outlook-segment" role="group" aria-label="Χρονικός ορίζοντας">
+				<fieldset className="outlook-segment" aria-label="Χρονικός ορίζοντας">
 					{HORIZONS.map((h) => (
 						<button
 							key={h.id}
@@ -77,7 +78,7 @@ function AreaFields({ area, onChange }: { area: Area; onChange: Patch }) {
 							{h.label}
 						</button>
 					))}
-				</div>
+				</fieldset>
 				<small>
 					{area.horizon === "48h"
 						? "Γεμάτη περιοχή στον χάρτη."
@@ -107,7 +108,7 @@ function AreaFields({ area, onChange }: { area: Area; onChange: Patch }) {
 
 			<div className="outlook-field">
 				<span className="outlook-field-label">Γρήγορη επιλογή</span>
-				<div className="outlook-presets" role="group" aria-label="Γρήγορη επιλογή πιθανότητας">
+				<fieldset className="outlook-presets" aria-label="Γρήγορη επιλογή πιθανότητας">
 					{CHANCE_PRESETS.map((value) => (
 						<button
 							key={value}
@@ -119,7 +120,7 @@ function AreaFields({ area, onChange }: { area: Area; onChange: Patch }) {
 							{value}%
 						</button>
 					))}
-				</div>
+				</fieldset>
 				<small>Το 0% σημαίνει σχεδόν μηδενική πιθανότητα (στο NHC: «near 0%»).</small>
 			</div>
 
@@ -211,6 +212,40 @@ function MarkerFields({ marker, onChange }: { marker: XMarker; onChange: Patch }
 					))}
 				</select>
 				<small>Όπως στο NHC: γκρι X όταν δεν αναμένεται ανάπτυξη.</small>
+			</div>
+
+			<div className="outlook-field">
+				<label htmlFor="outlook-marker-size">
+					Μέγεθος X ({marker.size ?? MARKER_SIZE.default}%)
+				</label>
+				<input
+					id="outlook-marker-size"
+					type="range"
+					min={MARKER_SIZE.min}
+					max={MARKER_SIZE.max}
+					step={MARKER_SIZE.step}
+					value={marker.size ?? MARKER_SIZE.default}
+					onChange={(event) =>
+						onChange({ ...marker, size: Number(event.target.value) }, `marker-size-${marker.id}`)
+					}
+				/>
+				<div className="outlook-presets-row">
+					{[
+						{ label: "Μικρό", value: 70 },
+						{ label: "Κανονικό", value: MARKER_SIZE.default },
+						{ label: "Μεγάλο", value: 160 },
+						{ label: "Πολύ μεγάλο", value: 240 },
+					].map((preset) => (
+						<button
+							key={preset.value}
+							type="button"
+							className={(marker.size ?? MARKER_SIZE.default) === preset.value ? "active" : ""}
+							onClick={() => onChange({ ...marker, size: preset.value })}
+						>
+							{preset.label}
+						</button>
+					))}
+				</div>
 			</div>
 
 			<TextField

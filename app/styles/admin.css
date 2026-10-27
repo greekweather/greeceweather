@@ -1056,3 +1056,67 @@ body:has(.admin-shell) .weather-banner {
 	margin-top: 6px;
 	color: var(--a-muted);
 }
+
+/* ---- post preview (post form) ---- */
+.post-preview-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.post-preview {
+	margin-top: 12px;
+	border: 1px solid var(--a-field-border);
+	border-radius: 10px;
+	background: var(--bg);
+	overflow: hidden;
+}
+
+.post-preview-tabs {
+	display: flex;
+	gap: 4px;
+	padding: 8px;
+	border-bottom: 1px solid var(--a-field-border);
+	background: var(--a-card);
+}
+
+.post-preview-tabs button {
+	min-height: 36px;
+	padding: 0 14px;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 0.9rem;
+	cursor: pointer;
+}
+
+.post-preview-tabs button.active {
+	border-color: var(--accent);
+	font-weight: 700;
+}
+
+.post-preview-card {
+	max-width: 380px;
+	padding: 16px;
+}
+
+.post-preview-article {
+	max-height: 720px;
+	padding: 16px 0;
+	overflow-y: auto;
+}
+
+.post-preview-article .article-hero img {
+	cursor: default;
+}
+
+/* Hidden copy of the card paragraph used to count lines: not clipped at 3 lines. */
+.post-card p.post-measure {
+	display: block;
+	overflow: visible;
+	-webkit-line-clamp: unset;
+	line-clamp: unset;
+}

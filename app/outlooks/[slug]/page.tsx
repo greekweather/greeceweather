@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Markdown } from "@/components/Markdown";
-import { DownloadPng } from "@/components/outlook/DownloadPng";
-import { OutlookViewer } from "@/components/outlook/OutlookViewer";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
+import { OutlookViewer } from "@/components/outlook/OutlookViewer";
 import { formatOutlookDate } from "@/lib/outlook/format";
 import { UNOFFICIAL_NOTE } from "@/lib/outlook/types";
 import { getPublishedOutlookBySlug } from "@/lib/outlooks";
@@ -47,7 +46,7 @@ export default async function OutlookPage({ params }: { params: Promise<{ slug: 
 				</p>
 			</header>
 
-			<OutlookViewer>
+			<OutlookViewer fileName={outlook.slug}>
 				<OutlookGraphic
 					title={outlook.title}
 					data={outlook.map_data}
@@ -57,10 +56,6 @@ export default async function OutlookPage({ params }: { params: Promise<{ slug: 
 					idPrefix="page"
 				/>
 			</OutlookViewer>
-
-			<p className="outlook-actions">
-				<DownloadPng fileName={outlook.slug} />
-			</p>
 
 			{outlook.summary && (
 				<div className="article-body outlook-summary">

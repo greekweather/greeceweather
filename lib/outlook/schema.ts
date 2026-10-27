@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { round3 } from "@/lib/outlook/geo";
-import { LIMITS, MAX_PRESSURE, type MapData, MIN_PRESSURE } from "@/lib/outlook/types";
+import {
+	LIMITS,
+	MARKER_SIZE,
+	MAX_PRESSURE,
+	type MapData,
+	MIN_PRESSURE,
+} from "@/lib/outlook/types";
 
 // Everything that comes from the browser is checked again here, on the server.
 
@@ -41,6 +47,7 @@ const marker = z.object({
 	y: coord,
 	label: z.string().trim().max(30),
 	chance: z.number().int().min(0).max(100).nullable().optional(),
+	size: z.number().int().min(MARKER_SIZE.min).max(MARKER_SIZE.max).optional(),
 });
 
 const storm = z.object({

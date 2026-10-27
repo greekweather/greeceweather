@@ -171,7 +171,15 @@ export type XMarker = {
 	label: string;
 	/** 48-hour chance that colours the X like the NHC does; null/absent = plain black X. */
 	chance?: number | null;
+	/** Size of the X in percent of the standard one. Absent = 100. */
+	size?: number;
 };
+
+export const MARKER_SIZE = { min: 50, max: 300, step: 10, default: 100 } as const;
+
+export function markerScale(marker: { size?: number }): number {
+	return (marker.size ?? MARKER_SIZE.default) / 100;
+}
 
 export type Storm = {
 	id: string;

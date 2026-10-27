@@ -17,6 +17,7 @@ import {
 	CHANCE_STYLE,
 	type ChanceCategory,
 	chanceCategory,
+	markerScale,
 	PLAIN_LOW_CODE,
 	type PressureClass,
 	pressureClass,
@@ -324,13 +325,16 @@ export function MarkersLayer({ markers }: { markers: XMarker[] }) {
 		<g>
 			{markers.map((marker) => {
 				const [x, y] = toUnits(marker.x, marker.y);
+				const scale = markerScale(marker);
 				return (
 					<g key={marker.id} data-oid={marker.id} transform={`translate(${x} ${y})`}>
-						<circle r={14} fill="transparent" style={{ pointerEvents: "all" }} />
-						<XGlyph chance={marker.chance ?? null} />
+						<circle r={14 * scale} fill="transparent" style={{ pointerEvents: "all" }} />
+						<g transform={`scale(${scale})`}>
+							<XGlyph chance={marker.chance ?? null} />
+						</g>
 						{marker.label && (
 							<text
-								y={24}
+								y={8.5 * scale + 15.5}
 								textAnchor="middle"
 								fontFamily={FONT}
 								fontSize={12}

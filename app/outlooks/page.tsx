@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArchiveSearch } from "@/components/outlook/ArchiveSearch";
-import { OutlookViewer } from "@/components/outlook/OutlookViewer";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
+import { OutlookViewer } from "@/components/outlook/OutlookViewer";
 import { formatOutlookDate, outlookDateKey } from "@/lib/outlook/format";
 import { UNOFFICIAL_NOTE } from "@/lib/outlook/types";
 import { getPublishedOutlooks } from "@/lib/outlooks";
@@ -40,7 +40,7 @@ export default async function OutlooksPage() {
 
 						<p className="post-meta">Έκδοση: {formatOutlookDate(latest.issued_at)}</p>
 
-						<OutlookViewer>
+						<OutlookViewer fileName={latest.slug}>
 							<OutlookGraphic
 								title={latest.title}
 								data={latest.map_data}
