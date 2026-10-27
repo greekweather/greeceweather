@@ -19,7 +19,7 @@ const NAVY = "#16324f";
 
 export const EMPTY_LINES = [
 	"Δεν αναμένεται ονοματοδοτούμενη κακοκαιρία",
-	"στις επόμενες 7 ημέρες",
+	"στις επόμενες 7 ημέρες.",
 ] as const;
 
 function EmptyNotice() {
