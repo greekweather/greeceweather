@@ -79,7 +79,7 @@ export function OutlookForm({
 			<input type="hidden" name="map_data" value={mapJson} />
 
 			<div className="form-card outlook-notice" role="note">
-				<strong>Ανεπίσημο προϊόν.</strong> {UNOFFICIAL_NOTE} Το πρόσημο «ΑΝΕΠΙΣΗΜΟ» και η σχετική
+				<strong>Ανεπίσημο προϊόν:</strong> {UNOFFICIAL_NOTE} Το πρόσημο «ΑΝΕΠΙΣΗΜΟ» και η σχετική
 				δήλωση τυπώνονται αυτόματα πάνω στον χάρτη και δεν αφαιρούνται.
 			</div>
 
