@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signOutAction } from "@/app/actions";
+import { AdminTabBar } from "@/components/admin/AdminTabBar";
 import { requireAdmin } from "@/lib/auth";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -39,6 +40,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 			</aside>
 
 			<main className="admin-main">{children}</main>
+
+			<AdminTabBar>
+				<span className="admin-more-user">{user.email}</span>
+				<Link href="/admin/tags">Ετικέτες</Link>
+				<Link href="/admin/media">Πολυμέσα</Link>
+				<Link href="/">← Δημόσια σελίδα</Link>
+				<form action={signOutAction}>
+					<button type="submit">Αποσύνδεση</button>
+				</form>
+			</AdminTabBar>
 		</div>
 	);
 }

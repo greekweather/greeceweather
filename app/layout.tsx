@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AdminLink } from "@/components/AdminLink";
 import { InstallApp } from "@/components/InstallApp";
+import { MobileTabBar } from "@/components/MobileTabBar";
 import { PwaRegister } from "@/components/PwaRegister";
 import { RefreshOnNavigate } from "@/components/RefreshOnNavigate";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -50,6 +51,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
 	colorScheme: "light dark",
 	themeColor: "#0e2233",
+	viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -88,6 +90,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 				<WeatherBanner />
 
 				<main id="content">{children}</main>
+				<MobileTabBar />
 				<footer className="site-footer">
 					<div className="container footer-inner">
 						<div>

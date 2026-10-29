@@ -6,9 +6,11 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AdminPostsPage({
 	searchParams,
 }: {
-	searchParams: Promise<{ sort?: string }>;
+	searchParams: Promise<{ sort?: string; status?: string }>;
 }) {
-	const { sort } = await searchParams;
+	const { sort, status } = await searchParams;
+
+	const view = status === "draft" ? "draft" : status === "published" ? "published" : "all";
 
 	const sortOrder = sort === "oldest" ? "oldest" : sort === "views" ? "views" : "latest";
 	const ascending = sortOrder === "oldest";
@@ -25,6 +27,25 @@ export default async function AdminPostsPage({
 
 	if (error) throw new Error(error.message);
 
+	const all = data ?? [];
+	const draftCount = all.filter((post) => !post.published).length;
+
+	// Drafts have no publish date, so they are listed by when they were last saved.
+	const rows = all
+		.filter((post) =>
+			view === "all" ? true : view === "draft" ? !post.published : post.published,
+		)
+		.sort((a, b) => (view === "draft" ? Date.parse(b.updated_at) - Date.parse(a.updated_at) : 0));
+
+	const query = (extra: Record<string, string>) => {
+		const params = new URLSearchParams({
+			sort: sortOrder,
+			...(view === "all" ? {} : { status: view }),
+			...extra,
+		});
+		return `/admin/posts?${params.toString()}`;
+	};
+
 	return (
 		<>
 			<header className="admin-page-header">
@@ -40,6 +61,33 @@ export default async function AdminPostsPage({
 			</header>
 
 			<section className="admin-section">
+				<div className="admin-status-tabs" role="tablist" aria-label="Κατάσταση άρθρων">
+					<a
+						role="tab"
+						aria-selected={view === "all"}
+						className={view === "all" ? "active" : ""}
+						href={`/admin/posts?sort=${sortOrder}`}
+					>
+						Όλα ({all.length})
+					</a>
+					<a
+						role="tab"
+						aria-selected={view === "published"}
+						className={view === "published" ? "active" : ""}
+						href={`/admin/posts?sort=${sortOrder}&status=published`}
+					>
+						Δημοσιευμένα ({all.length - draftCount})
+					</a>
+					<a
+						role="tab"
+						aria-selected={view === "draft"}
+						className={view === "draft" ? "active" : ""}
+						href={`/admin/posts?sort=${sortOrder}&status=draft`}
+					>
+						Πρόχειρα ({draftCount})
+					</a>
+				</div>
+
 				<div className="admin-posts-toolbar">
 					<div>
 						<strong>Ταξινόμηση</strong>
@@ -48,21 +96,21 @@ export default async function AdminPostsPage({
 					<div className="admin-sort-buttons">
 						<a
 							className={`button secondary ${sortOrder === "latest" ? "active" : ""}`}
-							href="/admin/posts?sort=latest"
+							href={query({ sort: "latest" })}
 						>
 							Νεότερα πρώτα
 						</a>
 
 						<a
 							className={`button secondary ${sortOrder === "oldest" ? "active" : ""}`}
-							href="/admin/posts?sort=oldest"
+							href={query({ sort: "oldest" })}
 						>
 							Παλαιότερα πρώτα
 						</a>
 
 						<a
 							className={`button secondary ${sortOrder === "views" ? "active" : ""}`}
-							href="/admin/posts?sort=views"
+							href={query({ sort: "views" })}
 						>
 							Περισσότερες προβολές
 						</a>
@@ -75,14 +123,14 @@ export default async function AdminPostsPage({
 							<tr>
 								<th>Τίτλος</th>
 								<th>Κατάσταση</th>
-								<th>Δημοσίευση</th>
+								<th>{view === "draft" ? "Τελευταία αποθήκευση" : "Δημοσίευση"}</th>
 								<th>Προβολές</th>
 								<th></th>
 							</tr>
 						</thead>
 
 						<tbody>
-							{(data ?? []).map((post) => (
+							{rows.map((post) => (
 								<tr key={post.id}>
 									<td>
 										<strong>
@@ -98,7 +146,16 @@ export default async function AdminPostsPage({
 										</span>
 									</td>
 
-									<td>{formatDate(post.published_at)}</td>
+									<td>
+										{post.published ? (
+											formatDate(post.published_at)
+										) : (
+											<>
+												{formatDate(post.updated_at)}
+												{view !== "draft" && <small> · τελευταία αποθήκευση</small>}
+											</>
+										)}
+									</td>
 
 									<td>{Number(post.views ?? 0).toLocaleString("el-GR")}</td>
 
@@ -126,7 +183,9 @@ export default async function AdminPostsPage({
 						</tbody>
 					</table>
 
-					{!data?.length && <p>Δεν υπάρχουν άρθρα.</p>}
+					{!rows.length && (
+						<p>{view === "draft" ? "Δεν υπάρχουν πρόχειρα." : "Δεν υπάρχουν άρθρα."}</p>
+					)}
 				</div>
 			</section>
 		</>

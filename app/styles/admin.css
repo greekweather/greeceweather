@@ -1145,3 +1145,30 @@ body:has(.admin-shell) .weather-banner {
 	-webkit-line-clamp: unset;
 	line-clamp: unset;
 }
+
+/* ---- posts list: all / published / drafts ---- */
+.admin-status-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 14px;
+}
+
+.admin-status-tabs a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 40px;
+	padding: 0 14px;
+	border: 1px solid var(--a-field-border);
+	border-radius: 999px;
+	color: inherit;
+	font-size: 0.92rem;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.admin-status-tabs a.active {
+	border-color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 12%, transparent);
+	color: var(--accent);
+}
