@@ -64,3 +64,8 @@
 	background: var(--bg-deep);
 	color: var(--night);
 }
+
+/* Visible only to signed-in admins (see components/AdminLink.tsx). */
+.site-nav .admin-link {
+	border: 1px solid var(--border);
+}

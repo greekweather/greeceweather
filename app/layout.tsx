@@ -3,6 +3,8 @@ import { IBM_Plex_Sans, Noto_Serif } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
+import { AdminLink } from "@/components/AdminLink";
+import { InstallApp } from "@/components/InstallApp";
 import { PwaRegister } from "@/components/PwaRegister";
 import { RefreshOnNavigate } from "@/components/RefreshOnNavigate";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -76,6 +78,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 								<Link href="/">Αρχική</Link>
 								<Link href="/posts">Άρθρα</Link>
 								<Link href="/outlooks">Χάρτες</Link>
+								<AdminLink />
 							</nav>
 							<ThemeToggle />
 						</div>
@@ -92,6 +95,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 							<span> · {new Date().getFullYear()}</span>
 						</div>
 						<div>Μετεωρολογία και καιρός στην Ελλάδα</div>
+						<InstallApp />
 					</div>
 				</footer>
 			</body>
