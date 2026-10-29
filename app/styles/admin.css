@@ -1099,8 +1099,33 @@ body:has(.admin-shell) .weather-banner {
 }
 
 .post-preview-card {
-	max-width: 380px;
 	padding: 16px;
+	overflow-x: auto;
+}
+
+.post-preview-note {
+	margin: 0 0 10px;
+	font-size: 0.85rem;
+	color: var(--muted);
+}
+
+/* Same width as one real column of .post-grid (container width minus 2 gaps, divided by 3). */
+.post-preview-card-frame {
+	--container-w: min(var(--max), calc(100vw - 40px));
+	width: calc((var(--container-w) - 52px) / 3);
+	min-width: 260px;
+}
+
+@media (max-width: 900px) {
+	.post-preview-card-frame {
+		width: calc((var(--container-w) - 26px) / 2);
+	}
+}
+
+@media (max-width: 640px) {
+	.post-preview-card-frame {
+		width: var(--container-w);
+	}
 }
 
 .post-preview-article {

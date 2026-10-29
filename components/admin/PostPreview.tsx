@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Markdown } from "@/components/Markdown";
+import { formatDate } from "@/components/PostCard";
 
 type PreviewProps = {
 	title: string;
@@ -53,33 +54,44 @@ export function PostPreview({
 
 			{view === "card" ? (
 				<div className="post-preview-card">
-					<article className="post-card">
-						<div className="post-image-link">
-							{imageUrl ? (
-								// biome-ignore lint/performance/noImgElement: editor preview of an arbitrary URL
-								<img className="post-image" src={imageUrl} alt="" />
-							) : (
-								<div className="post-image post-image-placeholder" aria-hidden="true">
-									<span>Χωρίς εικόνα</span>
-								</div>
-							)}
-						</div>
+					<p className="post-preview-note">
+						Μέγεθος κάρτας όπως στη λίστα (σε οθόνη υπολογιστή: μία από τις τρεις στήλες).
+					</p>
 
-						<div className="post-card-body">
-							<h3>{title || "(χωρίς τίτλο)"}</h3>
-							<p>{description}</p>
+					<div className="post-preview-card-frame">
+						<article className="post-card">
+							<div className="post-image-link">
+								{imageUrl ? (
+									// biome-ignore lint/performance/noImgElement: editor preview of an arbitrary URL
+									<img className="post-image" src={imageUrl} alt="" width={700} height={394} />
+								) : (
+									<div className="post-image post-image-placeholder" aria-hidden="true">
+										<span>Χωρίς εικόνα</span>
+									</div>
+								)}
+							</div>
 
-							<div className="post-card-footer">
-								<div className="post-tags">
-									{tags.map((tag) => (
-										<span className="post-tag" key={tag}>
-											{tag}
-										</span>
-									))}
+							<div className="post-card-body">
+								<div className="post-meta">{formatDate(new Date().toISOString())}</div>
+								<h3>{title || "(χωρίς τίτλο)"}</h3>
+								<p>{description}</p>
+
+								<div className="post-card-footer">
+									<div className="post-tags">
+										{tags.map((tag) => (
+											<span className="post-tag" key={tag}>
+												{tag}
+											</span>
+										))}
+									</div>
+
+									<span className="text-link">
+										Διαβάστε το άρθρο <span aria-hidden="true">→</span>
+									</span>
 								</div>
 							</div>
-						</div>
-					</article>
+						</article>
+					</div>
 				</div>
 			) : (
 				<article className="article post-preview-article">
