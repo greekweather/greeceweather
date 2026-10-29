@@ -617,3 +617,10 @@ select:-webkit-autofill {
 :root[data-theme-switching] *:not(.theme-toggle, .theme-toggle *) {
 	transition: none;
 }
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle-knob {
+		transition: none;
+	}
+}

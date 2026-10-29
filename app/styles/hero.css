@@ -109,3 +109,17 @@
 	color: #3f4b57;
 	font-size: 1.15rem;
 }
+
+@media (max-width: 640px) {
+	.page-header {
+		padding: 52px 0;
+	}
+
+	.hero {
+		padding: 72px 0 88px;
+	}
+
+	.page-header {
+		padding: 52px 0 48px;
+	}
+}

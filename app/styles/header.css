@@ -86,3 +86,21 @@
 		font-size: 0.8rem;
 	}
 }
+
+@media (max-width: 700px) {
+	.site-header .header-inner {
+		display: flex;
+		min-height: 56px;
+		padding-top: 0;
+	}
+
+	.site-header .header-right {
+		display: flex;
+		gap: 10px;
+	}
+
+	.site-header .site-nav,
+	.site-header .admin-link {
+		display: none;
+	}
+}

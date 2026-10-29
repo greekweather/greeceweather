@@ -118,21 +118,18 @@ a {
 	letter-spacing: 0.14em;
 }
 
-/* "Install the app" helper in the footer (components/InstallApp.tsx). */
-.install-app-button {
-	min-height: 40px;
-	padding: 0 14px;
-	border: 1px solid currentColor;
-	border-radius: 8px;
-	background: transparent;
-	color: inherit;
-	font: inherit;
-	font-size: 0.9rem;
-	cursor: pointer;
+@media (max-width: 700px) {
+	.container {
+		width: calc(100% - 32px);
+	}
+
+	.section {
+		padding: 36px 0 56px;
+	}
 }
 
-.install-app-help {
-	max-width: 280px;
-	margin: 8px 0 0;
-	font-size: 0.85rem;
+@media (max-width: 640px) {
+	.section-heading h2 {
+		font-size: 1.6rem;
+	}
 }

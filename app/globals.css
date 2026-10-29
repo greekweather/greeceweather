@@ -12,6 +12,5 @@
 @import "./styles/forms.css";
 @import "./styles/admin.css";
 @import "./styles/outlooks.css";
-@import "./styles/responsive.css";
-@import "./styles/theme-responsive.css";
+@import "./styles/tabbar.css";
 @import "./styles/dark.css";

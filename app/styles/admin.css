@@ -1148,3 +1148,266 @@ body:has(.admin-shell) .weather-banner {
 	background: color-mix(in srgb, var(--accent) 12%, transparent);
 	color: var(--accent);
 }
+
+@media (max-width: 1000px) {
+	.media-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 900px) {
+	.admin-shell {
+		display: block;
+	}
+
+	.admin-sidebar {
+		position: static;
+		width: 100%;
+		height: auto;
+	}
+
+	.admin-sidebar-nav {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.admin-nav-group {
+		margin-top: 12px;
+	}
+
+	.admin-sidebar-footer {
+		margin-top: 20px;
+	}
+
+	.admin-main {
+		padding: 24px 18px;
+	}
+
+	.admin-dashboard-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.admin-actions-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 700px) {
+	.admin-posts-toolbar {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.admin-sort-buttons {
+		width: 100%;
+	}
+
+	.media-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.banner-option {
+		padding: 14px;
+	}
+
+	.tabbar-admin {
+		background: #111827;
+		border-top-color: rgba(255, 255, 255, 0.1);
+	}
+
+	.tabbar-admin .tabbar-item {
+		color: #9ca3af;
+	}
+
+	.tabbar-admin .tabbar-item.active {
+		color: #fff;
+		background: rgba(147, 197, 253, 0.16);
+	}
+
+	.admin-shell .admin-sidebar {
+		display: none;
+	}
+
+	.admin-more-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 28;
+		border: 0;
+		background: rgba(0, 0, 0, 0.45);
+	}
+
+	.admin-more-sheet {
+		position: fixed;
+		left: 8px;
+		right: 8px;
+		bottom: calc(72px + env(safe-area-inset-bottom));
+		z-index: 29;
+		display: flex;
+		flex-direction: column;
+		padding: 8px;
+		border-radius: 16px;
+		background: #111827;
+		color: #fff;
+		box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+	}
+
+	.admin-more-sheet a,
+	.admin-more-sheet button {
+		display: flex;
+		align-items: center;
+		min-height: 48px;
+		padding: 0 14px;
+		border: 0;
+		border-radius: 10px;
+		background: transparent;
+		color: #e5e7eb;
+		font: inherit;
+		font-size: 1rem;
+		text-align: left;
+		text-decoration: none;
+		cursor: pointer;
+	}
+
+	.admin-more-sheet a:active,
+	.admin-more-sheet button:active {
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	.admin-more-sheet form button {
+		width: 100%;
+		color: #fca5a5;
+	}
+
+	.admin-more-user {
+		padding: 10px 14px 6px;
+		color: #9ca3af;
+		font-size: 0.8rem;
+		overflow-wrap: anywhere;
+	}
+
+	.admin-main {
+		padding: 20px 16px 28px;
+	}
+
+	.admin-page-header {
+		gap: 14px;
+		margin-bottom: 20px;
+	}
+
+	.admin-page-header .button {
+		width: 100%;
+	}
+
+	.admin-posts-toolbar {
+		gap: 10px;
+	}
+
+	.admin-sort-buttons,
+	.admin-status-tabs {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		margin-inline: -16px;
+		padding: 2px 16px 6px;
+		scrollbar-width: none;
+	}
+
+	.admin-sort-buttons .button,
+	.admin-status-tabs a {
+		flex: none;
+	}
+
+	.admin-table-wrap {
+		padding: 0;
+	}
+
+	.admin-table-wrap {
+		overflow: visible;
+		border: 0;
+		background: transparent;
+		box-shadow: none;
+	}
+
+	.admin-table,
+	.admin-table tbody,
+	.admin-table tr,
+	.admin-table td {
+		display: block;
+		width: 100%;
+	}
+
+	.admin-table thead {
+		display: none;
+	}
+
+	.admin-table tbody {
+		display: grid;
+		gap: 14px;
+	}
+
+	.admin-table tbody tr {
+		padding: 14px 16px 16px;
+		border: 1px solid var(--a-card-border, #e5e7eb);
+		border-radius: 14px;
+		background: var(--a-card, #fff);
+	}
+
+	.admin-table td {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 16px;
+		padding: 9px 0;
+		border-bottom: 1px solid var(--a-line, #eef0f3);
+		text-align: right;
+	}
+
+	.admin-table td:first-child {
+		display: block;
+		padding-top: 0;
+		text-align: left;
+		font-size: 1rem;
+	}
+
+	.admin-table td[data-label]::before {
+		content: attr(data-label);
+		flex: none;
+		color: var(--a-muted, #6b7280);
+		font-size: 0.8rem;
+		font-weight: 600;
+		text-align: left;
+	}
+
+	.admin-table td:last-child {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		padding: 14px 0 0;
+		border-bottom: 0;
+		white-space: normal;
+	}
+
+	.admin-table td:last-child .button {
+		flex: 1 1 130px;
+		min-height: 44px;
+	}
+}
+
+@media (max-width: 600px) {
+	.admin-page-header {
+		flex-direction: column;
+	}
+
+	.admin-page-header h1 {
+		font-size: 26px;
+	}
+
+	.admin-sidebar-nav {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 480px) {
+	.media-grid {
+		grid-template-columns: 1fr;
+	}
+}

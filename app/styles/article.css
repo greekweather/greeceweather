@@ -254,3 +254,9 @@
 	line-height: 1;
 	cursor: pointer;
 }
+
+@media (max-width: 640px) {
+	.article {
+		padding-top: 36px;
+	}
+}

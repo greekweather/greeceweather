@@ -28,3 +28,31 @@
 	font-family: var(--font-display);
 	font-size: 1.15rem;
 }
+
+@media (max-width: 700px) {
+	.footer-inner {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 14px;
+		padding: 8px 0;
+	}
+}
+
+/* "Install the app" helper in the footer (components/InstallApp.tsx). */
+.install-app-button {
+	min-height: 40px;
+	padding: 0 14px;
+	border: 1px solid currentColor;
+	border-radius: 8px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 0.9rem;
+	cursor: pointer;
+}
+
+.install-app-help {
+	max-width: 280px;
+	margin: 8px 0 0;
+	font-size: 0.85rem;
+}

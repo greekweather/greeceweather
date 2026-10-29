@@ -109,3 +109,45 @@
 .weather-banner-item:hover .weather-banner-arrow {
 	transform: translateX(3px);
 }
+
+@media (max-width: 640px) {
+	.weather-banner {
+		padding: 19px 0 21px;
+	}
+
+	.weather-banner-inner {
+		width: calc(100% - 28px);
+		gap: 13px;
+	}
+
+	.weather-banner-title {
+		font-size: 0.98rem;
+	}
+
+	.weather-banner-items {
+		width: 100%;
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 6px;
+	}
+
+	.weather-banner-item {
+		width: 100%;
+		min-height: 39px;
+		box-sizing: border-box;
+		padding: 0 10px;
+		font-size: 0.7rem;
+	}
+
+	.weather-banner-arrow {
+		display: inline;
+	}
+
+	.weather-banner-title {
+		font-size: 1.1rem;
+	}
+
+	.weather-banner-item {
+		font-size: 0.76rem;
+	}
+}
