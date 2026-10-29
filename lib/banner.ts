@@ -28,7 +28,7 @@ export function parseBannerSchedule(
 	return { ok: true, value: { starts_at, ends_at } };
 }
 
-export type BannerStatus = "active" | "scheduled" | "expired" | "disabled";
+type BannerStatus = "active" | "scheduled" | "expired" | "disabled";
 
 export function getBannerStatus(banner: {
 	forecast_enabled: boolean;
@@ -82,9 +82,7 @@ export function bannerUrlError(urls: string[]): string | null {
 	return null;
 }
 
-// ---- forecast posts shown on the "ΠΡΟΓΝΩΣΗ" button ---------------------------------------
-
-export const MAX_FORECAST_ENTRIES = 4;
+const MAX_FORECAST_ENTRIES = 4;
 
 export type ForecastEntry = {
 	post_id: string;

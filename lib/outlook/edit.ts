@@ -1,6 +1,5 @@
-import { clampToMap, type Pt } from "@/lib/outlook/geo";
+import { clampToMap } from "@/lib/outlook/geo";
 import {
-	type Area,
 	type EllipseArea,
 	type MapData,
 	type MapElement,
@@ -105,15 +104,6 @@ export function defaultStorm(x: number, y: number): Storm {
 export function duplicateElement(el: MapElement): MapElement {
 	const copy = translateElement(el, 1.2, -0.9);
 	return { ...copy, id: newId() };
-}
-
-export function areaCenter(area: Area): Pt {
-	if (area.shape === "ellipse") return [area.x, area.y];
-	const n = area.points.length;
-	return [
-		area.points.reduce((sum, p) => sum + p[0], 0) / n,
-		area.points.reduce((sum, p) => sum + p[1], 0) / n,
-	];
 }
 
 /** Short Greek description for the element list in the editor. */

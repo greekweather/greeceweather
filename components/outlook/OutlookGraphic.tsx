@@ -10,14 +10,14 @@ import {
 import { MAP_H, MAP_W } from "@/lib/outlook/geo";
 import type { LegendPosition, MapData } from "@/lib/outlook/types";
 
-export const HEADER_H = 88;
-export const FOOTER_H = 54;
-export const GRAPHIC_W = MAP_W;
-export const GRAPHIC_H = HEADER_H + MAP_H + FOOTER_H;
+const HEADER_H = 88;
+const FOOTER_H = 54;
+const GRAPHIC_W = MAP_W;
+const GRAPHIC_H = HEADER_H + MAP_H + FOOTER_H;
 
 const NAVY = "#16324f";
 
-export const EMPTY_LINES = [
+const EMPTY_LINES = [
 	"Δεν αναμένεται ονοματοδοτούμενη κακοκαιρία",
 	"στις επόμενες 7 ημέρες.",
 ] as const;
@@ -55,7 +55,7 @@ function EmptyNotice() {
 	);
 }
 
-export type GraphicProps = {
+type GraphicProps = {
 	title: string;
 	data: MapData;
 	/** Already formatted, e.g. "Σάβ 24 Οκτ 2026, 03:00 EEST". */
@@ -101,8 +101,6 @@ export function OutlookGraphic({
 			</defs>
 
 			<rect width={GRAPHIC_W} height={GRAPHIC_H} fill="#ffffff" />
-
-			{/* title bar */}
 			<g>
 				<rect width={GRAPHIC_W} height={HEADER_H} fill="#ffffff" />
 				<rect y={HEADER_H - 5} width={GRAPHIC_W} height={5} fill={NAVY} />
@@ -148,8 +146,6 @@ export function OutlookGraphic({
 					)}
 				</g>
 			</g>
-
-			{/* map */}
 			<g transform={`translate(0 ${HEADER_H})`}>
 				<g clipPath={`url(#${clipId})`}>
 					<BaseMap />
@@ -161,8 +157,6 @@ export function OutlookGraphic({
 				</g>
 				<rect width={MAP_W} height={MAP_H} fill="none" stroke={NAVY} strokeWidth={1.5} />
 			</g>
-
-			{/* disclaimer */}
 			<g transform={`translate(0 ${HEADER_H + MAP_H})`}>
 				<rect width={GRAPHIC_W} height={FOOTER_H} fill="#eef2f6" />
 				<text x={22} y={21} fontSize={12} fontWeight={700} fill="#c4161c">

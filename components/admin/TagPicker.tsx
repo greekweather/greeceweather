@@ -75,7 +75,6 @@ export function TagPicker({
 			event.preventDefault();
 			setActive((current) => Math.max(current - 1, 0));
 		} else if (event.key === "Enter") {
-			// Never submit the post form from this field.
 			event.preventDefault();
 			const tag = remaining[active];
 			if (open && tag) add(tag.id);

@@ -3,7 +3,7 @@ import { mapDataFromDb } from "@/lib/outlook/schema";
 import type { LegendPosition, MapData } from "@/lib/outlook/types";
 import { createPublicClient } from "@/lib/supabase/public";
 
-export type Outlook = {
+type Outlook = {
 	id: string;
 	title: string;
 	slug: string;

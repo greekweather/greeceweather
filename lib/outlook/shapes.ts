@@ -61,7 +61,7 @@ export function polygonCentroid(points: readonly Pt[]): Pt {
  * Unit vectors of the long and the short axis, in map degrees (y points north).
  * rot is the angle of the long axis counter-clockwise from east.
  */
-export function ellipseAxes(rotDeg: number): { major: Pt; minor: Pt } {
+function ellipseAxes(rotDeg: number): { major: Pt; minor: Pt } {
 	const r = rotDeg * DEG;
 	return {
 		major: [Math.cos(r), Math.sin(r)],

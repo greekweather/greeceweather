@@ -140,13 +140,13 @@ export default async function AdminPostsPage({
 										<small>{post.slug}</small>
 									</td>
 
-									<td>
+									<td data-label="Κατάσταση">
 										<span className={`status ${post.published ? "published" : "draft"}`}>
 											{post.published ? "Δημοσιευμένο" : "Πρόχειρο"}
 										</span>
 									</td>
 
-									<td>
+									<td data-label={view === "draft" ? "Τελευταία αποθήκευση" : "Δημοσίευση"}>
 										{post.published ? (
 											formatDate(post.published_at)
 										) : (
@@ -157,7 +157,7 @@ export default async function AdminPostsPage({
 										)}
 									</td>
 
-									<td>{Number(post.views ?? 0).toLocaleString("el-GR")}</td>
+									<td data-label="Προβολές">{Number(post.views ?? 0).toLocaleString("el-GR")}</td>
 
 									<td
 										style={{

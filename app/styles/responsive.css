@@ -5,8 +5,7 @@
 }
 
 @media (max-width: 900px) {
-	.post-grid,
-	.popular-post-grid {
+	.post-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
@@ -90,21 +89,11 @@
 		min-height: 64px;
 	}
 
-	.site-nav {
-		gap: 14px;
-	}
-
-	.site-nav {
-		font-size: 0.9rem;
-		gap: 10px;
-	}
-
 	.section {
 		padding: 44px 0 70px;
 	}
 
-	.post-grid,
-	.popular-post-grid {
+	.post-grid {
 		grid-template-columns: 1fr;
 	}
 
@@ -147,14 +136,6 @@
 
 	.form-row {
 		grid-template-columns: 1fr;
-	}
-
-	.form-actions {
-		justify-content: center;
-	}
-
-	.form-actions .button {
-		justify-self: center;
 	}
 
 	.featured-main img {
@@ -230,45 +211,6 @@
 
 	.admin-sidebar-nav {
 		grid-template-columns: 1fr;
-	}
-
-	.site-header .header-inner {
-		display: grid;
-		grid-template-columns: 1fr auto;
-		grid-template-areas:
-			"brand toggle"
-			"nav nav";
-		align-items: center;
-		column-gap: 12px;
-		row-gap: 0;
-		min-height: 0;
-		padding-top: 10px;
-	}
-
-	.site-header .header-right {
-		display: contents;
-	}
-
-	.site-header .brand {
-		grid-area: brand;
-		min-width: 0;
-	}
-
-	.site-header .theme-toggle {
-		grid-area: toggle;
-	}
-
-	.site-header .site-nav {
-		grid-area: nav;
-		gap: 4px;
-		margin-left: -12px;
-		padding: 6px 0 10px;
-		border-right: 0;
-	}
-
-	.site-header .site-nav a {
-		padding: 8px 12px;
-		font-size: 1rem;
 	}
 }
 
@@ -433,5 +375,169 @@
 		color: #9ca3af;
 		font-size: 0.8rem;
 		overflow-wrap: anywhere;
+	}
+}
+
+/* ---- phones: roomier layout, admin tables become cards ---- */
+@media (max-width: 700px) {
+	.container {
+		width: calc(100% - 32px);
+	}
+
+	.section {
+		padding: 36px 0 56px;
+	}
+
+	.post-grid {
+		gap: 22px;
+	}
+
+	.post-card {
+		padding: 12px;
+	}
+
+	.post-card-body {
+		padding: 16px 6px 8px;
+	}
+
+	.post-card-footer {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 14px;
+		margin-top: 16px;
+	}
+
+	.post-tags {
+		gap: 8px;
+	}
+
+	.footer-inner {
+		gap: 14px;
+		padding: 8px 0;
+	}
+
+	/* admin: breathing room and thumb-sized controls */
+	.admin-main {
+		padding: 20px 16px 28px;
+	}
+
+	.admin-page-header {
+		gap: 14px;
+		margin-bottom: 20px;
+	}
+
+	.admin-page-header .button {
+		width: 100%;
+	}
+
+	.admin-posts-toolbar {
+		gap: 10px;
+	}
+
+	.admin-sort-buttons,
+	.admin-status-tabs {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		margin-inline: -16px;
+		padding: 2px 16px 6px;
+		scrollbar-width: none;
+	}
+
+	.admin-sort-buttons .button,
+	.admin-status-tabs a {
+		flex: none;
+	}
+
+	.form-card:not(.admin-table-wrap) {
+		padding: 18px 16px;
+	}
+
+	.admin-table-wrap {
+		padding: 0;
+	}
+
+	.form-actions {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 10px;
+	}
+
+	.form-actions .button,
+	.form-actions form,
+	.form-actions form .button {
+		width: 100%;
+		min-height: 48px;
+	}
+
+	/* table rows turn into stacked cards: title first, then labelled details, then actions */
+	.admin-table-wrap {
+		overflow: visible;
+		border: 0;
+		background: transparent;
+		box-shadow: none;
+	}
+
+	.admin-table,
+	.admin-table tbody,
+	.admin-table tr,
+	.admin-table td {
+		display: block;
+		width: 100%;
+	}
+
+	.admin-table thead {
+		display: none;
+	}
+
+	.admin-table tbody {
+		display: grid;
+		gap: 14px;
+	}
+
+	.admin-table tbody tr {
+		padding: 14px 16px 16px;
+		border: 1px solid var(--a-card-border, #e5e7eb);
+		border-radius: 14px;
+		background: var(--a-card, #fff);
+	}
+
+	.admin-table td {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 16px;
+		padding: 9px 0;
+		border-bottom: 1px solid var(--a-line, #eef0f3);
+		text-align: right;
+	}
+
+	.admin-table td:first-child {
+		display: block;
+		padding-top: 0;
+		text-align: left;
+		font-size: 1rem;
+	}
+
+	.admin-table td[data-label]::before {
+		content: attr(data-label);
+		flex: none;
+		color: var(--a-muted, #6b7280);
+		font-size: 0.8rem;
+		font-weight: 600;
+		text-align: left;
+	}
+
+	.admin-table td:last-child {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		padding: 14px 0 0;
+		border-bottom: 0;
+		white-space: normal;
+	}
+
+	.admin-table td:last-child .button {
+		flex: 1 1 130px;
+		min-height: 44px;
 	}
 }

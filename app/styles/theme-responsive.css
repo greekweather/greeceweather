@@ -41,14 +41,6 @@
 		font-size: 1.3rem;
 	}
 
-	.site-nav {
-		gap: 0;
-	}
-
-	.site-nav a {
-		padding: 8px 10px;
-	}
-
 	.weather-banner-title {
 		font-size: 1.1rem;
 	}

@@ -32,7 +32,7 @@ type LocalRow = { post_id: string; starts_at: string; ends_at: string };
 
 const EMPTY_ROW: LocalRow = { post_id: "", starts_at: "", ends_at: "" };
 
-export type PostOption = { id: string; title: string };
+type PostOption = { id: string; title: string };
 
 function ForecastPosts({ posts, initial }: { posts: PostOption[]; initial: ForecastRow[] }) {
 	// rows hold Athens-local "YYYY-MM-DDTHH:mm" strings, exactly what the inputs submit

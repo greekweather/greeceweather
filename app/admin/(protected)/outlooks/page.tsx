@@ -51,14 +51,14 @@ export default async function AdminOutlooksPage() {
 										<small>/outlooks/{outlook.slug}</small>
 									</td>
 
-									<td>
+									<td data-label="Κατάσταση">
 										<span className={`status ${outlook.published ? "published" : "draft"}`}>
 											{outlook.published ? "Δημοσιευμένη" : "Πρόχειρο"}
 										</span>
 									</td>
 
-									<td>{formatOutlookDate(outlook.issued_at)}</td>
-									<td>{formatOutlookDate(outlook.updated_at)}</td>
+									<td data-label="Έκδοση">{formatOutlookDate(outlook.issued_at)}</td>
+									<td data-label="Ενημέρωση">{formatOutlookDate(outlook.updated_at)}</td>
 
 									<td>
 										<div className="outlook-row-actions">

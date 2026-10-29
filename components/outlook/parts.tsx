@@ -29,8 +29,8 @@ import {
 
 export const FONT = "Arial, Helvetica, sans-serif";
 
-export const OCEAN = "#cfe4f2";
-export const LAND = "#f1eee4";
+const OCEAN = "#cfe4f2";
+const LAND = "#f1eee4";
 const COAST = "#6f7f8d";
 const BORDER = "#9aa5af";
 
@@ -39,8 +39,6 @@ const HALO = {
 	stroke: "#ffffff",
 	strokeLinejoin: "round",
 } as const;
-
-// ---- base map -------------------------------------------------------------------
 
 const LON_LINES = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60];
 const LAT_LINES = [30, 40, 50, 60, 70, 80];
@@ -190,8 +188,6 @@ export const BaseMap = memo(function BaseMap() {
 	);
 });
 
-// ---- formation chance areas -------------------------------------------------------
-
 const CATEGORIES: ChanceCategory[] = ["none", "low", "medium", "high"];
 
 export function hatchId(prefix: string, category: ChanceCategory) {
@@ -238,7 +234,7 @@ export function areaPath(area: Area): string {
 	return closedSplinePath(area.points, (p) => toUnits(p[0], p[1]));
 }
 
-export function areaCenterUnits(area: Area): readonly [number, number] {
+function areaCenterUnits(area: Area): readonly [number, number] {
 	return area.shape === "ellipse"
 		? toUnits(area.x, area.y)
 		: toUnits(...polygonCentroid(area.points));
@@ -296,8 +292,6 @@ export function AreasLayer({ areas, prefix }: { areas: Area[]; prefix: string })
 	);
 }
 
-// ---- X markers --------------------------------------------------------------------
-
 export function XGlyph({ size = 8.5, chance = null }: { size?: number; chance?: number | null }) {
 	const d = `M${-size} ${-size}L${size} ${size}M${-size} ${size}L${size} ${-size}`;
 
@@ -353,8 +347,6 @@ export function MarkersLayer({ markers }: { markers: XMarker[] }) {
 		</g>
 	);
 }
-
-// ---- storm symbols ----------------------------------------------------------------
 
 const RING_RADII = [13.5, 17.5, 21.5, 25.5];
 const DISC_R = 9.5;
@@ -450,7 +442,7 @@ export function StormSymbol({ cls, type }: { cls: PressureClass; type: StormType
 
 const LINE_H = 14;
 
-export function StormLabel({
+function StormLabel({
 	storm,
 	cls,
 	type,

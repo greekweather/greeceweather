@@ -20,8 +20,6 @@ export function MfaSetup() {
 		setMessage("");
 
 		const supabase = createClient();
-
-		// remove abandoned, unfinished attempts
 		const { data: list } = await supabase.auth.mfa.listFactors();
 
 		for (const factor of list?.all ?? []) {

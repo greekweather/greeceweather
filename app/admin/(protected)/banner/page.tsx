@@ -77,15 +77,19 @@ export default async function AdminBannerPage() {
 											</small>
 										</td>
 
-										<td>
+										<td data-label="Κατάσταση">
 											<span className={`status ${status === "active" ? "published" : "draft"}`}>
 												{BANNER_STATUS_LABEL[status]}
 											</span>
 										</td>
 
-										<td>{banner.starts_at ? formatDate(banner.starts_at) : "Άμεσα"}</td>
-										<td>{banner.ends_at ? formatDate(banner.ends_at) : "Χωρίς λήξη"}</td>
-										<td>{formatDate(banner.updated_at)}</td>
+										<td data-label="Έναρξη">
+											{banner.starts_at ? formatDate(banner.starts_at) : "Άμεσα"}
+										</td>
+										<td data-label="Λήξη">
+											{banner.ends_at ? formatDate(banner.ends_at) : "Χωρίς λήξη"}
+										</td>
+										<td data-label="Ενημέρωση">{formatDate(banner.updated_at)}</td>
 
 										<td style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
 											<a className="button secondary" href={`/admin/banner/${banner.id}/edit`}>

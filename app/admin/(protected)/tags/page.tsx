@@ -53,13 +53,13 @@ export default async function AdminTagsPage() {
 											<strong>{tag.name}</strong>
 										</td>
 
-										<td>
+										<td data-label="Slug">
 											<small>{tag.slug}</small>
 										</td>
 
-										<td>{postCount}</td>
+										<td data-label="Άρθρα">{postCount}</td>
 
-										<td>
+										<td data-label="Δημιουργήθηκε">
 											{new Intl.DateTimeFormat("el-GR", {
 												timeZone: "Europe/Athens",
 												day: "2-digit",

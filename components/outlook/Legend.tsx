@@ -7,8 +7,8 @@ import {
 	STORM_TYPES,
 } from "@/lib/outlook/types";
 
-export const LEGEND_W = 296;
-export const LEGEND_H = 452;
+const LEGEND_W = 296;
+const LEGEND_H = 452;
 const PAD = 12;
 
 const CATEGORIES: ChanceCategory[] = ["low", "medium", "high", "none"];
@@ -39,8 +39,6 @@ export function Legend({
 }) {
 	const x = position === "tl" || position === "bl" ? 12 : mapW - LEGEND_W - 12;
 	const y = position === "tl" || position === "tr" ? 12 : mapH - LEGEND_H - 12;
-
-	// first column of swatches (solid) and second (hatched)
 	const solidX = 118;
 	const hatchX = 200;
 	const swatchW = 70;
@@ -56,8 +54,6 @@ export function Legend({
 				stroke="#16324f"
 				strokeWidth={1.2}
 			/>
-
-			{/* formation chance */}
 			<Heading y={22}>ΠΙΘΑΝΟΤΗΤΑ ΑΝΑΠΤΥΞΗΣ</Heading>
 			<g fontSize={10} fill="#38485a" textAnchor="middle">
 				<text x={solidX + swatchW / 2} y={40}>
@@ -114,8 +110,6 @@ export function Legend({
 				</text>
 
 				<Rule y={142} />
-
-				{/* storm symbols by pressure */}
 				<Heading y={160}>ΣΥΣΤΗΜΑΤΑ ΧΑΜΗΛΗΣ ΠΙΕΣΗΣ</Heading>
 				{PRESSURE_CLASSES.map((cls, i) => {
 					const rowY = 168 + i * 31;
@@ -135,8 +129,6 @@ export function Legend({
 				})}
 
 				<Rule y={300} />
-
-				{/* storm types */}
 				<Heading y={318}>ΤΥΠΟΙ ΣΥΣΤΗΜΑΤΩΝ</Heading>
 				{STORM_TYPES.map((type, i) => {
 					const column = i < 4 ? 0 : 1;

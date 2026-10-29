@@ -1,5 +1,3 @@
-// Pure formatting helper, safe to use in client and server components.
-
 /** "Σάβ 24 Οκτ 2026, 03:00" in Athens time. */
 export function formatOutlookDate(value: string | null | undefined): string {
 	if (!value) return "";

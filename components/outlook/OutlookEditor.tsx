@@ -225,8 +225,6 @@ export function OutlookEditor({
 	const upp = view.w / Math.max(svgWidth, 1); // map units per screen pixel
 	const selected = findElement(value, selectedId);
 
-	// ---- sizing ------------------------------------------------------------------
-
 	useEffect(() => {
 		const svg = svgRef.current;
 		if (!svg || typeof ResizeObserver === "undefined") return;
@@ -235,8 +233,6 @@ export function OutlookEditor({
 		setSvgWidth(svg.getBoundingClientRect().width);
 		return () => observer.disconnect();
 	}, []);
-
-	// ---- history -----------------------------------------------------------------
 
 	const commit = useCallback(
 		(next: MapData, base?: MapData, coalesceKey?: string) => {
@@ -274,8 +270,6 @@ export function OutlookEditor({
 		lastCoalesce.current = null;
 		onChange(next);
 	}, [future, onChange]);
-
-	// ---- helpers -----------------------------------------------------------------
 
 	function svgPoint(clientX: number, clientY: number): Pt {
 		const svg = svgRef.current;
@@ -327,8 +321,6 @@ export function OutlookEditor({
 		const rect = svg.getBoundingClientRect();
 		zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, factor);
 	}
-
-	// ---- shapes ------------------------------------------------------------------
 
 	function finishPolygon(points: Pt[]) {
 		if (points.length < 3) {
@@ -437,8 +429,6 @@ export function OutlookEditor({
 		setSelectedId(copy.id);
 	}
 
-	// ---- pointer handling ----------------------------------------------------------
-
 	function startPinch() {
 		const pts = Array.from(pointers.current.values());
 		if (pts.length < 2) return;
@@ -509,7 +499,6 @@ export function OutlookEditor({
 			return;
 		}
 
-		// ---- select tool ----
 		const handleEl = target.closest("[data-handle]");
 
 		if (handleEl && selectedRef.current) {
@@ -755,8 +744,6 @@ export function OutlookEditor({
 		}
 	}
 
-	// ---- wheel (Ctrl + wheel zooms) and keyboard -------------------------------------
-
 	useEffect(() => {
 		const svg = svgRef.current;
 		if (!svg) return;
@@ -840,8 +827,6 @@ export function OutlookEditor({
 			window.removeEventListener("keyup", onKeyUp);
 		};
 	}, [tool, polyDraft, undo, redo]);
-
-	// ---- overlay (selection, handles, drafts) ----------------------------------------
 
 	const handleR = HANDLE_PX * upp;
 	const stroke = "#1a5a96";
@@ -1100,8 +1085,6 @@ export function OutlookEditor({
 
 		return null;
 	}
-
-	// ---- render ------------------------------------------------------------------
 
 	const cursor =
 		tool === "pan" || panning

@@ -62,7 +62,7 @@ const storm = z.object({
 	labelPos: z.enum(["right", "left", "top", "bottom"]),
 });
 
-export const mapDataSchema = z.object({
+const mapDataSchema = z.object({
 	v: z.literal(1),
 	areas: z.array(z.discriminatedUnion("shape", [ellipse, polygon])).max(LIMITS.areas),
 	markers: z.array(marker).max(LIMITS.markers),
@@ -71,7 +71,7 @@ export const mapDataSchema = z.object({
 
 const MAX_JSON_CHARS = 200_000;
 
-export type ParseResult = { ok: true; value: MapData } | { ok: false; error: string };
+type ParseResult = { ok: true; value: MapData } | { ok: false; error: string };
 
 function hasUniqueIds(data: MapData): boolean {
 	const ids = [...data.areas, ...data.markers, ...data.storms].map((item) => item.id);

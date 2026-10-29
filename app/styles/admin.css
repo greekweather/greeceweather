@@ -1,9 +1,3 @@
-.admin-header {
-	background: #0b1220;
-	color: #fff;
-	padding: 42px 0;
-}
-
 .admin-nav {
 	display: flex;
 	gap: 12px;
@@ -24,12 +18,6 @@
 	background: #ecfdf5;
 	color: #065f46;
 	border-color: #a7f3d0;
-}
-
-.checkbox-row {
-	display: flex;
-	gap: 8px;
-	align-items: center;
 }
 
 .login-wrap {
@@ -511,18 +499,6 @@
 .empty-value {
 	color: var(--text);
 	font-size: 1.02rem;
-}
-
-.delete-card {
-	box-sizing: border-box;
-	width: 100%;
-	max-width: 100%;
-	overflow-wrap: anywhere;
-}
-
-.delete-card strong {
-	white-space: normal;
-	overflow-wrap: break-word;
 }
 
 .delete-confirm-name {

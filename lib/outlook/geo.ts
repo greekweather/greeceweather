@@ -24,8 +24,8 @@ export function invMercY(y: number): number {
 	return ((2 * Math.atan(Math.exp(rad)) - Math.PI / 2) * 180) / Math.PI;
 }
 
-export const Y_TOP = mercY(LAT_MAX);
-export const Y_BOTTOM = mercY(LAT_MIN);
+const Y_TOP = mercY(LAT_MAX);
+const Y_BOTTOM = mercY(LAT_MIN);
 
 export const MAP_W = (LON_MAX - LON_MIN) * SCALE;
 export const MAP_H = (Y_TOP - Y_BOTTOM) * SCALE;
@@ -40,10 +40,6 @@ export function toUnits(x: number, y: number): Pt {
 /** SVG units -> map degrees. */
 export function fromUnits(ux: number, uy: number): Pt {
 	return [ux / SCALE + LON_MIN, Y_TOP - uy / SCALE];
-}
-
-export function lonLatToMap(lon: number, lat: number): Pt {
-	return [lon, mercY(lat)];
 }
 
 export function mapToLonLat(x: number, y: number): { lon: number; lat: number } {

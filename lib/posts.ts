@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
 
-export type Post = {
+type Post = {
 	id: string;
 	title: string;
 	slug: string;

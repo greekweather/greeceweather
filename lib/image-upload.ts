@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 
-export const IMAGE_BUCKET = "post-images";
+const IMAGE_BUCKET = "post-images";
 
 const MAX_INPUT_BYTES = 8 * 1024 * 1024;
 const MAX_OUTPUT_BYTES = 800 * 1024;
@@ -13,7 +13,7 @@ export type StoredImage = {
 	size: number | null;
 };
 
-export async function compressImage(file: File): Promise<File> {
+async function compressImage(file: File): Promise<File> {
 	if (!["image/jpeg", "image/png", "image/webp"].includes(file.type))
 		throw new Error("Χρησιμοποίησε JPG, PNG ή WebP.");
 	if (file.size > MAX_INPUT_BYTES) throw new Error("Η αρχική εικόνα πρέπει να είναι έως 8 MB.");
@@ -93,8 +93,6 @@ async function walk(prefix: string, depth: number): Promise<StoredImage[]> {
 
 	for (const item of data ?? []) {
 		const path = prefix ? `${prefix}/${item.name}` : item.name;
-
-		// Folders (one per uploader) have no id.
 		if (!item.id) {
 			if (depth > 0) found.push(...(await walk(path, depth - 1)));
 			continue;

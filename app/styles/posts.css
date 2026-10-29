@@ -29,8 +29,7 @@
 	line-height: 1;
 }
 
-.post-grid,
-.popular-post-grid {
+.post-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 26px;

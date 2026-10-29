@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-export type ArchiveItem = {
+type ArchiveItem = {
 	id: string;
 	title: string;
 	slug: string;

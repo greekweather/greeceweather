@@ -7,7 +7,7 @@ import { ImagePicker } from "@/components/admin/ImagePicker";
 import { PostPreview } from "@/components/admin/PostPreview";
 import { TagPicker } from "@/components/admin/TagPicker";
 
-export type FormPost = {
+type FormPost = {
 	id?: string;
 	title: string;
 	slug: string;
@@ -401,7 +401,7 @@ export function PostForm({
 					</button>
 				)}
 
-				<Link className="button secondary" href="/admin">
+				<Link className="button secondary" href="/admin/posts">
 					Ακύρωση
 				</Link>
 			</div>

@@ -7,8 +7,7 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check .",
-		"format": "biome format --write .",
-		"migrate:legacy": "node scripts/migrate-hugo.mjs"
+		"format": "biome format --write ."
 	},
 	"dependencies": {
 		"@ffmpeg/ffmpeg": "^0.12.15",

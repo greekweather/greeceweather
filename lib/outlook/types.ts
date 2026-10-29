@@ -1,13 +1,11 @@
 // Data model and rules for the outlook graphic.
 
-export type Horizon = "48h" | "7d";
+type Horizon = "48h" | "7d";
 
 export const HORIZONS: { id: Horizon; label: string }[] = [
 	{ id: "48h", label: "Εντός 48 ωρών" },
 	{ id: "7d", label: "Εντός 7 ημερών" },
 ];
-
-// ---- formation chance -------------------------------------------------------
 
 export type ChanceCategory = "none" | "low" | "medium" | "high";
 
@@ -30,9 +28,7 @@ export function chanceCategory(chance: number): ChanceCategory {
 	return "high";
 }
 
-// ---- low pressure classes ---------------------------------------------------
-
-export type PressureClassId = "low" | "significant" | "deep" | "very-deep";
+type PressureClassId = "low" | "significant" | "deep" | "very-deep";
 
 export type PressureClass = {
 	id: PressureClassId;
@@ -95,10 +91,8 @@ export function pressureClass(hpa: number): PressureClass | null {
 	return PRESSURE_CLASSES.find((c) => rounded >= c.min && rounded <= c.max) ?? null;
 }
 
-// ---- storm types ------------------------------------------------------------
-
 export type StormTypeId = "td" | "ts" | "hu" | "et" | "sd" | "ss" | "med";
-export type StormFamily = "tropical" | "subtropical" | "extratropical" | "medicane";
+type StormFamily = "tropical" | "subtropical" | "extratropical" | "medicane";
 
 export type StormType = {
 	id: StormTypeId;
@@ -133,9 +127,7 @@ export const LABEL_POSITIONS: { id: LabelPos; label: string }[] = [
 	{ id: "bottom", label: "Κάτω" },
 ];
 
-// ---- map elements -----------------------------------------------------------
-
-export type AreaBase = {
+type AreaBase = {
 	id: string;
 	kind: "area";
 	horizon: Horizon;

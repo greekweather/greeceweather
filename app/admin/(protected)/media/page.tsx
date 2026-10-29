@@ -32,8 +32,6 @@ async function listAllFiles(
 
 	for (const item of data ?? []) {
 		const itemPath = path ? `${path}/${item.name}` : item.name;
-
-		// Supabase folders don't have an id.
 		if (!item.id) {
 			const nestedFiles = await listAllFiles(supabase, itemPath);
 			files.push(...nestedFiles);

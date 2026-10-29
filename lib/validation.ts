@@ -29,16 +29,3 @@ export const postInputSchema = z.object({
 	published: z.coerce.boolean().default(false),
 	published_at: z.string().trim().optional().default(""),
 });
-
-export function normalizePublishedAt(raw: string, published: boolean) {
-	if (!published) return null;
-	if (!raw) return new Date().toISOString();
-
-	const value = new Date(raw);
-
-	if (Number.isNaN(value.getTime())) {
-		throw new Error("Μη έγκυρη ημερομηνία δημοσίευσης.");
-	}
-
-	return value.toISOString();
-}
