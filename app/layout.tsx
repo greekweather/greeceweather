@@ -78,8 +78,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 								<Link href="/">Αρχική</Link>
 								<Link href="/posts">Άρθρα</Link>
 								<Link href="/outlooks">Χάρτες</Link>
-								<AdminLink />
 							</nav>
+							<AdminLink />
 							<ThemeToggle />
 						</div>
 					</div>

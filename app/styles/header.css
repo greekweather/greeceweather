@@ -66,6 +66,23 @@
 }
 
 /* Visible only to signed-in admins (see components/AdminLink.tsx). */
-.site-nav .admin-link {
+.header-right .admin-link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 40px;
+	padding: 0 12px;
 	border: 1px solid var(--border);
+	border-radius: 8px;
+	color: var(--text);
+	font-size: 0.9rem;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+	.header-right .admin-link {
+		padding: 0 8px;
+		font-size: 0.8rem;
+	}
 }
