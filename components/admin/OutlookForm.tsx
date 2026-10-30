@@ -74,7 +74,7 @@ export function OutlookForm({
 	const mapJson = useMemo(() => JSON.stringify(data), [data]);
 
 	return (
-		<form action={formAction} className="outlook-form">
+		<form id="outlook-form" action={formAction} className="outlook-form">
 			{outlook?.id && <input type="hidden" name="id" value={outlook.id} />}
 			<input type="hidden" name="map_data" value={mapJson} />
 

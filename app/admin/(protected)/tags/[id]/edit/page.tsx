@@ -33,7 +33,7 @@ export default async function EditTagPage({ params }: { params: Promise<{ id: st
 			</header>
 
 			<section className="admin-section">
-				<form action={updateTagAction} className="form-card form-grid">
+				<form id="tag-form" action={updateTagAction} className="form-card form-grid">
 					<input type="hidden" name="id" value={tag.id} />
 
 					<div className="form-field">
@@ -68,7 +68,7 @@ export default async function EditTagPage({ params }: { params: Promise<{ id: st
 							action={deleteTagAction}
 							itemType="ετικέτας"
 							grammar="την ετικέτα"
-							useParentForm
+							parentFormId="tag-form"
 						/>
 
 						<a className="button secondary" href="/admin/tags">

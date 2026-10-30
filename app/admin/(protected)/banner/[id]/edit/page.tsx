@@ -74,7 +74,7 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 						action={deleteBannerAction}
 						itemType="μπάνερ"
 						grammar="το μπάνερ"
-						useParentForm
+						parentFormId="banner-form"
 					/>
 				</BannerForm>
 

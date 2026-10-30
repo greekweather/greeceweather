@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { PostSearchSelect } from "@/components/admin/PostSearchSelect";
 import { utcToAthensLocal } from "@/lib/date";
 
 type Banner = {
@@ -72,19 +73,12 @@ function ForecastPosts({ posts, initial }: { posts: PostOption[]; initial: Forec
 						)}
 					</div>
 
-					<select
+					<PostSearchSelect
 						name="forecast_post_id"
-						aria-label="Άρθρο πρόγνωσης"
+						posts={posts}
 						value={row.post_id}
-						onChange={(event) => update(index, { post_id: event.target.value })}
-					>
-						<option value="">— Κανένα άρθρο —</option>
-						{posts.map((post) => (
-							<option key={post.id} value={post.id}>
-								{post.title || "(χωρίς τίτλο)"}
-							</option>
-						))}
-					</select>
+						onChange={(id) => update(index, { post_id: id })}
+					/>
 
 					<div className="banner-schedule-grid">
 						<label className="banner-schedule-field">
@@ -145,7 +139,7 @@ export function BannerForm({
 	const [state, formAction] = useActionState(action, initialState);
 
 	return (
-		<form action={formAction} className="form-card form-grid">
+		<form id="banner-form" action={formAction} className="form-card form-grid">
 			{banner?.id && <input type="hidden" name="id" value={banner.id} />}
 
 			<div className="banner-option">

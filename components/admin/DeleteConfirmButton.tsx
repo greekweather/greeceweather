@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 export function DeleteConfirmButton({
 	id,
@@ -8,14 +9,15 @@ export function DeleteConfirmButton({
 	action,
 	itemType,
 	grammar,
-	useParentForm = false,
+	parentFormId,
 }: {
 	id: string;
 	name: string;
 	action: (formData: FormData) => void;
 	itemType: "άρθρου" | "ετικέτας" | "μπάνερ" | "χάρτη";
 	grammar: "το άρθρο" | "την ετικέτα" | "το μπάνερ" | "τον χάρτη";
-	useParentForm?: boolean;
+	/** Id of the form to submit instead of a small form of its own (the form already holds the id). */
+	parentFormId?: string;
 }) {
 	const [showConfirm, setShowConfirm] = useState(false);
 
@@ -25,49 +27,56 @@ export function DeleteConfirmButton({
 				Διαγραφή
 			</button>
 
-			{showConfirm && (
-				<div className="delete-confirm-overlay">
-					<div
-						className="delete-confirm-dialog"
-						role="dialog"
-						aria-modal="true"
-						aria-labelledby="delete-confirm-title"
-					>
-						<h2 id="delete-confirm-title">Διαγραφή {itemType}</h2>
+			{showConfirm &&
+				createPortal(
+					<div className="delete-confirm-overlay">
+						<div
+							className="delete-confirm-dialog"
+							role="dialog"
+							aria-modal="true"
+							aria-labelledby="delete-confirm-title"
+						>
+							<h2 id="delete-confirm-title">Διαγραφή {itemType}</h2>
 
-						<p>
-							Είσαι σίγουρος ότι θέλεις να διαγράψεις {grammar}{" "}
-							<strong className="delete-confirm-name">&ldquo;{name}&rdquo;</strong>
-						</p>
+							<p>
+								Είσαι σίγουρος ότι θέλεις να διαγράψεις {grammar}{" "}
+								<strong className="delete-confirm-name">&ldquo;{name}&rdquo;</strong>
+							</p>
 
-						<p className="delete-confirm-warning">Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</p>
+							<p className="delete-confirm-warning">Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</p>
 
-						<div className="delete-confirm-actions">
-							<button
-								className="button secondary"
-								type="button"
-								onClick={() => setShowConfirm(false)}
-							>
-								Ακύρωση
-							</button>
-
-							{useParentForm ? (
-								<button className="button danger" type="submit" formAction={action}>
-									Διαγραφή
+							<div className="delete-confirm-actions">
+								<button
+									className="button secondary"
+									type="button"
+									onClick={() => setShowConfirm(false)}
+								>
+									Ακύρωση
 								</button>
-							) : (
-								<form action={action}>
-									<input type="hidden" name="id" value={id} />
 
-									<button className="button danger" type="submit">
+								{parentFormId ? (
+									<button
+										className="button danger"
+										type="submit"
+										form={parentFormId}
+										formAction={action}
+									>
 										Διαγραφή
 									</button>
-								</form>
-							)}
+								) : (
+									<form action={action}>
+										<input type="hidden" name="id" value={id} />
+
+										<button className="button danger" type="submit">
+											Διαγραφή
+										</button>
+									</form>
+								)}
+							</div>
 						</div>
-					</div>
-				</div>
-			)}
+					</div>,
+					document.body,
+				)}
 		</>
 	);
 }

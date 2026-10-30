@@ -26,6 +26,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 						<Link href="/admin/banner">Μπάνερ</Link>
 						<Link href="/admin/outlooks">Χάρτες</Link>
 					</div>
+
+					<div className="admin-nav-group">
+						<span>Σύστημα</span>
+
+						<Link href="/admin/backup">Αντίγραφα ασφαλείας</Link>
+					</div>
 				</nav>
 
 				<div className="admin-sidebar-footer">
@@ -45,6 +51,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 				<span className="admin-more-user">{user.email}</span>
 				<Link href="/admin/tags">Ετικέτες</Link>
 				<Link href="/admin/media">Πολυμέσα</Link>
+				<Link href="/admin/backup">Αντίγραφα ασφαλείας</Link>
 				<Link href="/">← Δημόσια σελίδα</Link>
 				<form action={signOutAction}>
 					<button type="submit">Αποσύνδεση</button>

@@ -72,6 +72,16 @@ export default async function AdminPage() {
 						<strong>Νέα ετικέτα</strong>
 						<span>Πρόσθεσε μια νέα ετικέτα.</span>
 					</a>
+
+					<a className="admin-action-card" href="/admin/banner/new">
+						<strong>Νέο μπάνερ</strong>
+						<span>Δημιούργησε ένα νέο μπάνερ.</span>
+					</a>
+
+					<a className="admin-action-card" href="/admin/outlooks/new">
+						<strong>Νέος χάρτης</strong>
+						<span>Σχεδίασε έναν νέο χάρτη.</span>
+					</a>
 				</div>
 			</section>
 		</>

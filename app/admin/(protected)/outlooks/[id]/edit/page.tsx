@@ -54,7 +54,7 @@ export default async function EditOutlookPage({ params }: { params: Promise<{ id
 						action={deleteOutlookAction}
 						itemType="χάρτη"
 						grammar="τον χάρτη"
-						useParentForm
+						parentFormId="outlook-form"
 					/>
 				</OutlookForm>
 			</section>

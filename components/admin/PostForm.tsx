@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deletePostAction } from "@/app/actions";
+import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import { PostPreview } from "@/components/admin/PostPreview";
 import { TagPicker } from "@/components/admin/TagPicker";
@@ -153,10 +154,18 @@ export function PostForm({
 
 	return (
 		<form
+			id="post-form"
 			action={action}
 			className="form-card form-grid"
 			onSubmit={(event) => {
 				const form = event.currentTarget;
+				const submitter = (event.nativeEvent as SubmitEvent).submitter;
+
+				// deleting must not be blocked by the publish checks
+				if (submitter?.hasAttribute("formaction")) {
+					return;
+				}
+
 				const publishedInput = form.elements.namedItem("published");
 
 				const published = publishedInput instanceof HTMLInputElement && publishedInput.checked;
@@ -396,9 +405,14 @@ export function PostForm({
 				</button>
 
 				{post?.id && (
-					<button className="button danger" type="submit" formAction={deletePostAction}>
-						Διαγραφή
-					</button>
+					<DeleteConfirmButton
+						id={post.id}
+						name={post.title}
+						action={deletePostAction}
+						itemType="άρθρου"
+						grammar="το άρθρο"
+						parentFormId="post-form"
+					/>
 				)}
 
 				<Link className="button secondary" href="/admin/posts">

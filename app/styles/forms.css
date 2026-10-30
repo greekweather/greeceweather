@@ -142,6 +142,49 @@
 }
 
 @media (max-width: 700px) {
+	.form-grid {
+		gap: 20px;
+	}
+
+	.form-row {
+		gap: 20px;
+	}
+
+	.form-field {
+		gap: 8px;
+	}
+
+	/* 16px stops iOS from zooming into a field when it gets focus */
+	.form-field input,
+	.form-field select,
+	.form-field textarea {
+		font-size: 1rem;
+		padding: 12px 14px;
+	}
+
+	.form-field input {
+		height: auto;
+		min-height: 48px;
+	}
+
+	/* a warning only takes room when it is showing */
+	.form-warning-slot {
+		min-height: 0;
+		margin: 0;
+	}
+
+	.form-warning-slot:not(.visible) {
+		display: none;
+	}
+
+	.button {
+		height: auto;
+		min-height: 44px;
+		padding: 10px 16px;
+		white-space: normal;
+		text-align: center;
+	}
+
 	.form-card:not(.admin-table-wrap) {
 		padding: 18px 16px;
 	}
