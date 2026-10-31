@@ -5,6 +5,7 @@ import { OutlookForm } from "@/components/admin/OutlookForm";
 import { utcToAthensLocal } from "@/lib/date";
 import { OUTLOOK_COLUMNS, toOutlook } from "@/lib/outlooks";
 import { createClient } from "@/lib/supabase/server";
+import { isLive } from "@/lib/visibility";
 
 export default async function EditOutlookPage({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
@@ -33,6 +34,16 @@ export default async function EditOutlookPage({ params }: { params: Promise<{ id
 				</div>
 
 				<div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+					{isLive(outlook.published, outlook.published_at, outlook.issued_at) && (
+						<a
+							className="button secondary"
+							href={`/outlooks/${outlook.slug}`}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							Προβολή στο site ↗
+						</a>
+					)}
 					<a className="button secondary" href={`/admin/outlooks/new?from=${outlook.id}`}>
 						Δημιουργία αντιγράφου
 					</a>

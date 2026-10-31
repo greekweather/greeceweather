@@ -2,13 +2,14 @@ import { deleteOutlookAction } from "@/app/outlook-actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { formatOutlookDate } from "@/lib/outlook/format";
 import { createClient } from "@/lib/supabase/server";
+import { isLive } from "@/lib/visibility";
 
 export default async function AdminOutlooksPage() {
 	const supabase = await createClient();
 
 	const { data, error } = await supabase
 		.from("outlooks")
-		.select("id,title,slug,issued_at,valid_until,published,updated_at")
+		.select("id,title,slug,issued_at,valid_until,published,published_at,updated_at")
 		.order("issued_at", { ascending: false });
 
 	if (error) {
@@ -76,6 +77,17 @@ export default async function AdminOutlooksPage() {
 												>
 													Αντίγραφο
 												</a>
+
+												{isLive(outlook.published, outlook.published_at, outlook.issued_at) && (
+													<a
+														className="button secondary"
+														href={`/outlooks/${outlook.slug}`}
+														target="_blank"
+														rel="noopener noreferrer"
+													>
+														Προβολή ↗
+													</a>
+												)}
 											</div>
 
 											<div className="outlook-row-actions-bottom">

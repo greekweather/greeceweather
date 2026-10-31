@@ -56,9 +56,14 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 					<p>Τροποποίησε τα στοιχεία του μπάνερ.</p>
 				</div>
 
-				<a className="button secondary" href="/admin/banner">
-					← Επιστροφή
-				</a>
+				<div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+					<a className="button secondary" href="/" target="_blank" rel="noopener noreferrer">
+						Δες στην αρχική ↗
+					</a>
+					<a className="button secondary" href="/admin/banner">
+						← Επιστροφή
+					</a>
+				</div>
 			</header>
 
 			<section className="admin-section">

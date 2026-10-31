@@ -2,6 +2,7 @@ import { deletePostAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { formatDate } from "@/components/PostCard";
 import { createClient } from "@/lib/supabase/server";
+import { isLive } from "@/lib/visibility";
 
 // Lower-case, no accents: "καυσωνας" finds "Καύσωνας".
 function fold(text: string) {
@@ -254,6 +255,17 @@ export default async function AdminPostsPage({
 										<a className="button secondary" href={`/admin/posts/${post.id}/edit`}>
 											Επεξεργασία
 										</a>
+
+										{isLive(post.published, post.published_at) && (
+											<a
+												className="button secondary"
+												href={`/posts/${post.slug}`}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												Προβολή ↗
+											</a>
+										)}
 
 										<DeleteConfirmButton
 											id={post.id}

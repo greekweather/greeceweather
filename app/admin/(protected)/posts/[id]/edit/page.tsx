@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { updatePostAction } from "@/app/actions";
 import { PostForm } from "@/components/admin/PostForm";
 import { createClient } from "@/lib/supabase/server";
+import { isLive } from "@/lib/visibility";
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
@@ -68,8 +69,23 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 	return (
 		<section className="section">
 			<div className="container">
-				<div className="section-heading">
+				<div className="section-heading admin-heading-row">
 					<h2>Επεξεργασία άρθρου</h2>
+
+					{isLive(data.published, data.published_at) ? (
+						<a
+							className="button secondary"
+							href={`/posts/${data.slug}`}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							Προβολή στο site ↗
+						</a>
+					) : (
+						<span className="admin-view-hint">
+							Δεν είναι ακόμα ορατό στο site (πρόχειρο ή προγραμματισμένο).
+						</span>
+					)}
 				</div>
 
 				<PostForm
