@@ -141,7 +141,7 @@ export function OutlookGraphic({
 					</text>
 					{validText && (
 						<text y={72} fontSize={12} fill="#38485a">
-							{`Ισχύει: ${validText}`}
+							{`Ισχύει έως: ${validText}`}
 						</text>
 					)}
 				</g>

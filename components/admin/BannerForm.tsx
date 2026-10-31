@@ -54,7 +54,7 @@ function ForecastPosts({ posts, initial }: { posts: PostOption[]; initial: Forec
 	return (
 		<div className="banner-option">
 			<span className="banner-option-label banner-schedule-title">
-				ΠΡΟΓΝΩΣΗ <em>άρθρο που ανοίγει το κουμπί</em>
+				ΠΡΟΓΝΩΣΗ <em>Το άρθρο που ανοίγει το κουμπί.</em>
 			</span>
 
 			{rows.map((row, index) => (

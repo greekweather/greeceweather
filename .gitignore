@@ -19,6 +19,3 @@ npm-debug.log*
 
 # Natural Earth source data
 data
-
-# Backups made by scripts/caption-inline-images.mjs
-posts-backup-*.json
