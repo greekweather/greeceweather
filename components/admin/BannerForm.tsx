@@ -206,7 +206,7 @@ export function BannerForm({
 
 			<div className="banner-option">
 				<span className="banner-option-label banner-schedule-title">
-					ΧΡΟΝΙΚΟ ΠΑΡΑΘΥΡΟ <em>ώρα Ελλάδας</em>
+					ΧΡΟΝΙΚΟ ΠΑΡΑΘΥΡΟ <em>Ώρα Ελλάδας</em>
 				</span>
 
 				<div className="banner-schedule-grid">
