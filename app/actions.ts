@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { bannerUrlError, parseBannerSchedule, parseForecastEntries } from "@/lib/banner";
 import { athensLocalToUTC } from "@/lib/date";
 import { createClient } from "@/lib/supabase/server";
+import { saveBeforeDelete } from "@/lib/trash";
 import { postInputSchema } from "@/lib/validation";
 
 function formDataToInput(formData: FormData) {
@@ -206,13 +207,15 @@ export async function deletePostAction(formData: FormData) {
 
 	const { data: post, error: fetchError } = await supabase
 		.from("posts")
-		.select("slug")
+		.select("slug,title")
 		.eq("id", id)
 		.single();
 
 	if (fetchError || !post) {
 		throw new Error(fetchError?.message ?? "Το άρθρο δεν βρέθηκε.");
 	}
+
+	await saveBeforeDelete(supabase, "posts", id, post.title);
 
 	const { error } = await supabase.from("posts").delete().eq("id", id);
 
@@ -323,6 +326,10 @@ export async function deleteTagAction(formData: FormData) {
 	}
 
 	const supabase = await createClient();
+
+	const { data: tag } = await supabase.from("tags").select("name").eq("id", id).single();
+
+	await saveBeforeDelete(supabase, "tags", id, tag?.name ?? "");
 
 	const { error } = await supabase.from("tags").delete().eq("id", id);
 
@@ -561,6 +568,19 @@ export async function deleteBannerAction(formData: FormData) {
 	}
 
 	const supabase = await createClient();
+
+	const { data: banner } = await supabase
+		.from("weather_banner")
+		.select("title,created_at")
+		.eq("id", id)
+		.single();
+
+	await saveBeforeDelete(
+		supabase,
+		"weather_banner",
+		id,
+		banner?.title || `Μπάνερ ${banner?.created_at?.slice(0, 10) ?? ""}`.trim(),
+	);
 
 	const { error } = await supabase.from("weather_banner").delete().eq("id", id);
 

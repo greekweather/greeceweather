@@ -1,57 +1,22 @@
 import { MediaLibrary } from "@/components/admin/MediaLibrary";
+import { Pagination } from "@/components/admin/Pagination";
+import { listAllFiles } from "@/lib/media";
+import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 
-type StorageFile = {
-	name: string;
-	id?: string | null;
-	created_at?: string | null;
-	updated_at?: string | null;
-	metadata?: {
-		size?: number;
-		mimetype?: string;
-	} | null;
-};
-
-async function listAllFiles(
-	supabase: Awaited<ReturnType<typeof createClient>>,
-	path = "",
-): Promise<StorageFile[]> {
-	const { data, error } = await supabase.storage.from("post-images").list(path, {
-		limit: 1000,
-		sortBy: {
-			column: "created_at",
-			order: "desc",
-		},
-	});
-
-	if (error) {
-		throw new Error(error.message);
-	}
-
-	const files: StorageFile[] = [];
-
-	for (const item of data ?? []) {
-		const itemPath = path ? `${path}/${item.name}` : item.name;
-		if (!item.id) {
-			const nestedFiles = await listAllFiles(supabase, itemPath);
-			files.push(...nestedFiles);
-		} else {
-			files.push({
-				...item,
-				name: itemPath,
-			});
-		}
-	}
-
-	return files;
-}
-
-export default async function MediaPage() {
+export default async function MediaPage({
+	searchParams,
+}: {
+	searchParams: Promise<{ page?: string }>;
+}) {
+	const { page } = await searchParams;
 	const supabase = await createClient();
 
 	const storageFiles = await listAllFiles(supabase);
 
-	const files = storageFiles.map((file) => {
+	const pager = paginate(storageFiles, page);
+
+	const files = pager.items.map((file) => {
 		const { data: publicUrl } = supabase.storage.from("post-images").getPublicUrl(file.name);
 
 		return {
@@ -73,7 +38,9 @@ export default async function MediaPage() {
 				</div>
 			</div>
 
-			<MediaLibrary initialFiles={files} />
+			<MediaLibrary key={pager.page} initialFiles={files} />
+
+			<Pagination {...pager} href={(n) => `/admin/media?page=${n}`} />
 		</section>
 	);
 }

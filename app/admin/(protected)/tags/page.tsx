@@ -1,8 +1,15 @@
 import { deleteTagAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
+import { Pagination } from "@/components/admin/Pagination";
+import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function AdminTagsPage() {
+export default async function AdminTagsPage({
+	searchParams,
+}: {
+	searchParams: Promise<{ page?: string }>;
+}) {
+	const { page } = await searchParams;
 	const supabase = await createClient();
 
 	const { data: tags, error } = await supabase
@@ -13,6 +20,8 @@ export default async function AdminTagsPage() {
 	if (error) {
 		throw new Error(error.message);
 	}
+
+	const pager = paginate(tags ?? [], page);
 
 	return (
 		<>
@@ -42,7 +51,7 @@ export default async function AdminTagsPage() {
 						</thead>
 
 						<tbody>
-							{(tags ?? []).map((tag) => {
+							{pager.items.map((tag) => {
 								const postCount = Array.isArray(tag.post_tags)
 									? (tag.post_tags[0]?.count ?? 0)
 									: 0;
@@ -89,6 +98,8 @@ export default async function AdminTagsPage() {
 
 					{!tags?.length && <p>Δεν υπάρχουν ετικέτες.</p>}
 				</div>
+
+				<Pagination {...pager} href={(n) => `/admin/tags?page=${n}`} />
 			</section>
 		</>
 	);

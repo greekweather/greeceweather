@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import {
+	ALL_BACKUP_TABLES,
 	BACKUP_LABELS,
-	BACKUP_TABLES,
 	type BackupFile,
 	parseBackup,
 	type RestoreMode,
@@ -71,10 +71,14 @@ export function BackupRestore() {
 		setBusy(true);
 		setResults([]);
 
-		for (const table of BACKUP_TABLES) {
+		for (const table of ALL_BACKUP_TABLES) {
+			const tableRows = backup.tables[table] ?? [];
+
+			if (tableRows.length === 0) continue;
+
 			const result: Result = { table, done: 0, failed: 0 };
 
-			for (const rows of batches(backup.tables[table])) {
+			for (const rows of batches(tableRows)) {
 				try {
 					const response = await fetch("/admin/backup/restore", {
 						method: "POST",
@@ -118,9 +122,9 @@ export function BackupRestore() {
 				<>
 					<p className="backup-summary">
 						Αντίγραφο από {new Date(backup.created_at).toLocaleString("el-GR")}:{" "}
-						{BACKUP_TABLES.map(
-							(table) => `${BACKUP_LABELS[table]} ${backup.tables[table].length}`,
-						).join(" · ")}
+						{ALL_BACKUP_TABLES.filter((table) => backup.tables[table])
+							.map((table) => `${BACKUP_LABELS[table]} ${backup.tables[table]?.length ?? 0}`)
+							.join(" · ")}
 					</p>
 
 					<fieldset className="backup-mode">

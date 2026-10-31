@@ -1,6 +1,8 @@
 import { deleteBannerAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
+import { Pagination } from "@/components/admin/Pagination";
 import { BANNER_STATUS_LABEL, getBannerStatus } from "@/lib/banner";
+import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 
 function formatDate(date: string | null) {
@@ -15,7 +17,12 @@ function formatDate(date: string | null) {
 	}).format(new Date(date));
 }
 
-export default async function AdminBannerPage() {
+export default async function AdminBannerPage({
+	searchParams,
+}: {
+	searchParams: Promise<{ page?: string }>;
+}) {
+	const { page } = await searchParams;
 	const supabase = await createClient();
 
 	const { data, error } = await supabase
@@ -28,6 +35,8 @@ export default async function AdminBannerPage() {
 	if (error) {
 		throw new Error(error.message);
 	}
+
+	const pager = paginate(data ?? [], page);
 
 	return (
 		<>
@@ -58,7 +67,7 @@ export default async function AdminBannerPage() {
 						</thead>
 
 						<tbody>
-							{(data ?? []).map((banner) => {
+							{pager.items.map((banner) => {
 								const enabledItems = [
 									banner.forecast_enabled,
 									banner.emergency_enabled,
@@ -112,6 +121,8 @@ export default async function AdminBannerPage() {
 
 					{!data?.length && <p>Δεν υπάρχουν μπάνερ.</p>}
 				</div>
+
+				<Pagination {...pager} href={(n) => `/admin/banner?page=${n}`} />
 			</section>
 		</>
 	);

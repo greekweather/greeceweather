@@ -22,6 +22,7 @@ function normalize(value: string) {
 }
 
 const PAGE_SIZE = 5;
+const MAX_VISIBLE = 10;
 
 export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; latestId: string }) {
 	const [query, setQuery] = useState("");
@@ -97,6 +98,9 @@ export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; lates
 					? `${results.length} ${results.length === 1 ? "αποτέλεσμα" : "αποτελέσματα"}`
 					: `${results.length} ${results.length === 1 ? "παλαιότερος χάρτης" : "παλαιότεροι χάρτες"}`}
 				{results.length > visible && ` · εμφανίζονται οι ${visible} πιο πρόσφατοι`}
+				{results.length > MAX_VISIBLE &&
+					visible === MAX_VISIBLE &&
+					" (για παλαιότερους ψάξε παραπάνω)"}
 			</p>
 
 			{results.length > 0 ? (
@@ -112,15 +116,29 @@ export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; lates
 				filtering && <p>Δεν βρέθηκε χάρτης με αυτά τα κριτήρια.</p>
 			)}
 
-			{results.length > visible && (
-				<button
-					type="button"
-					className="button secondary"
-					onClick={() => setVisible((count) => count + PAGE_SIZE * 2)}
-				>
-					Εμφάνιση περισσότερων
-				</button>
-			)}
+			{(results.length > visible && visible < MAX_VISIBLE) || visible > PAGE_SIZE ? (
+				<div className="outlook-archive-more">
+					{results.length > visible && visible < MAX_VISIBLE && (
+						<button
+							type="button"
+							className="button secondary"
+							onClick={() => setVisible(MAX_VISIBLE)}
+						>
+							Εμφάνιση περισσότερων
+						</button>
+					)}
+
+					{visible > PAGE_SIZE && (
+						<button
+							type="button"
+							className="button secondary"
+							onClick={() => setVisible(PAGE_SIZE)}
+						>
+							Απόκρυψη
+						</button>
+					)}
+				</div>
+			) : null}
 		</section>
 	);
 }

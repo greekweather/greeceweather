@@ -1,10 +1,17 @@
 import { deleteOutlookAction } from "@/app/outlook-actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
+import { Pagination } from "@/components/admin/Pagination";
 import { formatOutlookDate } from "@/lib/outlook/format";
+import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 import { isLive } from "@/lib/visibility";
 
-export default async function AdminOutlooksPage() {
+export default async function AdminOutlooksPage({
+	searchParams,
+}: {
+	searchParams: Promise<{ page?: string }>;
+}) {
+	const { page } = await searchParams;
 	const supabase = await createClient();
 
 	const { data, error } = await supabase
@@ -15,6 +22,8 @@ export default async function AdminOutlooksPage() {
 	if (error) {
 		throw new Error(error.message);
 	}
+
+	const pager = paginate(data ?? [], page);
 
 	return (
 		<>
@@ -44,7 +53,7 @@ export default async function AdminOutlooksPage() {
 						</thead>
 
 						<tbody>
-							{(data ?? []).map((outlook) => (
+							{pager.items.map((outlook) => (
 								<tr key={outlook.id}>
 									<td>
 										<strong>{outlook.title}</strong>
@@ -108,6 +117,8 @@ export default async function AdminOutlooksPage() {
 
 					{!data?.length && <p>Δεν υπάρχουν χάρτες.</p>}
 				</div>
+
+				<Pagination {...pager} href={(n) => `/admin/outlooks?page=${n}`} />
 			</section>
 		</>
 	);

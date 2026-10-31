@@ -7,6 +7,7 @@ import { athensLocalToUTC } from "@/lib/date";
 import { parseMapData } from "@/lib/outlook/schema";
 import { LEGEND_POSITIONS, type LegendPosition, type MapData } from "@/lib/outlook/types";
 import { createClient } from "@/lib/supabase/server";
+import { saveBeforeDelete } from "@/lib/trash";
 
 type FormState = { error?: string };
 
@@ -176,6 +177,11 @@ export async function deleteOutlookAction(formData: FormData) {
 	if (!id) throw new Error("Μη έγκυρος χάρτης.");
 
 	const supabase = await createClient();
+
+	const { data: outlook } = await supabase.from("outlooks").select("title").eq("id", id).single();
+
+	await saveBeforeDelete(supabase, "outlooks", id, outlook?.title ?? "");
+
 	const { error } = await supabase.from("outlooks").delete().eq("id", id);
 
 	if (error) throw new Error(error.message);

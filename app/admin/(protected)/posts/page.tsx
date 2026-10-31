@@ -1,6 +1,8 @@
 import { deletePostAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
+import { Pagination } from "@/components/admin/Pagination";
 import { formatDate } from "@/components/PostCard";
+import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 import { isLive } from "@/lib/visibility";
 
@@ -16,9 +18,15 @@ function fold(text: string) {
 export default async function AdminPostsPage({
 	searchParams,
 }: {
-	searchParams: Promise<{ sort?: string; status?: string; tag?: string; q?: string }>;
+	searchParams: Promise<{
+		sort?: string;
+		status?: string;
+		tag?: string;
+		q?: string;
+		page?: string;
+	}>;
 }) {
-	const { sort, status, tag, q } = await searchParams;
+	const { sort, status, tag, q, page: pageParam } = await searchParams;
 
 	const view = status === "draft" ? "draft" : status === "published" ? "published" : "all";
 
@@ -62,11 +70,14 @@ export default async function AdminPostsPage({
 	const draftCount = all.filter((post) => !post.published).length;
 
 	// Drafts have no publish date, so they are listed by when they were last saved.
-	const rows = all
+	const filtered = all
 		.filter((post) =>
 			view === "all" ? true : view === "draft" ? !post.published : post.published,
 		)
 		.sort((a, b) => (view === "draft" ? Date.parse(b.updated_at) - Date.parse(a.updated_at) : 0));
+
+	const pager = paginate(filtered, pageParam);
+	const rows = pager.items;
 
 	const query = (extra: Record<string, string>) => {
 		const params = new URLSearchParams({
@@ -280,10 +291,12 @@ export default async function AdminPostsPage({
 						</tbody>
 					</table>
 
-					{!rows.length && (
+					{!filtered.length && (
 						<p>{view === "draft" ? "Δεν υπάρχουν πρόχειρα." : "Δεν υπάρχουν άρθρα."}</p>
 					)}
 				</div>
+
+				<Pagination {...pager} href={(page) => query({ page: String(page) })} />
 			</section>
 		</>
 	);

@@ -1660,3 +1660,103 @@ body:has(.admin-shell) .weather-banner {
 	color: var(--a-muted, #6b7280);
 	font-size: 0.88rem;
 }
+
+/* the "Browse…" button of the backup file picker */
+.backup-restore input[type="file"]::file-selector-button {
+	margin-right: 12px;
+	padding: 9px 16px;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	background: #fff;
+	color: #374151;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.backup-restore input[type="file"]::file-selector-button:hover {
+	border-color: #1d6fe8;
+	background: #f7faff;
+}
+
+/* ---- pages under admin lists ---- */
+.admin-pager {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 18px;
+}
+
+.admin-pager-summary {
+	margin: 0;
+	color: var(--a-muted, #6b7280);
+	font-size: 0.9rem;
+}
+
+.admin-pager ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.admin-pager a,
+.admin-pager li > span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 40px;
+	min-height: 40px;
+	padding: 0 10px;
+	border: 1px solid var(--a-field-border, #d9e1ea);
+	border-radius: 8px;
+	background: var(--a-card, #fff);
+	color: inherit;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.admin-pager a:hover {
+	border-color: var(--accent);
+}
+
+.admin-pager .current {
+	border-color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 12%, transparent);
+	color: var(--accent);
+}
+
+.admin-pager .disabled {
+	opacity: 0.4;
+}
+
+.admin-pager .gap {
+	border-color: transparent;
+	background: transparent;
+}
+
+.backup-downloads {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.backup-notice {
+	margin: 0 0 14px;
+	padding: 12px 14px;
+	border: 1px solid #86efac;
+	border-radius: 10px;
+	background: #f0fdf4;
+	color: #166534;
+	font-weight: 600;
+}
+
+.backup-card .admin-table td:last-child {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}

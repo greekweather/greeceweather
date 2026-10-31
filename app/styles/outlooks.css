@@ -49,6 +49,13 @@
 	gap: 8px;
 }
 
+.outlook-archive-more {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 28px;
+}
+
 /* ---- Admin: form -------------------------------------------------------------------- */
 
 .outlook-form {

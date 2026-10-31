@@ -1,17 +1,23 @@
-import { createHmac } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 const MIN_GAP_MINUTES = 3;
-const MAX_VIEWS_PER_DAY = 15;
+const MAX_VIEWS_PER_DAY = 40;
 
+// A random id per browser (24 hours, no personal data). Counting visitors by IP + browser string
+// merged different people: everyone on the same mobile network or office with the same phone
+// model looked like one visitor, so their views were dropped as repeats.
+const VISITOR_COOKIE = "gw_vid";
+
+// "bot" is matched as a word or as a known crawler name, so phone brands like "Cubot" still count.
 const BOT_PATTERN =
-	/bot|crawl|spider|slurp|headless|preview|facebookexternalhit|monitor|curl|wget|python|axios|node-fetch/i;
+	/(?:^|[^a-z])bot(?:[^a-z]|$)|googlebot|bingbot|slackbot|twitterbot|discordbot|telegrambot|crawl|spider|slurp|headless|preview|facebookexternalhit|monitor|curl|wget|python|axios|node-fetch/i;
 
-// Best-effort throttle per server instance: 30 requests per minute per visitor.
+// Best-effort throttle per server instance: 120 requests per minute per IP address.
 const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 30;
+const MAX_PER_WINDOW = 120;
 const hits = new Map<string, { count: number; resetAt: number }>();
 
 function isThrottled(key: string): boolean {
@@ -56,7 +62,7 @@ export async function POST(request: Request) {
 	const userAgent = request.headers.get("user-agent") ?? "";
 
 	if (BOT_PATTERN.test(userAgent)) {
-		return NextResponse.json({ ok: true, counted: false });
+		return NextResponse.json({ ok: true, counted: false, reason: "bot" });
 	}
 
 	const body = await request.json().catch(() => null);
@@ -72,14 +78,14 @@ export async function POST(request: Request) {
 		"unknown";
 
 	if (isThrottled(ip)) {
-		return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+		return NextResponse.json({ error: "Too many requests", reason: "throttled" }, { status: 429 });
 	}
 
 	const cookieStore = await cookies();
 	const key = `viewed_${slug}`;
 
 	if (cookieStore.get(key)) {
-		return NextResponse.json({ ok: true, counted: false });
+		return NextResponse.json({ ok: true, counted: false, reason: "cookie" });
 	}
 
 	const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -89,11 +95,11 @@ export async function POST(request: Request) {
 		return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
 	}
 
-	// Anonymous, non-reversible visitor id that changes every day.
-	const day = new Date().toISOString().slice(0, 10);
-	const visitor = createHmac("sha256", serviceKey)
-		.update(`${ip}|${userAgent}|${day}`)
-		.digest("hex");
+	const existingId = cookieStore.get(VISITOR_COOKIE)?.value;
+	const visitorId = existingId && /^[0-9a-f-]{36}$/.test(existingId) ? existingId : randomUUID();
+
+	// Only a hash of the random id reaches the database.
+	const visitor = createHmac("sha256", serviceKey).update(visitorId).digest("hex");
 
 	const supabase = createClient(url, serviceKey, {
 		auth: { persistSession: false, autoRefreshToken: false },
@@ -107,17 +113,26 @@ export async function POST(request: Request) {
 	});
 
 	if (error) {
-		return NextResponse.json({ error: "Could not record view" }, { status: 500 });
+		return NextResponse.json(
+			{ error: "Could not record view", reason: "db_error" },
+			{ status: 500 },
+		);
 	}
 
-	const response = NextResponse.json({ ok: true, counted: data === true });
+	// The database answers with a reason ("counted", "gap", "daily_cap", "not_live");
+	// the older version of the function answered true / false.
+	const reason = typeof data === "string" ? data : data === true ? "counted" : "not_counted";
 
-	response.cookies.set(key, "1", {
+	const response = NextResponse.json({ ok: true, counted: reason === "counted", reason });
+
+	const options = {
 		httpOnly: true,
-		sameSite: "lax",
+		sameSite: "lax" as const,
 		secure: process.env.NODE_ENV === "production",
-		maxAge: 60 * MIN_GAP_MINUTES,
-	});
+	};
+
+	response.cookies.set(key, "1", { ...options, maxAge: 60 * MIN_GAP_MINUTES });
+	response.cookies.set(VISITOR_COOKIE, visitorId, { ...options, maxAge: 60 * 60 * 24 });
 
 	return response;
 }
