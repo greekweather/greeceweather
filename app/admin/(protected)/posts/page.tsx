@@ -3,12 +3,21 @@ import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { formatDate } from "@/components/PostCard";
 import { createClient } from "@/lib/supabase/server";
 
+// Lower-case, no accents: "καυσωνας" finds "Καύσωνας".
+function fold(text: string) {
+	return text
+		.normalize("NFD")
+		.replace(/\p{Diacritic}/gu, "")
+		.toLowerCase()
+		.replace(/ς/g, "σ");
+}
+
 export default async function AdminPostsPage({
 	searchParams,
 }: {
-	searchParams: Promise<{ sort?: string; status?: string }>;
+	searchParams: Promise<{ sort?: string; status?: string; tag?: string; q?: string }>;
 }) {
-	const { sort, status } = await searchParams;
+	const { sort, status, tag, q } = await searchParams;
 
 	const view = status === "draft" ? "draft" : status === "published" ? "published" : "all";
 
@@ -17,17 +26,38 @@ export default async function AdminPostsPage({
 
 	const supabase = await createClient();
 
-	const { data, error } = await supabase
-		.from("posts")
-		.select("id,title,slug,published,published_at,views,updated_at")
-		.order(sortOrder === "views" ? "views" : "published_at", {
-			ascending: sortOrder === "views" ? false : ascending,
-			nullsFirst: false,
-		});
+	const [{ data, error }, { data: tagRows }] = await Promise.all([
+		supabase
+			.from("posts")
+			.select("id,title,slug,published,published_at,views,updated_at,post_tags(tags(id,name))")
+			.order(sortOrder === "views" ? "views" : "published_at", {
+				ascending: sortOrder === "views" ? false : ascending,
+				nullsFirst: false,
+			}),
+		supabase.from("tags").select("id,name").order("name"),
+	]);
 
 	if (error) throw new Error(error.message);
 
-	const all = data ?? [];
+	const allTags = tagRows ?? [];
+	const tagId = allTags.some((item) => item.id === tag) ? (tag ?? "") : "";
+	const search = (q ?? "").trim().slice(0, 100);
+
+	const withTags = (data ?? []).map((post) => ({
+		...post,
+		tagList: ((post.post_tags ?? []) as unknown as { tags: { id: string; name: string } | null }[])
+			.map((link) => link.tags)
+			.filter((item): item is { id: string; name: string } => item !== null)
+			.sort((a, b) => a.name.localeCompare(b.name, "el")),
+	}));
+
+	// tag and search narrow the list; the tab counts below follow them
+	const needle = fold(search);
+	const all = withTags.filter(
+		(post) =>
+			(!tagId || post.tagList.some((item) => item.id === tagId)) &&
+			(!needle || fold(`${post.title} ${post.slug}`).includes(needle)),
+	);
 	const draftCount = all.filter((post) => !post.published).length;
 
 	// Drafts have no publish date, so they are listed by when they were last saved.
@@ -41,8 +71,13 @@ export default async function AdminPostsPage({
 		const params = new URLSearchParams({
 			sort: sortOrder,
 			...(view === "all" ? {} : { status: view }),
+			...(tagId ? { tag: tagId } : {}),
+			...(search ? { q: search } : {}),
 			...extra,
 		});
+
+		for (const [key, value] of [...params]) if (!value) params.delete(key);
+
 		return `/admin/posts?${params.toString()}`;
 	};
 
@@ -61,12 +96,52 @@ export default async function AdminPostsPage({
 			</header>
 
 			<section className="admin-section">
+				<form className="admin-post-filters" method="get" action="/admin/posts">
+					<input type="hidden" name="sort" value={sortOrder} />
+					{view !== "all" && <input type="hidden" name="status" value={view} />}
+
+					<div className="form-field">
+						<label htmlFor="post-search">Αναζήτηση</label>
+						<input
+							id="post-search"
+							name="q"
+							type="search"
+							defaultValue={search}
+							placeholder="Τίτλος ή slug…"
+						/>
+					</div>
+
+					<div className="form-field">
+						<label htmlFor="post-tag">Ετικέτα</label>
+						<select id="post-tag" name="tag" defaultValue={tagId}>
+							<option value="">Όλες οι ετικέτες</option>
+							{allTags.map((item) => (
+								<option key={item.id} value={item.id}>
+									{item.name}
+								</option>
+							))}
+						</select>
+					</div>
+
+					<div className="admin-post-filter-actions">
+						<button className="button" type="submit">
+							Φίλτρο
+						</button>
+
+						{(tagId || search) && (
+							<a className="button secondary" href={query({ tag: "", q: "" })}>
+								Καθαρισμός
+							</a>
+						)}
+					</div>
+				</form>
+
 				<div className="admin-status-tabs" role="tablist" aria-label="Κατάσταση άρθρων">
 					<a
 						role="tab"
 						aria-selected={view === "all"}
 						className={view === "all" ? "active" : ""}
-						href={`/admin/posts?sort=${sortOrder}`}
+						href={query({ status: "" })}
 					>
 						Όλα ({all.length})
 					</a>
@@ -74,7 +149,7 @@ export default async function AdminPostsPage({
 						role="tab"
 						aria-selected={view === "published"}
 						className={view === "published" ? "active" : ""}
-						href={`/admin/posts?sort=${sortOrder}&status=published`}
+						href={query({ status: "published" })}
 					>
 						Δημοσιευμένα ({all.length - draftCount})
 					</a>
@@ -82,7 +157,7 @@ export default async function AdminPostsPage({
 						role="tab"
 						aria-selected={view === "draft"}
 						className={view === "draft" ? "active" : ""}
-						href={`/admin/posts?sort=${sortOrder}&status=draft`}
+						href={query({ status: "draft" })}
 					>
 						Πρόχειρα ({draftCount})
 					</a>
@@ -138,6 +213,16 @@ export default async function AdminPostsPage({
 										</strong>
 										<br />
 										<small>{post.slug}</small>
+
+										{post.tagList.length > 0 && (
+											<span className="admin-post-tags">
+												{post.tagList.map((item) => (
+													<a key={item.id} href={query({ tag: item.id })}>
+														{item.name}
+													</a>
+												))}
+											</span>
+										)}
 									</td>
 
 									<td data-label="Κατάσταση">

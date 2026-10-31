@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AdminEditLink } from "@/components/AdminEditLink";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { Markdown } from "@/components/Markdown";
 import { formatDate } from "@/components/PostCard";
@@ -88,6 +89,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 						))}
 					</footer>
 				)}
+
+				<AdminEditLink postId={post.id} />
 			</div>
 		</article>
 	);

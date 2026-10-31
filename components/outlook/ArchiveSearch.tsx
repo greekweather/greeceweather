@@ -21,9 +21,12 @@ function normalize(value: string) {
 		.replace(/\p{Diacritic}/gu, "");
 }
 
+const PAGE_SIZE = 5;
+
 export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; latestId: string }) {
 	const [query, setQuery] = useState("");
 	const [date, setDate] = useState("");
+	const [visible, setVisible] = useState(PAGE_SIZE);
 
 	const filtering = query.trim() !== "" || date !== "";
 
@@ -54,7 +57,10 @@ export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; lates
 						type="search"
 						value={query}
 						placeholder="π.χ. Οκτ 2026, 24/10, Named Storm…"
-						onChange={(event) => setQuery(event.target.value)}
+						onChange={(event) => {
+							setQuery(event.target.value);
+							setVisible(PAGE_SIZE);
+						}}
 					/>
 				</div>
 
@@ -64,7 +70,10 @@ export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; lates
 						id="archive-date"
 						type="date"
 						value={date}
-						onChange={(event) => setDate(event.target.value)}
+						onChange={(event) => {
+							setDate(event.target.value);
+							setVisible(PAGE_SIZE);
+						}}
 					/>
 				</div>
 
@@ -75,6 +84,7 @@ export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; lates
 						onClick={() => {
 							setQuery("");
 							setDate("");
+							setVisible(PAGE_SIZE);
 						}}
 					>
 						Καθαρισμός
@@ -86,11 +96,12 @@ export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; lates
 				{filtering
 					? `${results.length} ${results.length === 1 ? "αποτέλεσμα" : "αποτελέσματα"}`
 					: `${results.length} ${results.length === 1 ? "παλαιότερος χάρτης" : "παλαιότεροι χάρτες"}`}
+				{results.length > visible && ` · εμφανίζονται οι ${visible} πιο πρόσφατοι`}
 			</p>
 
 			{results.length > 0 ? (
 				<ul>
-					{results.map((item) => (
+					{results.slice(0, visible).map((item) => (
 						<li key={item.id}>
 							<Link href={`/outlooks/${item.slug}`}>{item.title}</Link>
 							<span className="post-meta"> · {item.label}</span>
@@ -99,6 +110,16 @@ export function ArchiveSearch({ items, latestId }: { items: ArchiveItem[]; lates
 				</ul>
 			) : (
 				filtering && <p>Δεν βρέθηκε χάρτης με αυτά τα κριτήρια.</p>
+			)}
+
+			{results.length > visible && (
+				<button
+					type="button"
+					className="button secondary"
+					onClick={() => setVisible((count) => count + PAGE_SIZE * 2)}
+				>
+					Εμφάνιση περισσότερων
+				</button>
 			)}
 		</section>
 	);
