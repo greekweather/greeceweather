@@ -1,4 +1,4 @@
-import type { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type StorageFile = {
 	name: string;
@@ -12,10 +12,7 @@ export type StorageFile = {
 };
 
 // Every file of the image bucket, folders included, newest first.
-export async function listAllFiles(
-	supabase: Awaited<ReturnType<typeof createClient>>,
-	path = "",
-): Promise<StorageFile[]> {
+export async function listAllFiles(supabase: SupabaseClient, path = ""): Promise<StorageFile[]> {
 	const { data, error } = await supabase.storage.from("post-images").list(path, {
 		limit: 1000,
 		sortBy: {

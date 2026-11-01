@@ -111,6 +111,12 @@ export default async function BackupPage({
 						Πολυμέσα αν θες να γυρίσεις άρθρα που τις χρησιμοποιούν.
 					</p>
 
+					<p className="backup-summary">
+						Κάθε βράδυ κατεβαίνει αυτόματα ένα πλήρες αντίγραφο και φυλάσσεται 90 ημέρες στο GitHub
+						(Actions &rarr; Daily backup &rarr; Artifacts). Το ίδιο αρχείο φορτώνεται παρακάτω στην
+						Επαναφορά.
+					</p>
+
 					<div className="backup-downloads">
 						<a className="button" href="/admin/backup/download" download>
 							Λήψη αντιγράφου

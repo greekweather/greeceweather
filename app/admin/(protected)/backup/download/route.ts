@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAdminSession } from "@/lib/auth";
-import { BACKUP_FORMAT, BACKUP_TABLES, type BackupFile, FULL_EXTRA_TABLES } from "@/lib/backup";
-import { listAllFiles } from "@/lib/media";
+import { buildBackup } from "@/lib/backup-build";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -16,42 +15,13 @@ export async function GET(request: Request) {
 	}
 
 	const full = new URL(request.url).searchParams.get("full") === "1";
-	const supabase = await createClient();
-	const tables: BackupFile["tables"] = {};
+	const result = await buildBackup(await createClient(), full);
 
-	for (const table of full ? [...BACKUP_TABLES, ...FULL_EXTRA_TABLES] : BACKUP_TABLES) {
-		const { data, error } = await supabase.from(table).select("*");
-
-		if (error) {
-			// the safety-copy table only exists after the SQL has been run: skip it rather than fail
-			if ((FULL_EXTRA_TABLES as readonly string[]).includes(table)) {
-				tables[table] = [];
-				continue;
-			}
-
-			return NextResponse.json({ error: `${table}: ${error.message}` }, { status: 500 });
-		}
-
-		tables[table] = data ?? [];
+	if (!result.ok) {
+		return NextResponse.json({ error: result.error }, { status: 500 });
 	}
 
-	const backup: BackupFile = {
-		format: BACKUP_FORMAT,
-		version: 1,
-		created_at: new Date().toISOString(),
-		full,
-		tables,
-	};
-
-	if (full) {
-		const files = await listAllFiles(supabase);
-
-		backup.storage = files.map((file) => ({
-			name: file.name,
-			url: supabase.storage.from("post-images").getPublicUrl(file.name).data.publicUrl,
-		}));
-	}
-
+	const { backup } = result;
 	const stamp = backup.created_at.slice(0, 16).replace(/[-:T]/g, "");
 
 	return new NextResponse(JSON.stringify(backup), {

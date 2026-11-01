@@ -1760,3 +1760,121 @@ body:has(.admin-shell) .weather-banner {
 	flex-wrap: wrap;
 	gap: 8px;
 }
+
+/* ---- Στατιστικά ---------------------------------------------------------------------- */
+
+.stats-tiles {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 14px;
+	margin-bottom: 16px;
+}
+
+.stats-tile {
+	display: grid;
+	gap: 4px;
+	padding: 16px 18px;
+}
+
+.stats-tile span {
+	color: var(--a-muted, #6b7280);
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+
+.stats-tile strong {
+	font-size: 1.9rem;
+	line-height: 1.1;
+}
+
+.stats-card {
+	margin-bottom: 16px;
+}
+
+.stats-card h2 {
+	margin: 0;
+	font-size: 1.1rem;
+}
+
+.stats-card-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.stats-ranges {
+	display: flex;
+	gap: 6px;
+}
+
+.stats-ranges .button {
+	min-height: 40px;
+	padding: 0 14px;
+}
+
+.stats-ranges .button.current {
+	background: var(--accent);
+	color: #fff;
+}
+
+.stats-filter {
+	margin: 0 0 8px;
+}
+
+.stats-note {
+	margin: 10px 0 0;
+	color: var(--a-muted, #6b7280);
+	font-size: 0.85rem;
+}
+
+.views-chart {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.views-chart-grid {
+	stroke: var(--a-line, #e5e7eb);
+	stroke-width: 1;
+}
+
+.views-chart-label {
+	fill: var(--a-muted, #6b7280);
+	font-size: 11px;
+}
+
+.views-chart-bar {
+	fill: var(--accent, #1a5a96);
+}
+
+.views-chart-bar:hover {
+	fill: var(--accent-dark, #174b93);
+}
+
+.stats-bar {
+	display: block;
+	height: 6px;
+	margin-top: 8px;
+	border-radius: 3px;
+	background: var(--a-line, #eef0f3);
+	overflow: hidden;
+}
+
+.stats-bar span {
+	display: block;
+	height: 100%;
+	background: var(--accent, #1a5a96);
+}
+
+@media (max-width: 700px) {
+	.stats-tiles {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.stats-tile strong {
+		font-size: 1.6rem;
+	}
+}

@@ -1,0 +1,44 @@
+name: Daily backup
+
+# Every night the site's content (articles, tags, maps, banners, safety copies of deletions and
+# the list of images) is downloaded as one JSON file and kept as a workflow artifact for 90
+# days. Restore it from the admin page "Αντίγραφα ασφαλείας".
+#
+# One-time setup in the repository: Settings > Secrets and variables > Actions, add
+#   BACKUP_URL    https://www.greeceweather.gr/api/cron/backup
+#   CRON_SECRET   a long random text; put the SAME value in the site's environment variables
+
+on:
+  schedule:
+    - cron: "15 1 * * *" # 01:15 UTC = 03:15 or 04:15 in Greece
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Download backup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download
+        env:
+          BACKUP_URL: ${{ secrets.BACKUP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          test -n "$BACKUP_URL" && test -n "$CRON_SECRET" || { echo "BACKUP_URL or CRON_SECRET secret is missing"; exit 1; }
+          curl --fail --silent --show-error --retry 3 --retry-delay 20 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -o "greeceweather-backup-$(date -u +%Y%m%d).json" "$BACKUP_URL"
+
+      - name: Check the file
+        run: |
+          for f in greeceweather-backup-*.json; do
+            jq -e '.format == "greeceweather-backup" and (.tables.posts | type == "array")' "$f" > /dev/null
+            echo "$f: $(jq '[.tables[] | length] | add' "$f") rows"
+          done
+
+      - name: Keep it
+        uses: actions/upload-artifact@v4
+        with:
+          name: greeceweather-backup
+          path: greeceweather-backup-*.json
+          retention-days: 90

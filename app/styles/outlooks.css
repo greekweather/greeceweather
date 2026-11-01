@@ -471,10 +471,12 @@
 	flex-direction: column;
 	align-items: stretch;
 	gap: 8px;
+	min-width: 0;
 }
 
 .outlook-row-actions-top {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
@@ -564,11 +566,41 @@ fieldset.outlook-presets {
 	color: var(--muted);
 }
 
+.outlook-download {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.outlook-download .button {
+	min-height: 44px;
+}
+
 .outlook-viewer-bar > .button {
 	min-height: 44px;
 }
 
 @media (max-width: 700px) {
+	/* the buttons of a map wrap inside its card instead of pushing it past the screen edge */
+	.outlook-row-actions {
+		width: 100%;
+	}
+
+	.outlook-row-actions-top .button {
+		flex: 1 1 calc(50% - 8px);
+		min-width: 0;
+		padding-inline: 10px;
+	}
+
+	.outlook-row-actions-bottom .button {
+		width: 100%;
+	}
+
+	.outlook-preview > svg {
+		min-width: 0;
+		width: 100%;
+	}
+
 	.outlook-field-pair {
 		grid-template-columns: 1fr;
 	}
