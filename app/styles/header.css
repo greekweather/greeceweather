@@ -80,6 +80,56 @@
 	white-space: nowrap;
 }
 
+/* Notifications bell next to the theme toggle (components/PushToggle.tsx). */
+.push-bell-wrap {
+	position: relative;
+	display: inline-flex;
+}
+
+.push-bell {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	background: transparent;
+	color: var(--text);
+	cursor: pointer;
+}
+
+.push-bell:hover {
+	border-color: var(--accent);
+}
+
+.push-bell.on {
+	color: var(--accent);
+	border-color: var(--accent);
+}
+
+.push-bell:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+.push-bell-note {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	z-index: 30;
+	width: 250px;
+	padding: 10px 12px;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	background: var(--surface);
+	box-shadow: var(--shadow);
+	color: var(--text);
+	font-size: 0.85rem;
+	line-height: 1.4;
+}
+
 @media (max-width: 480px) {
 	.header-right .admin-link {
 		padding: 0 8px;

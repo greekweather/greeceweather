@@ -1,10 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
 type State = "checking" | "unsupported" | "ios-install" | "off" | "on" | "denied" | "busy";
+
+// One shared state for every button on the page (header bell, maps page card, footer), so
+// turning notifications on in one place updates all of them.
+let current: State = "checking";
+let started = false;
+const listeners = new Set<() => void>();
+
+function set(next: State) {
+	current = next;
+
+	for (const listener of listeners) listener();
+}
+
+function subscribe(listener: () => void) {
+	listeners.add(listener);
+
+	return () => {
+		listeners.delete(listener);
+	};
+}
 
 function keyToBytes(base64url: string) {
 	const padded = base64url
@@ -23,126 +43,242 @@ async function send(path: string, subscription: PushSubscription) {
 	});
 }
 
-// Footer button: notifications on the phone for a new map and for an emergency bulletin.
-// iPhone only allows them for the site added to the home screen, so Safari gets a hint.
-export function PushToggle() {
-	const [state, setState] = useState<State>("checking");
+function start() {
+	if (started) return;
 
-	useEffect(() => {
-		if (!PUBLIC_KEY) {
-			setState("unsupported");
-			return;
-		}
+	started = true;
 
-		const supported =
-			"serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
-
-		if (!supported) {
-			const ios =
-				/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-				(navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
-			setState(ios ? "ios-install" : "unsupported");
-			return;
-		}
-
-		if (Notification.permission === "denied") {
-			setState("denied");
-			return;
-		}
-
-		navigator.serviceWorker.ready
-			.then((registration) => registration.pushManager.getSubscription())
-			.then((subscription) => {
-				if (subscription) {
-					setState("on");
-					// keeps the server's copy up to date (it is deleted if the push service said it was gone)
-					send("/api/push/subscribe", subscription).catch(() => {});
-				} else {
-					setState("off");
-				}
-			})
-			.catch(() => setState("unsupported"));
-	}, []);
-
-	async function enable() {
-		if (!PUBLIC_KEY) return;
-
-		setState("busy");
-
-		try {
-			const permission = await Notification.requestPermission();
-
-			if (permission !== "granted") {
-				setState(permission === "denied" ? "denied" : "off");
-				return;
-			}
-
-			const registration = await navigator.serviceWorker.ready;
-			const subscription =
-				(await registration.pushManager.getSubscription()) ??
-				(await registration.pushManager.subscribe({
-					userVisibleOnly: true,
-					applicationServerKey: keyToBytes(PUBLIC_KEY),
-				}));
-
-			const response = await send("/api/push/subscribe", subscription);
-
-			if (!response.ok) throw new Error("subscribe");
-
-			setState("on");
-		} catch {
-			setState("off");
-		}
+	if (!PUBLIC_KEY) {
+		set("unsupported");
+		return;
 	}
 
-	async function disable() {
-		setState("busy");
+	const supported =
+		"serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 
-		try {
-			const registration = await navigator.serviceWorker.ready;
-			const subscription = await registration.pushManager.getSubscription();
+	if (!supported) {
+		const ios =
+			/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+			(navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
+		set(ios ? "ios-install" : "unsupported");
+		return;
+	}
+
+	if (Notification.permission === "denied") {
+		set("denied");
+		return;
+	}
+
+	navigator.serviceWorker.ready
+		.then((registration) => registration.pushManager.getSubscription())
+		.then((subscription) => {
 			if (subscription) {
-				await send("/api/push/unsubscribe", subscription).catch(() => {});
-				await subscription.unsubscribe();
+				set("on");
+				// keeps the server's copy up to date (it is deleted if the push service said it was gone)
+				send("/api/push/subscribe", subscription).catch(() => {});
+			} else {
+				set("off");
 			}
-		} finally {
-			setState("off");
+		})
+		.catch(() => set("unsupported"));
+}
+
+async function enable() {
+	if (!PUBLIC_KEY) return;
+
+	set("busy");
+
+	try {
+		const permission = await Notification.requestPermission();
+
+		if (permission !== "granted") {
+			set(permission === "denied" ? "denied" : "off");
+			return;
 		}
+
+		const registration = await navigator.serviceWorker.ready;
+		const subscription =
+			(await registration.pushManager.getSubscription()) ??
+			(await registration.pushManager.subscribe({
+				userVisibleOnly: true,
+				applicationServerKey: keyToBytes(PUBLIC_KEY),
+			}));
+
+		const response = await send("/api/push/subscribe", subscription);
+
+		if (!response.ok) throw new Error("subscribe");
+
+		set("on");
+	} catch {
+		set("off");
 	}
+}
+
+async function disable() {
+	set("busy");
+
+	try {
+		const registration = await navigator.serviceWorker.ready;
+		const subscription = await registration.pushManager.getSubscription();
+
+		if (subscription) {
+			await send("/api/push/unsubscribe", subscription).catch(() => {});
+			await subscription.unsubscribe();
+		}
+	} finally {
+		set("off");
+	}
+}
+
+function usePush() {
+	const state = useSyncExternalStore(
+		subscribe,
+		() => current,
+		() => "checking" as State,
+	);
+
+	useEffect(start, []);
+
+	return state;
+}
+
+const HINT = {
+	"ios-install": "Για ειδοποιήσεις στο iPhone πρόσθεσε πρώτα την εφαρμογή στην αρχική οθόνη.",
+	denied:
+		"Οι ειδοποιήσεις είναι μπλοκαρισμένες. Επίτρεψέ τες από τις ρυθμίσεις του browser για αυτό το site.",
+} as const;
+
+function Bell({ on }: { on: boolean }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			width="20"
+			height="20"
+			fill={on ? "currentColor" : "none"}
+			aria-hidden="true"
+		>
+			<path
+				d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"
+				stroke="currentColor"
+				strokeWidth="1.8"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M10 19a2 2 0 0 0 4 0"
+				stroke="currentColor"
+				strokeWidth="1.8"
+				strokeLinecap="round"
+			/>
+			{!on && (
+				<path d="M4 4l16 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+			)}
+		</svg>
+	);
+}
+
+/**
+ * Notifications on the phone / computer for a new map and for an emergency bulletin.
+ *   bell    icon button in the header (website and installed app)
+ *   card    a box with an explanation, on the maps page
+ *   footer  text button in the footer
+ * iPhone only allows notifications for the site added to the home screen, so Safari gets a hint.
+ */
+export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" | "footer" }) {
+	const state = usePush();
+	const [note, setNote] = useState(false);
+
+	// the little explanation under the bell disappears by itself
+	useEffect(() => {
+		if (!note) return;
+
+		const timer = window.setTimeout(() => setNote(false), 7000);
+
+		return () => window.clearTimeout(timer);
+	}, [note]);
 
 	if (state === "checking" || state === "unsupported") return null;
 
-	if (state === "ios-install") {
+	const on = state === "on";
+	const hint = state === "ios-install" || state === "denied" ? HINT[state] : null;
+
+	function toggle() {
+		if (hint) {
+			setNote((value) => !value);
+			return;
+		}
+
+		if (on) disable();
+		else enable();
+	}
+
+	if (variant === "bell") {
+		const label = on ? "Απενεργοποίηση ειδοποιήσεων" : "Ενεργοποίηση ειδοποιήσεων";
+
 		return (
-			<p className="install-app-help">
-				Για ειδοποιήσεις στο iPhone πρόσθεσε πρώτα την εφαρμογή στην αρχική οθόνη.
-			</p>
+			<span className="push-bell-wrap">
+				<button
+					type="button"
+					className={`push-bell ${on ? "on" : ""}`}
+					onClick={toggle}
+					disabled={state === "busy"}
+					aria-label={label}
+					aria-pressed={on}
+					title={label}
+				>
+					<Bell on={on} />
+				</button>
+
+				{note && hint && (
+					<span className="push-bell-note" role="status">
+						{hint}
+					</span>
+				)}
+			</span>
 		);
 	}
 
-	if (state === "denied") {
+	if (variant === "card") {
 		return (
-			<p className="install-app-help">
-				Οι ειδοποιήσεις είναι μπλοκαρισμένες. Επίτρεψέ τες από τις ρυθμίσεις του browser για αυτό
-				το site.
-			</p>
+			<div className="push-card">
+				<div>
+					<strong>Ειδοποιήσεις</strong>
+					<p>
+						{on
+							? "Θα ειδοποιηθείς για κάθε νέο χάρτη και για κάθε έκτακτο δελτίο."
+							: "Πάρε ειδοποίηση στο κινητό ή στον υπολογιστή όταν βγαίνει νέος χάρτης ή έκτακτο δελτίο."}
+					</p>
+					{hint && <p className="push-card-hint">{hint}</p>}
+				</div>
+
+				{!hint && (
+					<button
+						type="button"
+						className={`button ${on ? "secondary" : ""}`}
+						onClick={toggle}
+						disabled={state === "busy"}
+					>
+						{on ? "Απενεργοποίηση" : "Ενεργοποίηση ειδοποιήσεων"}
+					</button>
+				)}
+			</div>
 		);
 	}
+
+	if (hint) return <p className="install-app-help">{hint}</p>;
 
 	return (
 		<div className="install-app">
 			<button
 				type="button"
 				className="install-app-button"
-				onClick={state === "on" ? disable : enable}
+				onClick={toggle}
 				disabled={state === "busy"}
 			>
-				{state === "on" ? "Απενεργοποίηση ειδοποιήσεων" : "Ειδοποιήσεις για χάρτες και έκτακτα"}
+				{on ? "Απενεργοποίηση ειδοποιήσεων" : "Ειδοποιήσεις για χάρτες και έκτακτα"}
 			</button>
 
-			{state === "on" && (
+			{on && (
 				<p className="install-app-help">
 					Θα ειδοποιηθείς για κάθε νέο χάρτη και για κάθε έκτακτο δελτίο.
 				</p>

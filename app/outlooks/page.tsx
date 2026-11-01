@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArchiveSearch } from "@/components/outlook/ArchiveSearch";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
 import { OutlookViewer } from "@/components/outlook/OutlookViewer";
+import { PushToggle } from "@/components/PushToggle";
 import { formatOutlookDate, outlookDateKey } from "@/lib/outlook/format";
 import { UNOFFICIAL_NOTE } from "@/lib/outlook/types";
 import { getPublishedOutlooks } from "@/lib/outlooks";
@@ -28,6 +29,8 @@ export default async function OutlooksPage() {
 					<strong>Ανεπίσημο:</strong> {UNOFFICIAL_NOTE}
 				</p>
 			</header>
+
+			<PushToggle variant="card" />
 
 			{!latest ? (
 				<p>Δεν υπάρχει δημοσιευμένος χάρτης αυτή τη στιγμή.</p>

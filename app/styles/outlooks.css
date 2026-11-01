@@ -18,6 +18,29 @@
 	line-height: 1.5;
 }
 
+/* "Notifications" box under the maps page heading (components/PushToggle.tsx). */
+.push-card {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px 20px;
+	margin-bottom: 22px;
+	padding: 14px 18px;
+	border: 1px solid var(--border);
+	border-radius: var(--radius, 8px);
+	background: var(--surface);
+}
+
+.push-card p {
+	margin: 4px 0 0;
+	font-size: 0.92rem;
+}
+
+.push-card .push-card-hint {
+	color: var(--muted);
+}
+
 .outlook-scroll {
 	margin-block: 16px;
 	overflow-x: auto;

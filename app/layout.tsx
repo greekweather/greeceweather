@@ -91,6 +91,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 								<Link href="/outlooks">Χάρτες</Link>
 							</nav>
 							<AdminLink />
+							<PushToggle variant="bell" />
 							<ThemeToggle />
 						</div>
 					</div>
