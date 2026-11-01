@@ -264,3 +264,12 @@
 .admin-edit-link {
 	margin: 28px 0 0;
 }
+
+/* The image tag carries a 1200x675 height, which on a narrow screen made the photo taller than
+   it is wide. Phones get a landscape frame instead. */
+@media (max-width: 700px) {
+	.article-hero img {
+		height: auto;
+		aspect-ratio: 16 / 10;
+	}
+}

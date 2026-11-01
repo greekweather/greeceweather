@@ -1,5 +1,6 @@
 .outlook-page {
 	padding-block: 28px 56px;
+	min-width: 0;
 }
 
 .outlook-page-header {
@@ -387,6 +388,7 @@
 }
 
 .outlook-archive-field {
+	min-width: 0;
 	display: grid;
 	gap: 6px;
 	flex: 1 1 220px;
@@ -398,6 +400,9 @@
 }
 
 .outlook-archive-field input {
+	width: 100%;
+	min-width: 0; /* a date input is wider than its box on iPhones unless told otherwise */
+	max-width: 100%;
 	min-height: 42px;
 	padding: 0 12px;
 	border: 1px solid var(--border);

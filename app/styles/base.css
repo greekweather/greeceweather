@@ -4,6 +4,9 @@
 
 html {
 	scroll-behavior: smooth;
+	/* nothing may push the page wider than the screen: that is what cut the background off
+	   when the page was dragged sideways (clip, unlike hidden, keeps position: sticky working) */
+	overflow-x: clip;
 }
 
 body {
@@ -15,6 +18,7 @@ body {
 	background:
 		radial-gradient(900px 480px at 100% 0, rgba(26, 90, 150, 0.07), transparent 70%), var(--bg);
 	background-repeat: no-repeat;
+	overflow-x: clip;
 }
 
 h1,
@@ -125,6 +129,32 @@ a {
 
 	.section {
 		padding: 36px 0 56px;
+	}
+}
+
+@media (max-width: 700px) {
+	/* "Όλα τα άρθρα" becomes a proper tappable button next to the heading */
+	.section-heading {
+		align-items: center;
+		gap: 12px;
+	}
+
+	.section-heading .text-link {
+		display: inline-flex;
+		flex: 0 0 auto;
+		align-items: center;
+		justify-content: center;
+		min-height: 44px;
+		padding: 0 16px;
+		border-radius: 12px;
+		background: var(--btn2-bg, #eaf2ff);
+		color: var(--btn2-ink, #174b93);
+		font-size: 0.95rem;
+		white-space: nowrap;
+	}
+
+	.section-heading .text-link:hover {
+		text-decoration: none;
 	}
 }
 
