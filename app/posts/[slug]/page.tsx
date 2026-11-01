@@ -4,10 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminEditLink } from "@/components/AdminEditLink";
 import { ImageLightbox } from "@/components/ImageLightbox";
+import { JsonLd } from "@/components/JsonLd";
 import { Markdown } from "@/components/Markdown";
 import { formatDate } from "@/components/PostCard";
 import { ViewCounter } from "@/components/ViewCounter";
 import { getPublishedPostBySlug } from "@/lib/posts";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { plainText } from "@/lib/text";
 
 export const revalidate = 60;
 
@@ -31,17 +34,12 @@ export async function generateMetadata({
 			siteName: "GreeceWeather",
 			locale: "el_GR",
 			url: `/posts/${post.slug}`,
-			images: post.image_url
-				? [
-						{
-							url: post.image_url,
-							width: 1200,
-							height: 675,
-							alt: post.image_alt || post.title,
-						},
-					]
-				: [],
+			publishedTime: post.published_at ?? undefined,
+			modifiedTime: post.updated_at,
+			tags: post.tags,
 		},
+		twitter: { card: "summary_large_image", title: post.title, description: post.description },
+		alternates: { canonical: `/posts/${post.slug}` },
 	};
 }
 
@@ -49,8 +47,46 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 	const { slug } = await params;
 	const post = await getPublishedPostBySlug(slug);
 	if (!post) notFound();
+	const url = `${SITE_URL}/posts/${post.slug}`;
+
 	return (
 		<article className="article">
+			<JsonLd
+				data={{
+					"@context": "https://schema.org",
+					"@graph": [
+						{
+							"@type": "NewsArticle",
+							"@id": `${url}#article`,
+							mainEntityOfPage: url,
+							url,
+							headline: post.title.slice(0, 110),
+							description: post.description || plainText(post.content, 200),
+							image: [post.image_url ?? `${url}/opengraph-image`],
+							datePublished: post.published_at,
+							dateModified: post.updated_at || post.published_at,
+							inLanguage: "el-GR",
+							articleSection: post.tags[0],
+							keywords: post.tags.join(", ") || undefined,
+							author: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+							publisher: {
+								"@type": "Organization",
+								name: SITE_NAME,
+								url: SITE_URL,
+								logo: { "@type": "ImageObject", url: `${SITE_URL}/icons/icon-512.png` },
+							},
+						},
+						{
+							"@type": "BreadcrumbList",
+							itemListElement: [
+								{ "@type": "ListItem", position: 1, name: "Αρχική", item: SITE_URL },
+								{ "@type": "ListItem", position: 2, name: "Άρθρα", item: `${SITE_URL}/posts` },
+								{ "@type": "ListItem", position: 3, name: post.title, item: url },
+							],
+						},
+					],
+				}}
+			/>
 			<ViewCounter slug={post.slug} />
 			<div className="container article-container">
 				<header className="article-header">

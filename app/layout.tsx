@@ -30,6 +30,14 @@ export const metadata: Metadata = {
 	icons: { apple: "/icons/apple-touch-icon.png" },
 	appleWebApp: { capable: true, title: "GreeceWeather", statusBarStyle: "default" },
 	metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+	alternates: {
+		types: {
+			"application/rss+xml": [
+				{ url: "/feed.xml", title: "GreeceWeather · Άρθρα" },
+				{ url: "/outlooks/feed.xml", title: "GreeceWeather · Χάρτες" },
+			],
+		},
+	},
 	openGraph: {
 		title: "GreeceWeather",
 		description: "Μετεωρολογικές αναλύσεις, προγνώσεις και άρθρα για τον καιρό στην Ελλάδα.",

@@ -64,6 +64,11 @@ type GraphicProps = {
 	legendPosition?: LegendPosition;
 	/** Unique per SVG on a page (the hatch patterns use it for their ids). */
 	idPrefix: string;
+	/**
+	 * Only the map, without title bar, footer and legend. Used for the share preview image,
+	 * where the title is drawn next to it.
+	 */
+	mapOnly?: boolean;
 };
 
 /**
@@ -77,6 +82,7 @@ export function OutlookGraphic({
 	validText,
 	legendPosition = "tr",
 	idPrefix,
+	mapOnly = false,
 }: GraphicProps) {
 	const clipId = `${idPrefix}-clip`;
 	const empty = data.areas.length + data.markers.length + data.storms.length === 0;
@@ -84,9 +90,9 @@ export function OutlookGraphic({
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			viewBox={`0 0 ${GRAPHIC_W} ${GRAPHIC_H}`}
-			width={GRAPHIC_W}
-			height={GRAPHIC_H}
+			viewBox={mapOnly ? `0 ${HEADER_H} ${MAP_W} ${MAP_H}` : `0 0 ${GRAPHIC_W} ${GRAPHIC_H}`}
+			width={mapOnly ? MAP_W : GRAPHIC_W}
+			height={mapOnly ? MAP_H : GRAPHIC_H}
 			role="img"
 			aria-label={`${title}. Ανεπίσημος χάρτης του GreeceWeather.gr.`}
 			fontFamily={FONT}
@@ -101,75 +107,82 @@ export function OutlookGraphic({
 			</defs>
 
 			<rect width={GRAPHIC_W} height={GRAPHIC_H} fill="#ffffff" />
-			<g>
-				<rect width={GRAPHIC_W} height={HEADER_H} fill="#ffffff" />
-				<rect y={HEADER_H - 5} width={GRAPHIC_W} height={5} fill={NAVY} />
-				<text x={22} y={24} fontSize={12} fontWeight={700} letterSpacing={1.6} fill="#5b6773">
-					GREECEWEATHER.GR · ΧΑΡΤΕΣ ΚΑΙΡΟΥ
-				</text>
-				<text x={22} y={56} fontSize={30} fontWeight={700} fill={NAVY}>
-					{title}
-				</text>
-				<text x={22} y={76} fontSize={12.5} fill="#38485a">
-					Ευρώπη · Μεσόγειος · Βόρειος Ατλαντικός
-				</text>
+			{!mapOnly && (
+				<g>
+					<rect width={GRAPHIC_W} height={HEADER_H} fill="#ffffff" />
+					<rect y={HEADER_H - 5} width={GRAPHIC_W} height={5} fill={NAVY} />
+					<text x={22} y={24} fontSize={12} fontWeight={700} letterSpacing={1.6} fill="#5b6773">
+						GREECEWEATHER.GR · ΧΑΡΤΕΣ ΚΑΙΡΟΥ
+					</text>
+					<text x={22} y={56} fontSize={30} fontWeight={700} fill={NAVY}>
+						{title}
+					</text>
+					<text x={22} y={76} fontSize={12.5} fill="#38485a">
+						Ευρώπη · Μεσόγειος · Βόρειος Ατλαντικός
+					</text>
 
-				<g transform={`translate(${GRAPHIC_W - 22} 0)`} textAnchor="end">
-					<rect
-						x={-150}
-						y={12}
-						width={150}
-						height={24}
-						rx={3}
-						fill="#ffffff"
-						stroke="#c4161c"
-						strokeWidth={2}
-					/>
-					<text
-						x={-75}
-						y={29}
-						textAnchor="middle"
-						fontSize={13}
-						fontWeight={700}
-						letterSpacing={1.2}
-						fill="#c4161c"
-					>
-						ΑΝΕΠΙΣΗΜΟ
-					</text>
-					<text y={55} fontSize={12} fill="#16324f" fontWeight={700}>
-						{`Έκδοση: ${issuedText}`}
-					</text>
-					{validText && (
-						<text y={72} fontSize={12} fill="#38485a">
-							{`Ισχύει έως: ${validText}`}
+					<g transform={`translate(${GRAPHIC_W - 22} 0)`} textAnchor="end">
+						<rect
+							x={-150}
+							y={12}
+							width={150}
+							height={24}
+							rx={3}
+							fill="#ffffff"
+							stroke="#c4161c"
+							strokeWidth={2}
+						/>
+						<text
+							x={-75}
+							y={29}
+							textAnchor="middle"
+							fontSize={13}
+							fontWeight={700}
+							letterSpacing={1.2}
+							fill="#c4161c"
+						>
+							ΑΝΕΠΙΣΗΜΟ
 						</text>
-					)}
+						<text y={55} fontSize={12} fill="#16324f" fontWeight={700}>
+							{`Έκδοση: ${issuedText}`}
+						</text>
+						{validText && (
+							<text y={72} fontSize={12} fill="#38485a">
+								{`Ισχύει έως: ${validText}`}
+							</text>
+						)}
+					</g>
 				</g>
-			</g>
+			)}
 			<g transform={`translate(0 ${HEADER_H})`}>
 				<g clipPath={`url(#${clipId})`}>
 					<BaseMap />
 					<AreasLayer areas={data.areas} prefix={idPrefix} />
 					<MarkersLayer markers={data.markers} />
 					<StormsLayer storms={data.storms} />
-					<Legend prefix={idPrefix} position={legendPosition} mapW={MAP_W} mapH={MAP_H} />
-					{empty && <EmptyNotice />}
+					{!mapOnly && (
+						<Legend prefix={idPrefix} position={legendPosition} mapW={MAP_W} mapH={MAP_H} />
+					)}
+					{empty && !mapOnly && <EmptyNotice />}
 				</g>
 				<rect width={MAP_W} height={MAP_H} fill="none" stroke={NAVY} strokeWidth={1.5} />
 			</g>
-			<g transform={`translate(0 ${HEADER_H + MAP_H})`}>
-				<rect width={GRAPHIC_W} height={FOOTER_H} fill="#eef2f6" />
-				<text x={22} y={21} fontSize={12} fontWeight={700} fill="#c4161c">
-					ΑΝΕΠΙΣΗΜΗ ΕΚΤΙΜΗΣΗ του GreeceWeather.gr — δεν αποτελεί επίσημη πρόγνωση ή προειδοποίηση.
-				</text>
-				<text x={22} y={39} fontSize={11.5} fill="#38485a">
-					Για επίσημες προειδοποιήσεις ανατρέξτε στην ΕΜΥ (emy.gr) και στη Γενική Γραμματεία
-					Πολιτικής Προστασίας.
-				</text>
-				<text x={GRAPHIC_W - 22} y={39} fontSize={10} fill="#7b8794" textAnchor="end">
-					Βάση χάρτη: Natural Earth
-				</text>
-			</g>
+			{!mapOnly && (
+				<g transform={`translate(0 ${HEADER_H + MAP_H})`}>
+					<rect width={GRAPHIC_W} height={FOOTER_H} fill="#eef2f6" />
+					<text x={22} y={21} fontSize={12} fontWeight={700} fill="#c4161c">
+						ΑΝΕΠΙΣΗΜΗ ΕΚΤΙΜΗΣΗ του GreeceWeather.gr — δεν αποτελεί επίσημη πρόγνωση ή
+						προειδοποίηση.
+					</text>
+					<text x={22} y={39} fontSize={11.5} fill="#38485a">
+						Για επίσημες προειδοποιήσεις ανατρέξτε στην ΕΜΥ (emy.gr) και στη Γενική Γραμματεία
+						Πολιτικής Προστασίας.
+					</text>
+					<text x={GRAPHIC_W - 22} y={39} fontSize={10} fill="#7b8794" textAnchor="end">
+						Βάση χάρτη: Natural Earth
+					</text>
+				</g>
+			)}
 		</svg>
 	);
 }

@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { JsonLd } from "@/components/JsonLd";
 import { formatDate, PostCard } from "@/components/PostCard";
 import { getPublishedPosts } from "@/lib/posts";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -13,6 +15,30 @@ export default async function HomePage() {
 
 	return (
 		<>
+			<JsonLd
+				data={{
+					"@context": "https://schema.org",
+					"@graph": [
+						{
+							"@type": "WebSite",
+							"@id": `${SITE_URL}/#website`,
+							url: SITE_URL,
+							name: SITE_NAME,
+							description: SITE_DESCRIPTION,
+							inLanguage: "el-GR",
+							publisher: { "@id": `${SITE_URL}/#organization` },
+						},
+						{
+							"@type": "Organization",
+							"@id": `${SITE_URL}/#organization`,
+							name: SITE_NAME,
+							url: SITE_URL,
+							logo: `${SITE_URL}/icons/icon-512.png`,
+						},
+					],
+				}}
+			/>
+
 			<section
 				className="hero"
 				style={{
