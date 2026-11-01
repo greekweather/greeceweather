@@ -238,27 +238,24 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 		);
 	}
 
+	// Once notifications are on, the box and the footer button have nothing left to offer: they
+	// disappear. The bell in the header stays, filled in, as the way to turn them off again.
+	if (on) return null;
+
 	if (variant === "card") {
 		return (
 			<div className="push-card">
 				<div>
 					<strong>Ειδοποιήσεις</strong>
 					<p>
-						{on
-							? "Θα ειδοποιηθείς για κάθε νέο χάρτη και για κάθε έκτακτο δελτίο."
-							: "Πάρε ειδοποίηση στο κινητό ή στον υπολογιστή όταν βγαίνει νέος χάρτης ή έκτακτο δελτίο."}
+						Πάρε ειδοποίηση στο κινητό ή στον υπολογιστή όταν βγαίνει νέος χάρτης ή έκτακτο δελτίο.
 					</p>
 					{hint && <p className="push-card-hint">{hint}</p>}
 				</div>
 
 				{!hint && (
-					<button
-						type="button"
-						className={`button ${on ? "secondary" : ""}`}
-						onClick={toggle}
-						disabled={state === "busy"}
-					>
-						{on ? "Απενεργοποίηση" : "Ενεργοποίηση ειδοποιήσεων"}
+					<button type="button" className="button" onClick={toggle} disabled={state === "busy"}>
+						Ενεργοποίηση ειδοποιήσεων
 					</button>
 				)}
 			</div>
@@ -275,14 +272,8 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 				onClick={toggle}
 				disabled={state === "busy"}
 			>
-				{on ? "Απενεργοποίηση ειδοποιήσεων" : "Ειδοποιήσεις για χάρτες και έκτακτα"}
+				Ειδοποιήσεις για χάρτες και έκτακτα
 			</button>
-
-			{on && (
-				<p className="install-app-help">
-					Θα ειδοποιηθείς για κάθε νέο χάρτη και για κάθε έκτακτο δελτίο.
-				</p>
-			)}
 		</div>
 	);
 }
