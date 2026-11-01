@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AdminLink } from "@/components/AdminLink";
 import { InstallApp } from "@/components/InstallApp";
 import { MobileTabBar } from "@/components/MobileTabBar";
+import { PushToggle } from "@/components/PushToggle";
 import { PwaRegister } from "@/components/PwaRegister";
 import { RefreshOnNavigate } from "@/components/RefreshOnNavigate";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -107,6 +108,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 						</div>
 						<div>Μετεωρολογία και καιρός στην Ελλάδα</div>
 						<InstallApp />
+						<PushToggle />
 					</div>
 				</footer>
 			</body>

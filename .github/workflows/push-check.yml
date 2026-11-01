@@ -1,0 +1,30 @@
+name: Push check
+
+# Every 10 minutes the site is asked to announce anything that has just gone live by schedule
+# (a map whose issue time arrived, a banner whose start time arrived) on the phones that turned
+# notifications on. Things saved in the admin are announced immediately, without this.
+#
+# Uses the same repository secrets as the daily backup: BACKUP_URL (…/api/cron/backup) and
+# CRON_SECRET. The address of this job is derived from BACKUP_URL.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Send pending notifications
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ask the site
+        env:
+          BACKUP_URL: ${{ secrets.BACKUP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          test -n "$BACKUP_URL" && test -n "$CRON_SECRET" || { echo "BACKUP_URL or CRON_SECRET secret is missing"; exit 1; }
+          curl --fail --silent --show-error --retry 2 --retry-delay 15 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "${BACKUP_URL%/backup}/push"
+          echo

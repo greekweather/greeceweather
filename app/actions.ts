@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { bannerUrlError, parseBannerSchedule, parseForecastEntries } from "@/lib/banner";
 import { athensLocalToUTC } from "@/lib/date";
+import { sendPendingNotifications } from "@/lib/push-notify";
 import { createClient } from "@/lib/supabase/server";
 import { saveBeforeDelete } from "@/lib/trash";
 import { postInputSchema } from "@/lib/validation";
@@ -453,6 +455,8 @@ export async function createBannerAction(_prevState: { error?: string }, formDat
 		};
 	}
 
+	// an emergency bulletin that has just gone live is announced to the phones after the response
+	after(() => sendPendingNotifications().catch(() => {}));
 	revalidatePath("/", "layout");
 	revalidatePath("/admin");
 	revalidatePath("/admin/banner");
@@ -550,6 +554,8 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		return { error: "Δεν ήταν δυνατή η αποθήκευση των άρθρων πρόγνωσης." };
 	}
 
+	// an emergency bulletin that has just gone live is announced to the phones after the response
+	after(() => sendPendingNotifications().catch(() => {}));
 	revalidatePath("/", "layout");
 	revalidatePath("/admin");
 	revalidatePath("/admin/banner");

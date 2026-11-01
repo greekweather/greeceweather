@@ -29,3 +29,45 @@ self.addEventListener("fetch", (event) => {
 		fetch(request).catch(async () => (await caches.match(OFFLINE_URL)) ?? Response.error()),
 	);
 });
+
+// ---- Push notifications ----------------------------------------------------------------
+// The server sends {title, body, url, tag}. Only addresses of this site or https:// links
+// are opened, whatever the message says.
+self.addEventListener("push", (event) => {
+	let data = {};
+
+	try {
+		data = event.data ? event.data.json() : {};
+	} catch {
+		data = {};
+	}
+
+	event.waitUntil(
+		self.registration.showNotification(data.title || "GreeceWeather", {
+			body: data.body || "",
+			icon: "/icons/icon-192.png",
+			badge: "/icons/icon-192.png",
+			tag: data.tag || undefined,
+			data: { url: data.url || "/" },
+		}),
+	);
+});
+
+self.addEventListener("notificationclick", (event) => {
+	event.notification.close();
+
+	const raw = event.notification.data?.url || "/";
+	const target = new URL(raw, self.location.origin);
+	const url =
+		target.origin === self.location.origin || target.protocol === "https:" ? target.href : "/";
+
+	event.waitUntil(
+		self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windows) => {
+			for (const client of windows) {
+				if (client.url === url && "focus" in client) return client.focus();
+			}
+
+			return self.clients.openWindow(url);
+		}),
+	);
+});

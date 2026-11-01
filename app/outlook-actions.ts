@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { athensLocalToUTC } from "@/lib/date";
 import { parseMapData } from "@/lib/outlook/schema";
 import { LEGEND_POSITIONS, type LegendPosition, type MapData } from "@/lib/outlook/types";
+import { sendPendingNotifications } from "@/lib/push-notify";
 import { createClient } from "@/lib/supabase/server";
 import { saveBeforeDelete } from "@/lib/trash";
 
@@ -99,6 +101,8 @@ function parseForm(
 }
 
 function refresh() {
+	// a map that has just gone live is announced to the phones right after the response
+	after(() => sendPendingNotifications().catch(() => {}));
 	revalidatePath("/outlooks");
 	revalidatePath("/outlooks/[slug]", "page");
 	revalidatePath("/admin/outlooks");
