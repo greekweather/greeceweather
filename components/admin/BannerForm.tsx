@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { BannerLinkField } from "@/components/admin/BannerLinkField";
 import { PostSearchSelect } from "@/components/admin/PostSearchSelect";
 import { utcToAthensLocal } from "@/lib/date";
 
@@ -33,7 +34,7 @@ type LocalRow = { post_id: string; starts_at: string; ends_at: string };
 
 const EMPTY_ROW: LocalRow = { post_id: "", starts_at: "", ends_at: "" };
 
-type PostOption = { id: string; title: string };
+type PostOption = { id: string; title: string; slug: string };
 
 function ForecastPosts({ posts, initial }: { posts: PostOption[]; initial: ForecastRow[] }) {
 	// rows hold Athens-local "YYYY-MM-DDTHH:mm" strings, exactly what the inputs submit
@@ -127,10 +128,12 @@ export function BannerForm({
 	action,
 	banner,
 	posts,
+	siteUrl,
 	forecasts = [],
 	children,
 }: {
 	posts: PostOption[];
+	siteUrl: string;
 	forecasts?: ForecastRow[];
 	action: (prevState: BannerFormState, formData: FormData) => Promise<BannerFormState>;
 	banner?: Banner;
@@ -174,14 +177,17 @@ export function BannerForm({
 					<span>ΕΚΤΑΚΤΟ ΔΕΛΤΙΟ</span>
 				</label>
 
-				<input
+				<BannerLinkField
 					name="emergency_url"
-					type="url"
-					placeholder="https://..."
+					posts={posts}
+					siteUrl={siteUrl}
 					defaultValue={banner?.emergency_url ?? ""}
 				/>
 
-				<small>Το link που θα ανοίγει όταν ο χρήστης πατά «ΕΚΤΑΚΤΟ ΔΕΛΤΙΟ».</small>
+				<small>
+					Το link που θα ανοίγει όταν ο χρήστης πατά «ΕΚΤΑΚΤΟ ΔΕΛΤΙΟ». Γράψε τίτλο άρθρου για να το
+					επιλέξεις, ή επικόλλησε οποιοδήποτε link https://.
+				</small>
 			</div>
 
 			<div className="banner-option">
@@ -194,14 +200,17 @@ export function BannerForm({
 					<span>ΕΠΙΚΑΙΡΟΠΟΙΗΣΗ ΔΕΛΤΙΟΥ</span>
 				</label>
 
-				<input
+				<BannerLinkField
 					name="update_url"
-					type="url"
-					placeholder="https://..."
+					posts={posts}
+					siteUrl={siteUrl}
 					defaultValue={banner?.update_url ?? ""}
 				/>
 
-				<small>Το link που θα ανοίγει όταν ο χρήστης πατά «ΕΠΙΚΑΙΡΟΠΟΙΗΣΗ ΔΕΛΤΙΟΥ».</small>
+				<small>
+					Το link που θα ανοίγει όταν ο χρήστης πατά «ΕΠΙΚΑΙΡΟΠΟΙΗΣΗ ΔΕΛΤΙΟΥ». Γράψε τίτλο άρθρου
+					για να το επιλέξεις, ή επικόλλησε οποιοδήποτε link https://.
+				</small>
 			</div>
 
 			<div className="banner-option">

@@ -2,12 +2,14 @@ import { createBannerAction } from "@/app/actions";
 import { BannerForm } from "@/components/admin/BannerForm";
 import { createClient } from "@/lib/supabase/server";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.greeceweather.gr";
+
 export default async function NewBannerPage() {
 	const supabase = await createClient();
 
 	const { data: posts } = await supabase
 		.from("posts")
-		.select("id,title")
+		.select("id,title,slug")
 		.eq("published", true)
 		.order("published_at", { ascending: false })
 		.limit(100);
@@ -27,7 +29,7 @@ export default async function NewBannerPage() {
 			</header>
 
 			<section className="admin-section">
-				<BannerForm action={createBannerAction} posts={posts ?? []} />
+				<BannerForm action={createBannerAction} posts={posts ?? []} siteUrl={siteUrl} />
 			</section>
 		</>
 	);

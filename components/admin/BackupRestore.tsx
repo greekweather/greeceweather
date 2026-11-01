@@ -61,7 +61,9 @@ export function BackupRestore() {
 
 			setBackup(parsed);
 		} catch {
-			setFileError("Το αρχείο δεν είναι έγκυρο αντίγραφο ασφαλείας του GreeceWeather.");
+			setFileError(
+				"Το αρχείο δεν είναι έγκυρο αντίγραφο ασφαλείας του GreeceWeather ή δεν έχει καθόλου εγγραφές.",
+			);
 		}
 	}
 
@@ -121,8 +123,11 @@ export function BackupRestore() {
 			{backup && (
 				<>
 					<p className="backup-summary">
-						Αντίγραφο από {new Date(backup.created_at).toLocaleString("el-GR")}:{" "}
-						{ALL_BACKUP_TABLES.filter((table) => backup.tables[table])
+						{Number.isNaN(new Date(backup.created_at).getTime())
+							? "Αρχείο"
+							: `Αντίγραφο από ${new Date(backup.created_at).toLocaleString("el-GR")}`}
+						:{" "}
+						{ALL_BACKUP_TABLES.filter((table) => (backup.tables[table]?.length ?? 0) > 0)
 							.map((table) => `${BACKUP_LABELS[table]} ${backup.tables[table]?.length ?? 0}`)
 							.join(" · ")}
 					</p>

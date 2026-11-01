@@ -1,6 +1,7 @@
 import { purgeDeletedAction, restoreDeletedAction } from "@/app/backup-actions";
 import { BackupRestore } from "@/components/admin/BackupRestore";
 import { Pagination } from "@/components/admin/Pagination";
+import { PurgeConfirmButton } from "@/components/admin/PurgeConfirmButton";
 import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 import { TRASH_KIND_LABEL, type TrashKind } from "@/lib/trash";
@@ -86,12 +87,11 @@ export default async function BackupPage({
 													</button>
 												</form>
 
-												<form action={purgeDeletedAction}>
-													<input type="hidden" name="id" value={item.id} />
-													<button className="button secondary" type="submit">
-														Οριστική διαγραφή
-													</button>
-												</form>
+												<PurgeConfirmButton
+													id={item.id}
+													name={item.label || "(χωρίς όνομα)"}
+													action={purgeDeletedAction}
+												/>
 											</td>
 										</tr>
 									))}
@@ -132,8 +132,9 @@ export default async function BackupPage({
 				<div className="form-card backup-card">
 					<h2>Επαναφορά</h2>
 					<p>
-						Διάλεξε ένα αρχείο που κατέβασες από εδώ. Το αντίγραφο διαβάζεται στον browser σου και
-						στέλνεται στον server κομμάτι κομμάτι.
+						Διάλεξε ένα αρχείο που κατέβασες από εδώ. Δεν χρειάζεται να είναι ολόκληρο: δουλεύει
+						και με αρχείο που έχει μόνο έναν χάρτη, ένα μπάνερ ή ένα άρθρο. Το αντίγραφο διαβάζεται
+						στον browser σου και στέλνεται στον server κομμάτι κομμάτι.
 					</p>
 
 					<BackupRestore />

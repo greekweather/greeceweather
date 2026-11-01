@@ -29,6 +29,18 @@ export function Pagination({
 				<ul>
 					<li>
 						{page > 1 ? (
+							<a href={href(1)} rel="first" aria-label="Πρώτη σελίδα">
+								«
+							</a>
+						) : (
+							<span className="disabled" aria-hidden="true">
+								«
+							</span>
+						)}
+					</li>
+
+					<li>
+						{page > 1 ? (
 							<a href={href(page - 1)} rel="prev" aria-label="Προηγούμενη σελίδα">
 								←
 							</a>
@@ -61,6 +73,18 @@ export function Pagination({
 						) : (
 							<span className="disabled" aria-hidden="true">
 								→
+							</span>
+						)}
+					</li>
+
+					<li>
+						{page < pages ? (
+							<a href={href(pages)} rel="last" aria-label="Τελευταία σελίδα">
+								»
+							</a>
+						) : (
+							<span className="disabled" aria-hidden="true">
+								»
 							</span>
 						)}
 					</li>

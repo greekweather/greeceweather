@@ -7,7 +7,7 @@ type PostOption = { id: string; title: string };
 const MAX_RESULTS = 6;
 
 // Lower-case, no accents, so "καυσωνας" finds "Καύσωνας".
-function fold(text: string) {
+export function fold(text: string) {
 	return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/ς/g, "σ");
 }
 

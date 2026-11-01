@@ -44,20 +44,30 @@ export function isBackupTable(value: unknown): value is BackupTable {
 }
 
 // Checks the shape of a parsed file; the rows themselves are validated by the database.
+// A file does not have to contain every table: one map, one banner, one article is enough.
 export function parseBackup(value: unknown): BackupFile | null {
 	if (!value || typeof value !== "object") return null;
 
 	const file = value as Partial<BackupFile>;
 
-	if (file.format !== BACKUP_FORMAT || file.version !== 1 || !file.tables) return null;
+	if (file.format !== BACKUP_FORMAT || file.version !== 1) return null;
+
+	if (!file.tables || typeof file.tables !== "object" || Array.isArray(file.tables)) return null;
+
+	let rowCount = 0;
 
 	for (const table of ALL_BACKUP_TABLES) {
 		const rows = file.tables[table];
 
-		if (rows === undefined && !(BACKUP_TABLES as readonly string[]).includes(table)) continue;
+		if (rows === undefined || rows === null) continue;
 
 		if (!Array.isArray(rows) || rows.some((row) => !row || typeof row !== "object")) return null;
+
+		rowCount += rows.length;
 	}
+
+	// a file with nothing to restore is more likely the wrong file than an intended one
+	if (rowCount === 0) return null;
 
 	return file as BackupFile;
 }

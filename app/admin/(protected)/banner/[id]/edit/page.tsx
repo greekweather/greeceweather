@@ -16,6 +16,8 @@ function formatDate(date: string | null) {
 	}).format(new Date(date));
 }
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.greeceweather.gr";
+
 export default async function EditBannerPage({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
 
@@ -36,7 +38,7 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 	const [{ data: posts }, { data: forecasts }] = await Promise.all([
 		supabase
 			.from("posts")
-			.select("id,title")
+			.select("id,title,slug")
 			.eq("published", true)
 			.order("published_at", { ascending: false })
 			.limit(100),
@@ -71,6 +73,7 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 					action={updateBannerAction}
 					banner={banner}
 					posts={posts ?? []}
+					siteUrl={siteUrl}
 					forecasts={forecasts ?? []}
 				>
 					<DeleteConfirmButton
