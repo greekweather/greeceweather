@@ -42,6 +42,7 @@
 	top: 0;
 	width: 260px;
 	height: 100vh;
+	overflow: hidden;
 	flex-shrink: 0;
 	display: flex;
 	flex-direction: column;
@@ -50,7 +51,15 @@
 	padding: 24px 16px;
 }
 
+/* phones' address bars make 100vh taller than the visible screen: use the dynamic height */
+@supports (height: 100dvh) {
+	.admin-sidebar {
+		height: 100dvh;
+	}
+}
+
 .admin-brand {
+	flex: none;
 	padding: 0 12px 28px;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -71,7 +80,14 @@
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
-	padding-top: 22px;
+	padding-block: 22px 12px;
+	/* on a short screen the menu scrolls by itself, under the brand and above the footer */
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
 
 .admin-sidebar-nav a {
@@ -109,6 +125,7 @@
 }
 
 .admin-sidebar-footer {
+	flex: none;
 	margin-top: auto;
 	padding: 16px 12px 0;
 	border-top: 1px solid rgba(255, 255, 255, 0.1);

@@ -15,6 +15,8 @@ export function ImageLightbox() {
 
 			if (!(target instanceof HTMLImageElement)) return;
 			if (!target.closest(".article-body, .article-hero")) return;
+			// the picture of a link card belongs to its link: it must open the link, not zoom
+			if (target.closest(".link-card")) return;
 
 			const caption =
 				target.closest("figure, .article-figure")?.querySelector("figcaption, .article-caption")

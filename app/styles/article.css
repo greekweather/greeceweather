@@ -255,6 +255,111 @@
 	cursor: pointer;
 }
 
+/* A link alone on its line becomes a card (components/LinkCard.tsx). */
+.link-card-wrap {
+	margin: 1.5rem 0;
+}
+
+.article-body a.link-card {
+	display: flex;
+	overflow: hidden;
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	background: var(--surface);
+	color: var(--text);
+	text-decoration: none;
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease;
+}
+
+.article-body a.link-card:hover {
+	border-color: var(--accent);
+	box-shadow: var(--shadow-soft);
+	color: var(--text);
+}
+
+.link-card-image {
+	flex: 0 0 200px;
+	width: 200px;
+	height: auto;
+	min-height: 120px;
+	margin: 0;
+	border-radius: 0;
+	object-fit: cover;
+	background: var(--sky);
+}
+
+.article-body .link-card-image {
+	margin: 0;
+	border-radius: 0;
+	cursor: inherit;
+}
+
+.link-card-body {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+	padding: 14px 16px;
+}
+
+.link-card-domain {
+	color: var(--muted);
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.link-card-title {
+	font-size: 1.02rem;
+	font-weight: 700;
+	line-height: 1.3;
+	overflow-wrap: anywhere;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.link-card-description {
+	color: var(--muted);
+	font-size: 0.9rem;
+	line-height: 1.45;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+/* while the preview is loading: the address, with a soft pulse */
+.link-card-loading .link-card-title {
+	color: var(--muted);
+	font-weight: 600;
+	animation: link-card-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes link-card-pulse {
+	50% {
+		opacity: 0.45;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.link-card-loading .link-card-title {
+		animation: none;
+	}
+}
+
+.link-card-plain .link-card-body {
+	border-left: 4px solid var(--accent);
+}
+
 @media (max-width: 640px) {
 	.article {
 		padding-top: 36px;
@@ -268,6 +373,17 @@
 /* The image tag carries a 1200x675 height, which on a narrow screen made the photo taller than
    it is wide. Phones get a landscape frame instead. */
 @media (max-width: 700px) {
+	.article-body a.link-card {
+		flex-direction: column;
+	}
+
+	.link-card-image {
+		flex: none;
+		width: 100%;
+		height: auto;
+		aspect-ratio: 16 / 9;
+	}
+
 	.article-hero img {
 		height: auto;
 		aspect-ratio: 16 / 10;

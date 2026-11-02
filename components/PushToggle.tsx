@@ -9,11 +9,13 @@ type State = "checking" | "unsupported" | "ios-install" | "off" | "on" | "denied
 // One shared state for every button on the page (header bell, maps page card, footer), so
 // turning notifications on in one place updates all of them.
 let current: State = "checking";
+let lastError = "";
 let started = false;
 const listeners = new Set<() => void>();
 
-function set(next: State) {
+function set(next: State, error = "") {
 	current = next;
+	lastError = error;
 
 	for (const listener of listeners) listener();
 }
@@ -107,11 +109,18 @@ async function enable() {
 
 		const response = await send("/api/push/subscribe", subscription);
 
-		if (!response.ok) throw new Error("subscribe");
+		if (!response.ok) {
+			// the phone is subscribed but the site could not save it: undo, so nothing is half-done
+			await subscription.unsubscribe().catch(() => {});
+			throw new Error(`ο server απάντησε ${response.status}`);
+		}
 
 		set("on");
-	} catch {
-		set("off");
+	} catch (error) {
+		set(
+			"off",
+			`Δεν ήταν δυνατή η ενεργοποίηση (${error instanceof Error ? error.message : "άγνωστο σφάλμα"}).`,
+		);
 	}
 }
 
@@ -140,7 +149,13 @@ function usePush() {
 
 	useEffect(start, []);
 
-	return state;
+	const error = useSyncExternalStore(
+		subscribe,
+		() => lastError,
+		() => "",
+	);
+
+	return { state, error };
 }
 
 const HINT = {
@@ -185,8 +200,13 @@ function Bell({ on }: { on: boolean }) {
  * iPhone only allows notifications for the site added to the home screen, so Safari gets a hint.
  */
 export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" | "footer" }) {
-	const state = usePush();
+	const { state, error } = usePush();
 	const [note, setNote] = useState(false);
+
+	// a failure is shown under the bell right away
+	useEffect(() => {
+		if (error) setNote(true);
+	}, [error]);
 
 	// the little explanation under the bell disappears by itself
 	useEffect(() => {
@@ -229,9 +249,9 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 					<Bell on={on} />
 				</button>
 
-				{note && hint && (
+				{note && (hint || error) && (
 					<span className="push-bell-note" role="status">
-						{hint}
+						{hint || error}
 					</span>
 				)}
 			</span>
@@ -250,7 +270,7 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 					<p>
 						Πάρε ειδοποίηση στο κινητό ή στον υπολογιστή όταν βγαίνει νέος χάρτης ή έκτακτο δελτίο.
 					</p>
-					{hint && <p className="push-card-hint">{hint}</p>}
+					{(hint || error) && <p className="push-card-hint">{hint || error}</p>}
 				</div>
 
 				{!hint && (
@@ -274,6 +294,8 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 			>
 				Ειδοποιήσεις για χάρτες και έκτακτα
 			</button>
+
+			{error && <p className="install-app-help">{error}</p>}
 		</div>
 	);
 }
