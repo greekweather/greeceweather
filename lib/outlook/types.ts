@@ -102,12 +102,12 @@ export type StormType = {
 };
 
 export const STORM_TYPES: StormType[] = [
-	{ id: "td", code: "TD", name: "Τροπική κατάθλιψη", family: "tropical" },
+	{ id: "td", code: "TD", name: "Τροπική ύφεση", family: "tropical" },
 	{ id: "ts", code: "TS", name: "Τροπική καταιγίδα", family: "tropical" },
 	{ id: "hu", code: "H", name: "Τυφώνας", family: "tropical" },
-	{ id: "med", code: "M", name: "Medicane", family: "medicane" },
-	{ id: "et", code: "ET", name: "Εξωτροπική καταιγίδα", family: "extratropical" },
-	{ id: "sd", code: "SD", name: "Υποτροπική κατάθλιψη", family: "subtropical" },
+	{ id: "med", code: "M", name: "Μεσογειακός κυκλώνας (Medicane)", family: "medicane" },
+	{ id: "et", code: "ET", name: "Εξωτροπικός κυκλώνας", family: "extratropical" },
+	{ id: "sd", code: "SD", name: "Υποτροπική ύφεση", family: "subtropical" },
 	{ id: "ss", code: "SS", name: "Υποτροπική καταιγίδα", family: "subtropical" },
 ];
 
