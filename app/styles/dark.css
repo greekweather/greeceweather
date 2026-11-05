@@ -624,3 +624,27 @@ select:-webkit-autofill {
 		transition: none;
 	}
 }
+
+:root[data-theme="dark"] .draft-recovery {
+	background: #3a2a07;
+	color: #fde68a;
+	border-color: #b45309;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .draft-recovery {
+		background: #3a2a07;
+		color: #fde68a;
+		border-color: #b45309;
+	}
+}
+
+:root[data-theme="dark"] .brand-tld {
+	color: #fbbf24;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .brand-tld {
+		color: #fbbf24;
+	}
+}

@@ -7,6 +7,7 @@ import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import { PostPreview } from "@/components/admin/PostPreview";
 import { TagPicker } from "@/components/admin/TagPicker";
+import { greeklishSlug } from "@/lib/slug";
 
 type FormPost = {
 	id?: string;
@@ -21,6 +22,22 @@ type FormPost = {
 	published: boolean;
 	published_at: string;
 };
+
+type LocalCopy = {
+	title: string;
+	slug: string;
+	description: string;
+	content: string;
+	image_url: string;
+	image_alt: string;
+	image_caption: string;
+	tag_ids: string[];
+	at: string;
+};
+
+function localKey(id: string | undefined) {
+	return `greeceweather:post-draft:${id ?? "new"}`;
+}
 
 function countRenderedLines(element: HTMLElement) {
 	const textNode = element.firstChild;
@@ -69,6 +86,10 @@ export function PostForm({
 	const [slugIsInvalid, setSlugIsInvalid] = useState(false);
 	const [publishAttempted, setPublishAttempted] = useState(false);
 	const [showPreview, setShowPreview] = useState(false);
+	const [draftId, setDraftId] = useState<string | null>(post?.id ?? null);
+	const [published, setPublished] = useState(post?.published ?? false);
+	const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+	const [recovered, setRecovered] = useState<LocalCopy | null>(null);
 
 	const measureGridRef = useRef<HTMLDivElement>(null);
 	const titleMeasureRef = useRef<HTMLHeadingElement>(null);
@@ -133,6 +154,145 @@ export function PostForm({
 		return () => window.clearTimeout(timer);
 	}, [slug]);
 
+	const snapshot = useCallback(
+		() => ({
+			title,
+			slug,
+			description,
+			content,
+			image_url: imageUrl,
+			image_alt: imageAlt,
+			image_caption: imageCaption,
+			tag_ids: selectedTagIds,
+		}),
+		[title, slug, description, content, imageUrl, imageAlt, imageCaption, selectedTagIds],
+	);
+
+	const initialRef = useRef(JSON.stringify(snapshot()));
+	const lastSavedRef = useRef(initialRef.current);
+	const draftIdRef = useRef(draftId);
+	const submittingRef = useRef(false);
+	const savingRef = useRef(false);
+
+	draftIdRef.current = draftId;
+
+	// Unpublished posts (and new ones) are saved to the server as a draft in the background.
+	// A published post is never changed behind your back: its edits are kept only in this
+	// browser, and offered back if you return without saving.
+	const canAutosaveToServer = !published && !post?.published;
+
+	const saveNow = useCallback(
+		async (keepalive = false) => {
+			const current = JSON.stringify(snapshot());
+
+			if (current === lastSavedRef.current || submittingRef.current || savingRef.current) return;
+
+			const data = snapshot();
+			const empty = !data.title.trim() && !data.content.trim() && !data.description.trim();
+
+			if (empty && !draftIdRef.current) return;
+
+			savingRef.current = true;
+			setSaveState("saving");
+
+			try {
+				const response = await fetch("/api/admin/post-autosave", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ id: draftIdRef.current, ...data }),
+					keepalive,
+				});
+
+				if (!response.ok) throw new Error(String(response.status));
+
+				const result = (await response.json()) as { id: string };
+
+				lastSavedRef.current = current;
+				setDraftId(result.id);
+				draftIdRef.current = result.id;
+				setSaveState("saved");
+			} catch {
+				setSaveState("error");
+			} finally {
+				savingRef.current = false;
+			}
+		},
+		[snapshot],
+	);
+
+	const saveLocal = useCallback(() => {
+		try {
+			const current = JSON.stringify(snapshot());
+
+			if (current === initialRef.current) {
+				localStorage.removeItem(localKey(post?.id));
+			} else {
+				localStorage.setItem(
+					localKey(post?.id),
+					JSON.stringify({ ...snapshot(), at: new Date().toISOString() }),
+				);
+			}
+		} catch {}
+	}, [snapshot, post?.id]);
+
+	// offer back edits of a published post that were never saved
+	// biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount
+	useEffect(() => {
+		if (!post?.published) return;
+
+		try {
+			const raw = localStorage.getItem(localKey(post.id));
+			const stored = raw ? (JSON.parse(raw) as LocalCopy) : null;
+
+			if (stored) {
+				const { at: _at, ...rest } = stored;
+
+				if (JSON.stringify(rest) !== initialRef.current) setRecovered(stored);
+			}
+		} catch {}
+	}, []);
+
+	useEffect(() => {
+		const timer = window.setTimeout(() => {
+			if (canAutosaveToServer) {
+				void saveNow();
+			} else {
+				saveLocal();
+			}
+		}, 2500);
+
+		return () => window.clearTimeout(timer);
+	}, [canAutosaveToServer, saveNow, saveLocal]);
+
+	const flushRef = useRef(() => {});
+
+	flushRef.current = () => {
+		if (submittingRef.current) return;
+
+		if (canAutosaveToServer) {
+			void saveNow(true);
+		} else {
+			saveLocal();
+		}
+	};
+
+	useEffect(() => {
+		const flush = () => flushRef.current();
+		const onHide = () => {
+			if (document.visibilityState === "hidden") flush();
+		};
+
+		document.addEventListener("visibilitychange", onHide);
+		window.addEventListener("pagehide", flush);
+
+		return () => {
+			document.removeEventListener("visibilitychange", onHide);
+			window.removeEventListener("pagehide", flush);
+			// leaving through an in-app link, where the page is never unloaded
+			flush();
+		};
+	}, []);
+
 	const hasTitle = title.trim().length > 0;
 	const hasDescription = description.trim().length > 0;
 	const hasContent = content.trim().length > 0;
@@ -166,22 +326,77 @@ export function PostForm({
 					return;
 				}
 
-				const publishedInput = form.elements.namedItem("published");
+				// a background save still running could create a second copy of a new post
+				if (savingRef.current) {
+					event.preventDefault();
+					window.setTimeout(() => form.requestSubmit(submitter as HTMLElement | null), 300);
 
-				const published = publishedInput instanceof HTMLInputElement && publishedInput.checked;
-
-				if (!published) {
 					return;
 				}
 
-				setPublishAttempted(true);
+				const publishedInput = form.elements.namedItem("published");
 
-				if (!hasTitle || !hasDescription || !hasContent || !hasSlug || !hasTags || !hasImage) {
-					event.preventDefault();
+				const willPublish = publishedInput instanceof HTMLInputElement && publishedInput.checked;
+
+				if (willPublish) {
+					setPublishAttempted(true);
+
+					if (!hasTitle || !hasDescription || !hasContent || !hasSlug || !hasTags || !hasImage) {
+						event.preventDefault();
+
+						return;
+					}
 				}
+
+				submittingRef.current = true;
+
+				try {
+					localStorage.removeItem(localKey(post?.id));
+				} catch {}
 			}}
 		>
-			{post?.id && <input type="hidden" name="id" value={post.id} />}
+			{draftId && <input type="hidden" name="id" value={draftId} />}
+
+			{recovered && (
+				<div className="draft-recovery" role="status">
+					<span>
+						Βρέθηκαν μη αποθηκευμένες αλλαγές από{" "}
+						{new Date(recovered.at).toLocaleString("el-GR", { timeZone: "Europe/Athens" })}.
+					</span>
+
+					<button
+						type="button"
+						className="button"
+						onClick={() => {
+							setTitle(recovered.title);
+							setSlug(recovered.slug);
+							setDescription(recovered.description);
+							setContent(recovered.content);
+							setImageUrl(recovered.image_url);
+							setImageAlt(recovered.image_alt);
+							setImageCaption(recovered.image_caption);
+							setSelectedTagIds(recovered.tag_ids);
+							setRecovered(null);
+						}}
+					>
+						Επαναφορά
+					</button>
+
+					<button
+						type="button"
+						className="button secondary"
+						onClick={() => {
+							try {
+								localStorage.removeItem(localKey(post?.id));
+							} catch {}
+
+							setRecovered(null);
+						}}
+					>
+						Απόρριψη
+					</button>
+				</div>
+			)}
 
 			<div className="form-row">
 				<div className="form-field">
@@ -208,13 +423,25 @@ export function PostForm({
 				<div className="form-field">
 					<label htmlFor="slug">Slug</label>
 
-					<input
-						id="slug"
-						name="slug"
-						maxLength={120}
-						value={slug}
-						onChange={(e) => setSlug(e.target.value)}
-					/>
+					<div className="slug-field">
+						<input
+							id="slug"
+							name="slug"
+							maxLength={120}
+							value={slug}
+							onChange={(e) => setSlug(e.target.value)}
+						/>
+
+						<button
+							type="button"
+							className="button secondary slug-generate"
+							disabled={!hasTitle}
+							title={hasTitle ? "Δημιουργία slug από τον τίτλο" : "Γράψε πρώτα τίτλο"}
+							onClick={() => setSlug(greeklishSlug(title, 120))}
+						>
+							Δημιουργία slug
+						</button>
+					</div>
 
 					<p
 						className={`form-warning-slot ${showSlugWarning || slugIsInvalid ? "visible" : ""}`}
@@ -362,6 +589,8 @@ export function PostForm({
 							name="published"
 							defaultChecked={post?.published}
 							onChange={(e) => {
+								setPublished(e.target.checked);
+
 								if (!e.target.checked) {
 									setPublishAttempted(false);
 								}
@@ -404,10 +633,22 @@ export function PostForm({
 					Αποθήκευση
 				</button>
 
-				{post?.id && (
+				<span className={`autosave-status ${saveState}`} aria-live="polite">
+					{canAutosaveToServer
+						? saveState === "saving"
+							? "Αποθήκευση πρόχειρου…"
+							: saveState === "saved"
+								? "Το πρόχειρο αποθηκεύτηκε αυτόματα"
+								: saveState === "error"
+									? "Αποτυχία αυτόματης αποθήκευσης"
+									: "Αυτόματη αποθήκευση πρόχειρου ενεργή"
+						: "Δημοσιευμένο: οι αλλαγές κρατούνται τοπικά μέχρι να πατήσεις 'Αποθήκευση'."}
+				</span>
+
+				{draftId && (
 					<DeleteConfirmButton
-						id={post.id}
-						name={post.title}
+						id={draftId}
+						name={title || post?.title || "Χωρίς τίτλο"}
 						action={deletePostAction}
 						itemType="άρθρου"
 						grammar="το άρθρο"

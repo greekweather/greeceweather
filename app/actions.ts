@@ -39,6 +39,11 @@ function getTagIds(formData: FormData) {
 export async function createPostAction(formData: FormData) {
 	await requireAdmin();
 
+	// the editor already saved this post as a draft in the background: finish that one
+	if (String(formData.get("id") ?? "")) {
+		return updatePostAction(formData);
+	}
+
 	const input = formDataToInput(formData);
 	const tagIds = getTagIds(formData);
 
@@ -66,7 +71,7 @@ export async function createPostAction(formData: FormData) {
 		.from("posts")
 		.insert({
 			title: input.title,
-			slug: input.slug,
+			slug: input.slug || `draft-${crypto.randomUUID().slice(0, 8)}`,
 			description: input.description,
 			content: input.content,
 			image_url: input.image_url || null,
@@ -151,7 +156,7 @@ export async function updatePostAction(formData: FormData) {
 		.from("posts")
 		.update({
 			title: input.title,
-			slug: input.slug,
+			slug: input.slug || existingPost.slug,
 			description: input.description,
 			content: input.content,
 			image_url: input.image_url || null,

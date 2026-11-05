@@ -18,6 +18,7 @@ const csp = [
 	"font-src 'self' data:",
 	`connect-src 'self'${supabaseHost ? ` https://${supabaseHost} wss://${supabaseHost}` : ""}${isDev ? " ws:" : ""}`,
 	"worker-src 'self' blob:",
+	"frame-src https://www.facebook.com https://web.facebook.com",
 	"frame-ancestors 'none'",
 	"base-uri 'self'",
 	"form-action 'self'",

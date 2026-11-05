@@ -71,7 +71,13 @@ export default async function AdminOutlooksPage({
 									<td data-label="Ενημέρωση">{formatOutlookDate(outlook.updated_at)}</td>
 
 									<td>
-										<div className="outlook-row-actions">
+										<div
+											className={`outlook-row-actions${
+												isLive(outlook.published, outlook.published_at, outlook.issued_at)
+													? ""
+													: " no-view"
+											}`}
+										>
 											<div className="outlook-row-actions-top">
 												<a
 													className="button secondary"

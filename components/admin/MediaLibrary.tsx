@@ -3,6 +3,9 @@
 import Image from "next/image";
 import { useState } from "react";
 
+import { findVisualDuplicate } from "@/lib/image-hash";
+import { uploadKeepingName } from "@/lib/image-upload";
+import { storageFileBase } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/client";
 
 type MediaFile = {
@@ -70,62 +73,96 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 	const [uploading, setUploading] = useState(false);
 	const [message, setMessage] = useState("");
 	const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+	const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
+	const [dragging, setDragging] = useState(false);
+	const [scan, setScan] = useState("");
+	const [query, setQuery] = useState("");
 
 	const supabase = createClient();
 
-	async function uploadFile(file: File) {
+	// One file: returns the stored entry, or throws with a readable reason.
+	async function uploadOne(file: File): Promise<MediaFile> {
+		const optimized = await optimizeImage(file);
+
+		// keeps the name the file has on the computer; a taken name becomes name-2, name-3…
+		const fileName = await uploadKeepingName("", `${storageFileBase(file.name)}.webp`, optimized);
+
+		const { data: publicUrl } = supabase.storage.from("post-images").getPublicUrl(fileName);
+
+		return {
+			name: fileName,
+			url: publicUrl.publicUrl,
+			created_at: new Date().toISOString(),
+			size: optimized.size,
+			content_type: "image/webp",
+		};
+	}
+
+	// Any number of files, one after the other (keeps phones from running out of memory).
+	async function uploadMany(list: File[]) {
+		const images = list.filter((file) => file.type.startsWith("image/"));
+		const skipped = list.length - images.length;
+
+		if (images.length === 0) {
+			setMessage("Δεν επιλέχθηκαν εικόνες.");
+			return;
+		}
+
 		setUploading(true);
 		setMessage("");
 
-		try {
-			const optimized = await optimizeImage(file);
+		const failures: string[] = [];
+		const skippedDuplicates: string[] = [];
+		const library = [...files];
+		let done = 0;
 
-			const fileName = `${Date.now()}-${
-				file.name
-					.replace(/\.[^/.]+$/, "")
-					.toLowerCase()
-					.replace(/[^a-z0-9-_]+/g, "-")
-					.replace(/^-+|-+$/g, "") || "image"
-			}.webp`;
+		for (const [index, file] of images.entries()) {
+			setProgress({ current: index + 1, total: images.length });
 
-			const { error } = await supabase.storage.from("post-images").upload(fileName, optimized, {
-				cacheControl: "31536000",
-				upsert: false,
-				contentType: "image/webp",
-			});
+			try {
+				const lookalike = await findVisualDuplicate(file, library, (checked, total) =>
+					setScan(`Έλεγχος για διπλότυπα… ${checked}/${total}`),
+				);
 
-			if (error) {
-				setMessage(`Σφάλμα upload: ${error.message}`);
-				return;
+				setScan("");
+
+				if (
+					lookalike &&
+					!window.confirm(
+						`Η «${file.name}» μοιάζει πολύ με την υπάρχουσα «${lookalike.name}».\n\n` +
+							"OK = ανέβασμα παρ' όλα αυτά\nΑκύρωση = παράλειψη",
+					)
+				) {
+					skippedDuplicates.push(file.name);
+					continue;
+				}
+
+				const stored = await uploadOne(file);
+
+				library.unshift(stored);
+				setFiles((current) => [stored, ...current]);
+				done += 1;
+			} catch (error) {
+				failures.push(
+					`${file.name}: ${error instanceof Error ? error.message : "άγνωστο σφάλμα"}`,
+				);
 			}
-
-			const { data: publicUrl } = supabase.storage.from("post-images").getPublicUrl(fileName);
-
-			setFiles((current) => [
-				{
-					name: fileName,
-					url: publicUrl.publicUrl,
-					created_at: new Date().toISOString(),
-					size: optimized.size,
-					content_type: "image/webp",
-				},
-				...current,
-			]);
-
-			const originalMB = (file.size / 1024 / 1024).toFixed(2);
-
-			const optimizedKB = Math.round(optimized.size / 1024);
-
-			setMessage(`Η εικόνα ανέβηκε επιτυχώς: ${originalMB} MB → ${optimizedKB} KB.`);
-		} catch (error) {
-			setMessage(
-				error instanceof Error
-					? `Σφάλμα: ${error.message}`
-					: "Σφάλμα κατά την επεξεργασία της εικόνας.",
-			);
-		} finally {
-			setUploading(false);
 		}
+
+		setProgress(null);
+		setUploading(false);
+		setMessage(
+			[
+				done > 0 ? `Ανέβηκαν ${done} από ${images.length} εικόνες.` : "Δεν ανέβηκε καμία εικόνα.",
+				skippedDuplicates.length > 0
+					? `Παραλείφθηκαν ως διπλότυπα: ${skippedDuplicates.join(", ")}.`
+					: "",
+				skipped > 0 ? `${skipped} αρχεία που δεν ήταν εικόνες αγνοήθηκαν.` : "",
+				failures.length > 0 ? `Απέτυχαν: ${failures.join(" · ")}` : "",
+			]
+				.filter(Boolean)
+				.join(" "),
+		);
 	}
 
 	async function deleteFile(name: string) {
@@ -148,32 +185,73 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 		setMessage("Το URL αντιγράφηκε.");
 	}
 
+	const needle = query.trim().toLowerCase();
+	const visibleFiles = needle
+		? files.filter((file) => file.name.toLowerCase().includes(needle))
+		: files;
+
 	return (
 		<div>
-			<div className="media-upload-card">
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: drop zone; the file input inside is the keyboard route */}
+			<div
+				className={`media-upload-card${dragging ? " dragging" : ""}`}
+				onDragOver={(event) => {
+					event.preventDefault();
+					setDragging(true);
+				}}
+				onDragLeave={() => setDragging(false)}
+				onDrop={(event) => {
+					event.preventDefault();
+					setDragging(false);
+
+					if (!uploading) void uploadMany(Array.from(event.dataTransfer.files));
+				}}
+			>
 				<label className="media-upload-label">
-					<span>{uploading ? "Ανέβασμα..." : "Ανέβασε εικόνα"}</span>
+					<span>
+						{progress
+							? scan || `Ανέβασμα ${progress.current} από ${progress.total}…`
+							: "Ανέβασε εικόνες (μία ή πολλές)"}
+					</span>
 
 					<input
 						type="file"
+						multiple
 						accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
 						disabled={uploading}
 						onChange={(event) => {
-							const file = event.target.files?.[0];
-
-							if (file) {
-								void uploadFile(file);
-							}
+							const chosen = Array.from(event.target.files ?? []);
 
 							event.target.value = "";
+
+							if (chosen.length > 0) void uploadMany(chosen);
 						}}
 					/>
 				</label>
 
-				<p>JPG, PNG, WebP, GIF ή AVIF.</p>
+				{progress && (
+					<progress
+						className="media-upload-progress"
+						value={progress.current - 1}
+						max={progress.total}
+					/>
+				)}
+
+				<p>JPG, PNG, WebP, GIF ή AVIF. Διάλεξε πολλά μαζί ή σύρε τα εδώ.</p>
 			</div>
 
 			{message && <div className="notice success">{message}</div>}
+
+			{files.length > 0 && (
+				<input
+					type="search"
+					className="media-search"
+					placeholder="Αναζήτηση ονόματος…"
+					aria-label="Αναζήτηση εικόνας με όνομα"
+					value={query}
+					onChange={(event) => setQuery(event.target.value)}
+				/>
+			)}
 
 			{files.length === 0 ? (
 				<div className="form-card">
@@ -181,7 +259,7 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 				</div>
 			) : (
 				<div className="media-grid">
-					{files.map((file) => (
+					{visibleFiles.map((file) => (
 						<article className="media-card" key={file.name}>
 							<div className="media-preview">
 								<Image src={file.url} alt={file.name} width={700} height={438} />

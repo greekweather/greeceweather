@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { findVisualDuplicate } from "@/lib/image-hash";
 import { listImages, type StoredImage, uploadImage } from "@/lib/image-upload";
 
 export function ImagePicker({
@@ -19,6 +20,7 @@ export function ImagePicker({
 	const [loading, setLoading] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [status, setStatus] = useState("");
+	const [query, setQuery] = useState("");
 
 	async function load() {
 		setLoading(true);
@@ -34,6 +36,7 @@ export function ImagePicker({
 	function open() {
 		setSelected(currentUrl);
 		setStatus("");
+		setQuery("");
 		dialogRef.current?.showModal();
 		void load();
 	}
@@ -51,8 +54,29 @@ export function ImagePicker({
 	async function addNew(file: File | undefined) {
 		if (!file) return;
 		setBusy(true);
-		setStatus("Συμπίεση και upload…");
+		setStatus("Έλεγχος για διπλότυπα…");
 		try {
+			const lookalike = await findVisualDuplicate(file, images, (done, total) =>
+				setStatus(`Έλεγχος για διπλότυπα… ${done}/${total}`),
+			);
+
+			if (lookalike) {
+				const name = lookalike.path.split("/").pop();
+				const upload = window.confirm(
+					`Η εικόνα μοιάζει πολύ με την υπάρχουσα «${name}».\n\n` +
+						"OK = ανέβασμα παρ' όλα αυτά\nΑκύρωση = χρήση της υπάρχουσας",
+				);
+
+				if (!upload) {
+					setSelected(lookalike.url);
+					setQuery("");
+					setStatus(`Επιλέχθηκε η υπάρχουσα «${name}».`);
+					return;
+				}
+			}
+
+			setStatus("Συμπίεση και upload…");
+
 			const image = await uploadImage(file);
 			altByUrl.current[image.url] = file.name.replace(/\.[^.]+$/, "");
 			setImages((current) => [image, ...current]);
@@ -64,6 +88,11 @@ export function ImagePicker({
 			setBusy(false);
 		}
 	}
+
+	const needle = query.trim().toLowerCase();
+	const visible = needle
+		? images.filter((image) => image.path.toLowerCase().includes(needle))
+		: images;
 
 	return (
 		<div className="form-field">
@@ -101,6 +130,15 @@ export function ImagePicker({
 						/>
 					</label>
 
+					<input
+						type="search"
+						className="image-picker-search"
+						placeholder="Αναζήτηση ονόματος…"
+						aria-label="Αναζήτηση εικόνας με όνομα"
+						value={query}
+						onChange={(e) => setQuery(e.target.value)}
+					/>
+
 					<span className="image-picker-status" role="status" aria-live="polite">
 						{status}
 					</span>
@@ -111,9 +149,11 @@ export function ImagePicker({
 						<p>Φόρτωση…</p>
 					) : images.length === 0 ? (
 						<p>Δεν υπάρχουν εικόνες ακόμα. Πάτα «Προσθήκη νέας».</p>
+					) : visible.length === 0 ? (
+						<p>Καμία εικόνα με αυτό το όνομα.</p>
 					) : (
 						<div className="image-picker-grid">
-							{images.map((image) => {
+							{visible.map((image) => {
 								const isSelected = image.url === selected;
 
 								return (
@@ -127,6 +167,7 @@ export function ImagePicker({
 										onClick={() => setSelected(image.url)}
 									>
 										<Image src={image.url} alt="" width={240} height={150} />
+										<span className="image-picker-name">{image.path.split("/").pop()}</span>
 									</button>
 								);
 							})}

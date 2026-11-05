@@ -39,6 +39,15 @@
 	color: var(--night);
 }
 
+/* ".gr": smaller, golden, sitting on the same baseline */
+.brand-tld {
+	margin-left: 1px;
+	font-size: 0.66em;
+	font-weight: 800;
+	letter-spacing: 0;
+	color: #d99a00;
+}
+
 .brand img {
 	width: 34px;
 	height: 34px;

@@ -1,12 +1,10 @@
 "use client";
 
-import { type RefObject, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 
 type Format = "map" | "square" | "story";
 
 const LOGO_URL = "/icons/icon-512.png";
-const NAVY = "#0e2233";
-const BLUE = "#1a5a96";
 
 /** Loads an image (an SVG or PNG address) and waits until it can be drawn. */
 async function loadImage(src: string): Promise<HTMLImageElement> {
@@ -55,6 +53,108 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, width: number, ma
 	return lines;
 }
 
+function roundRect(
+	ctx: CanvasRenderingContext2D,
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+	r: number,
+) {
+	ctx.beginPath();
+	ctx.moveTo(x + r, y);
+	ctx.arcTo(x + w, y, x + w, y + h, r);
+	ctx.arcTo(x + w, y + h, x, y + h, r);
+	ctx.arcTo(x, y + h, x, y, r);
+	ctx.arcTo(x, y, x + w, y, r);
+	ctx.closePath();
+}
+
+// Layered backdrop: deep gradient, soft colour glows, isobar-like contour lines, a dotted
+// grid fading out and a few pressure-centre rings. Fixed numbers, so every export looks alike.
+function paintBackdrop(ctx: CanvasRenderingContext2D, W: number, H: number) {
+	const base = ctx.createLinearGradient(0, 0, W * 0.6, H);
+
+	base.addColorStop(0, "#0b1b3a");
+	base.addColorStop(0.45, "#12407a");
+	base.addColorStop(0.8, "#0e6a8f");
+	base.addColorStop(1, "#14385e");
+	ctx.fillStyle = base;
+	ctx.fillRect(0, 0, W, H);
+
+	const glow = (cx: number, cy: number, r: number, color: string) => {
+		const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+
+		g.addColorStop(0, color);
+		g.addColorStop(1, "rgba(0,0,0,0)");
+		ctx.fillStyle = g;
+		ctx.fillRect(0, 0, W, H);
+	};
+
+	glow(W * 0.9, H * 0.08, W * 0.7, "rgba(244,63,94,0.30)");
+	glow(W * 0.05, H * 0.55, W * 0.75, "rgba(56,189,248,0.28)");
+	glow(W * 0.85, H * 0.95, W * 0.8, "rgba(251,191,36,0.26)");
+	glow(W * 0.3, H * 0.02, W * 0.5, "rgba(167,139,250,0.28)");
+
+	// contour lines
+	ctx.lineWidth = 2;
+
+	for (let i = 0; i < 16; i += 1) {
+		const baseY = (H / 15) * i;
+		const amp = 34 + (i % 4) * 14;
+		const phase = i * 0.7;
+
+		ctx.beginPath();
+
+		for (let px = -20; px <= W + 20; px += 20) {
+			const py = baseY + Math.sin(px / 170 + phase) * amp + Math.sin(px / 61 + phase * 2) * 8;
+
+			if (px === -20) ctx.moveTo(px, py);
+			else ctx.lineTo(px, py);
+		}
+
+		ctx.strokeStyle = `rgba(255,255,255,${i % 3 === 0 ? 0.13 : 0.07})`;
+		ctx.stroke();
+	}
+
+	// pressure-centre rings
+	for (const [cx, cy, count] of [
+		[W * 0.12, H * 0.2, 5],
+		[W * 0.92, H * 0.72, 6],
+	] as const) {
+		for (let k = 1; k <= count; k += 1) {
+			ctx.beginPath();
+			ctx.arc(cx, cy, k * 42, 0, Math.PI * 2);
+			ctx.strokeStyle = `rgba(255,255,255,${0.12 - k * 0.012})`;
+			ctx.stroke();
+		}
+	}
+
+	// dotted grid, strongest at the corners
+	for (let gx = 20; gx < W; gx += 36) {
+		for (let gy = 20; gy < H; gy += 36) {
+			const d = Math.min(
+				Math.hypot(gx, gy),
+				Math.hypot(W - gx, gy),
+				Math.hypot(gx, H - gy),
+				Math.hypot(W - gx, H - gy),
+			);
+			const a = Math.max(0, 0.22 - d / 2400);
+
+			if (a > 0.01) {
+				ctx.fillStyle = `rgba(255,255,255,${a})`;
+				ctx.fillRect(gx, gy, 3, 3);
+			}
+		}
+	}
+
+	// thin inner frame
+	ctx.strokeStyle = "rgba(255,255,255,0.18)";
+	ctx.lineWidth = 2;
+	roundRect(ctx, 18, 18, W - 36, H - 36, 30);
+	ctx.stroke();
+}
+
 /**
  * Saves the graphic inside `containerRef` as a PNG, made in the browser:
  *   map    the map as it is, 2x
@@ -70,6 +170,29 @@ export function DownloadPng({
 }) {
 	const [busy, setBusy] = useState<Format | null>(null);
 	const [failed, setFailed] = useState(false);
+	const [open, setOpen] = useState(false);
+	const menuRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!open) return;
+
+		const close = (event: Event) => {
+			if (event.target instanceof Node && menuRef.current?.contains(event.target)) return;
+
+			setOpen(false);
+		};
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key === "Escape") setOpen(false);
+		};
+
+		document.addEventListener("pointerdown", close);
+		document.addEventListener("keydown", onKey);
+
+		return () => {
+			document.removeEventListener("pointerdown", close);
+			document.removeEventListener("keydown", onKey);
+		};
+	}, [open]);
 
 	async function graphic() {
 		const svg = containerRef.current?.querySelector("svg");
@@ -125,7 +248,7 @@ export function DownloadPng({
 		const story = format === "story";
 		const W = 1080;
 		const H = story ? 1920 : 1080;
-		const margin = 40;
+		const margin = story ? 56 : 48;
 		const canvas = document.createElement("canvas");
 		canvas.width = W;
 		canvas.height = H;
@@ -137,58 +260,117 @@ export function DownloadPng({
 		const logo = await loadImage(LOGO_URL).catch(() => null);
 		const family = getComputedStyle(document.body).fontFamily || "sans-serif";
 
-		const background = ctx.createLinearGradient(0, 0, W, H);
-		background.addColorStop(0, NAVY);
-		background.addColorStop(1, BLUE);
-		ctx.fillStyle = background;
-		ctx.fillRect(0, 0, W, H);
+		paintBackdrop(ctx, W, H);
 
 		ctx.textBaseline = "alphabetic";
-		ctx.fillStyle = "#ffffff";
+		ctx.textAlign = "left";
 
 		// Instagram and Facebook cover the top and bottom of a story with their own controls.
-		const top = story ? 210 : 40;
-		const logoSize = story ? 96 : 72;
+		const top = story ? 190 : 46;
+		const logoSize = story ? 84 : 64;
 
-		if (logo) ctx.drawImage(logo, margin, top, logoSize, logoSize);
+		// brand pill: logo + name
+		const brandText = "greeceweather.gr";
+		ctx.font = `700 ${story ? 36 : 28}px ${family}`;
+		const pillW = logoSize + 24 + ctx.measureText(brandText).width + 34;
+		const pillH = logoSize + 16;
 
-		ctx.font = `700 ${story ? 40 : 32}px ${family}`;
-		ctx.fillText(
-			"GREECEWEATHER.GR",
-			margin + logoSize + 20,
-			top + logoSize / 2 + (story ? 14 : 11),
-		);
+		roundRect(ctx, margin, top - 8, pillW, pillH, pillH / 2);
+		ctx.fillStyle = "rgba(255,255,255,0.12)";
+		ctx.fill();
+		ctx.strokeStyle = "rgba(255,255,255,0.28)";
+		ctx.lineWidth = 2;
+		ctx.stroke();
 
-		let y = top + logoSize + (story ? 50 : 18);
-
-		if (story && title) {
-			ctx.font = `700 54px ${family}`;
-
-			for (const line of wrapText(ctx, title, W - margin * 2, 3)) {
-				y += 66;
-				ctx.fillText(line, margin, y);
-			}
-
-			y += 40;
+		if (logo) {
+			ctx.save();
+			ctx.beginPath();
+			ctx.arc(margin + 8 + logoSize / 2, top + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+			ctx.clip();
+			ctx.drawImage(logo, margin + 8, top, logoSize, logoSize);
+			ctx.restore();
 		}
 
-		// the map, as large as the space left allows, on a white sheet
-		const footer = story ? 250 : 64;
+		ctx.fillStyle = "#ffffff";
+		ctx.fillText(brandText, margin + 8 + logoSize + 18, top + logoSize / 2 + (story ? 13 : 10));
+
+		let y = top + pillH + (story ? 54 : 30);
+
+		// accent bar + title
+		if (title) {
+			const size = story ? 62 : 44;
+			const lineH = Math.round(size * 1.18);
+
+			ctx.font = `800 ${size}px ${family}`;
+
+			const lines = wrapText(ctx, title, W - margin * 2 - 28, story ? 4 : 2);
+			const block = lines.length * lineH;
+			const bar = ctx.createLinearGradient(0, y, 0, y + block);
+
+			bar.addColorStop(0, "#fbbf24");
+			bar.addColorStop(1, "#f43f5e");
+			ctx.fillStyle = bar;
+			roundRect(ctx, margin, y, 8, block, 4);
+			ctx.fill();
+
+			ctx.fillStyle = "#ffffff";
+			ctx.shadowColor = "rgba(5,15,30,0.45)";
+			ctx.shadowBlur = 12;
+
+			lines.forEach((line, index) => {
+				ctx.fillText(line, margin + 28, y + size * 0.9 + index * lineH);
+			});
+
+			ctx.shadowBlur = 0;
+			y += block + (story ? 48 : 26);
+		}
+
+		// the map, as large as the space left allows, on a rounded card
+		const footer = story ? 240 : 78;
 		const room = H - y - footer;
 		const fit = Math.min((W - margin * 2) / width, room / height);
 		const drawW = width * fit;
 		const drawH = height * fit;
 		const x = (W - drawW) / 2;
-		const mapTop = story ? y + Math.max(0, (room - drawH) / 2) : y + (room - drawH) / 2;
+		const mapTop = y + Math.max(0, (room - drawH) / 2);
 
+		ctx.save();
+		ctx.shadowColor = "rgba(3,10,25,0.55)";
+		ctx.shadowBlur = 44;
+		ctx.shadowOffsetY = 16;
+		roundRect(ctx, x, mapTop, drawW, drawH, 26);
 		ctx.fillStyle = "#ffffff";
-		ctx.fillRect(x - 8, mapTop - 8, drawW + 16, drawH + 16);
-		ctx.drawImage(image, x, mapTop, drawW, drawH);
+		ctx.fill();
+		ctx.restore();
 
-		ctx.fillStyle = "rgba(255,255,255,0.85)";
-		ctx.font = `700 ${story ? 30 : 24}px ${family}`;
+		ctx.save();
+		roundRect(ctx, x, mapTop, drawW, drawH, 26);
+		ctx.clip();
+		ctx.drawImage(image, x, mapTop, drawW, drawH);
+		ctx.restore();
+
+		roundRect(ctx, x, mapTop, drawW, drawH, 26);
+		ctx.strokeStyle = "rgba(255,255,255,0.65)";
+		ctx.lineWidth = 3;
+		ctx.stroke();
+
+		// footer tag
+		const tag = "Ανεπίσημη πρόγνωση · greeceweather.gr";
+		const tagY = story ? H - 150 : H - 30;
+
 		ctx.textAlign = "center";
-		ctx.fillText("Ανεπίσημος χάρτης · greeceweather.gr", W / 2, story ? H - 170 : H - 22);
+		ctx.font = `600 ${story ? 30 : 23}px ${family}`;
+		ctx.fillStyle = "rgba(255,255,255,0.88)";
+		ctx.fillText(tag, W / 2, tagY);
+
+		const tagW = ctx.measureText(tag).width;
+		const rule = ctx.createLinearGradient(W / 2 - tagW / 2, 0, W / 2 + tagW / 2, 0);
+
+		rule.addColorStop(0, "#38bdf8");
+		rule.addColorStop(0.5, "#fbbf24");
+		rule.addColorStop(1, "#f43f5e");
+		ctx.fillStyle = rule;
+		ctx.fillRect(W / 2 - tagW / 2, tagY + 14, tagW, 4);
 
 		return toBlob(canvas);
 	}
@@ -232,35 +414,48 @@ export function DownloadPng({
 		}
 	}
 
+	const items: { format: Format; label: string; hint: string }[] = [
+		{ format: "map", label: "PNG", hint: "ο χάρτης όπως φαίνεται" },
+		{ format: "square", label: "Τετράγωνο", hint: "1080 × 1080 · post" },
+		{ format: "story", label: "Story", hint: "1080 × 1920 · κάθετο" },
+	];
+
 	return (
 		<>
-			<div className="outlook-download">
+			<div className="outlook-download" ref={menuRef}>
 				<button
 					type="button"
-					className="button secondary"
-					onClick={() => download("map")}
+					className="button secondary outlook-download-toggle"
+					aria-haspopup="menu"
+					aria-expanded={open}
+					onClick={() => setOpen((value) => !value)}
 					disabled={busy !== null}
 				>
-					{busy === "map" ? "Δημιουργία…" : "Λήψη PNG"}
+					{busy ? "Δημιουργία…" : "Λήψη ως"}
+					<span aria-hidden="true" className="outlook-download-caret">
+						▾
+					</span>
 				</button>
 
-				<button
-					type="button"
-					className="button secondary"
-					onClick={() => download("square")}
-					disabled={busy !== null}
-				>
-					{busy === "square" ? "Δημιουργία…" : "Τετράγωνο"}
-				</button>
-
-				<button
-					type="button"
-					className="button secondary"
-					onClick={() => download("story")}
-					disabled={busy !== null}
-				>
-					{busy === "story" ? "Δημιουργία…" : "Story"}
-				</button>
+				{open && (
+					<div className="outlook-download-menu" role="menu">
+						{items.map((item) => (
+							<button
+								key={item.format}
+								type="button"
+								role="menuitem"
+								className="outlook-download-item"
+								onClick={() => {
+									setOpen(false);
+									void download(item.format);
+								}}
+							>
+								<strong>{item.label}</strong>
+								<small>{item.hint}</small>
+							</button>
+						))}
+					</div>
+				)}
 			</div>
 
 			{failed && (

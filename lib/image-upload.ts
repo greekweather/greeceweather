@@ -1,3 +1,4 @@
+import { storageFileBase } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/client";
 
 const IMAGE_BUCKET = "post-images";
@@ -51,7 +52,35 @@ async function compressImage(file: File): Promise<File> {
 	if (!blob) throw new Error("Δεν ήταν δυνατή η συμπίεση της εικόνας.");
 	if (blob.size > MAX_OUTPUT_BYTES)
 		throw new Error("Η εικόνα παραμένει πολύ μεγάλη μετά τη συμπίεση.");
-	return new File([blob], `${crypto.randomUUID()}.webp`, { type: "image/webp" });
+	return new File([blob], `${storageFileBase(file.name)}.webp`, { type: "image/webp" });
+}
+
+// Uploads under the name the file had on the visitor's computer. If that name is taken in the
+// bucket it becomes name-2.webp, name-3.webp… so nothing is ever overwritten.
+export async function uploadKeepingName(
+	prefix: string,
+	name: string,
+	body: Blob,
+): Promise<string> {
+	const supabase = createClient();
+	const base = name.replace(/\.webp$/i, "");
+
+	for (let attempt = 1; attempt <= 30; attempt += 1) {
+		const path = `${prefix}${attempt === 1 ? base : `${base}-${attempt}`}.webp`;
+		const { error } = await supabase.storage.from(IMAGE_BUCKET).upload(path, body, {
+			cacheControl: "31536000",
+			contentType: "image/webp",
+			upsert: false,
+		});
+
+		if (!error) return path;
+
+		const taken = /already exists|duplicate|resource already/i.test(error.message);
+
+		if (!taken) throw error;
+	}
+
+	throw new Error("Υπάρχουν ήδη πολλές εικόνες με το ίδιο όνομα.");
 }
 
 // Compresses the file, uploads it to the bucket and returns it as a stored image.
@@ -64,14 +93,7 @@ export async function uploadImage(file: File): Promise<StoredImage> {
 	} = await supabase.auth.getUser();
 	if (!user) throw new Error("Η συνεδρία έληξε. Κάνε ξανά σύνδεση.");
 
-	const path = `${user.id}/${compressed.name}`;
-	const { error } = await supabase.storage.from(IMAGE_BUCKET).upload(path, compressed, {
-		cacheControl: "31536000",
-		contentType: "image/webp",
-		upsert: false,
-	});
-	if (error) throw error;
-
+	const path = await uploadKeepingName(`${user.id}/`, compressed.name, compressed);
 	const { data } = supabase.storage.from(IMAGE_BUCKET).getPublicUrl(path);
 	return {
 		path,

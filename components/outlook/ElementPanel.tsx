@@ -215,9 +215,26 @@ function MarkerFields({ marker, onChange }: { marker: XMarker; onChange: Patch }
 			</div>
 
 			<div className="outlook-field">
-				<label htmlFor="outlook-marker-size">
-					Μέγεθος X ({marker.size ?? MARKER_SIZE.default}%)
-				</label>
+				<label htmlFor="outlook-marker-size">Μέγεθος X (%)</label>
+				<input
+					id="outlook-marker-number"
+					aria-label="Μέγεθος X σε ποσοστό"
+					type="number"
+					inputMode="numeric"
+					min={MARKER_SIZE.min}
+					max={MARKER_SIZE.max}
+					step={1}
+					value={marker.size ?? MARKER_SIZE.default}
+					onChange={(event) => {
+						const raw = Number(event.target.value);
+
+						if (!Number.isFinite(raw) || event.target.value === "") return;
+
+						const size = Math.round(Math.min(MARKER_SIZE.max, Math.max(MARKER_SIZE.min, raw)));
+
+						onChange({ ...marker, size }, `marker-size-${marker.id}`);
+					}}
+				/>
 				<input
 					id="outlook-marker-size"
 					type="range"
@@ -231,7 +248,7 @@ function MarkerFields({ marker, onChange }: { marker: XMarker; onChange: Patch }
 				/>
 				<div className="outlook-presets-row">
 					{[
-						{ label: "Μικρό", value: 70 },
+						{ label: "Μικρό", value: 60 },
 						{ label: "Κανονικό", value: MARKER_SIZE.default },
 						{ label: "Μεγάλο", value: 160 },
 						{ label: "Πολύ μεγάλο", value: 240 },
