@@ -1,0 +1,445 @@
+{
+  "at": "2026-11-08T18:12:55.469Z",
+  "moves": [
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/01443c0c-0f70-40f5-9590-b9e13c5b4094.webp",
+      "to": "storm-clouds.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/021c9a4a-57b9-4eff-ac41-12109dbf53af.webp",
+      "to": "thunderstorm.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/03547d8d-620a-4ce0-9898-4066f4ab1c12.webp",
+      "to": "flood.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/0697d39a-0135-4f88-af27-ddfca1df9a19.webp",
+      "to": "supercell-cloud.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/074c44dc-a2f0-41d2-ab38-7a0e8d6d0698.webp",
+      "to": "greek-island.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/08b7c2bf-c2a8-4466-9810-554926346bc9.webp",
+      "to": "thunderstorm-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/0d03d089-6645-4a3a-8713-747a3313da43.webp",
+      "to": "sunny-sky.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/10c45662-e259-4db9-b0a9-02cae74bc694.webp",
+      "to": "storm-clouds-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/11e48e42-ff51-4088-b2dd-5d50eb041ecd.webp",
+      "to": "raindrops-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/1378aadb-a1a4-462e-ae1b-93e8d799cece.webp",
+      "to": "greek-beach-summer.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/19a52f42-2280-4ab5-9cb7-54e9d1563720.webp",
+      "to": "strong-wind-trees.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/1aa55074-3505-415f-aa77-f8405ec302d5.webp",
+      "to": "thunderstorm-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/1b48d51a-ebcb-4cff-9e8d-a05d5e276b57.webp",
+      "to": "mediterranean-weather-map.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/1ca036e5-98b6-40cc-bc34-b1fba24e487f.webp",
+      "to": "thunderstorm-4.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/1dc650a0-5533-4184-afd8-5aa9c9315df7.webp",
+      "to": "greek-beach-summer-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/1fe33b3a-4e3f-4237-bb38-2750c39cdde2.webp",
+      "to": "supercell-cloud-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/28457750-64ea-4c2f-a8bd-4069d9400219.webp",
+      "to": "greek-beach-summer-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/339019ba-38b7-47f8-817f-b4c2f833d21c.webp",
+      "to": "raindrops-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/34febf08-3a90-468e-8b0d-d133902233b8.webp",
+      "to": "greek-beach-summer-4.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/36e1d6fe-cac4-40de-9c71-4732a88e01c3.webp",
+      "to": "greek-island-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/3879d136-2fd4-4bd4-ad55-9cad0b0c6e7e.webp",
+      "to": "thunderstorm-5.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/3c665a0b-ce04-4887-9139-5e41cbf6f3e7.webp",
+      "to": "fog.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/3f0f28d5-35f5-4610-a706-8de08616e364.webp",
+      "to": "waterspout.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/40b9678f-c9cb-4657-bd78-57ca19e179f6.webp",
+      "to": "raindrops-4.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/46726bcf-3aa5-47c6-88bd-559c35560aec.webp",
+      "to": "thunderstorm-6.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/482e3f75-3aa2-4443-8937-e9b0c22ab945.webp",
+      "to": "drought.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/485bb458-4875-4a42-ab68-5c968085ece4.webp",
+      "to": "heavy-rain-street.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/485d795a-f517-48de-b86d-bae5ef7f431d.webp",
+      "to": "thunderstorm-7.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/49d77974-db82-4e2a-8a09-703f0b87d41c.webp",
+      "to": "greece-weather-map.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/4a36033b-2248-4a54-986c-cedbecaed1ca.webp",
+      "to": "storm-clouds-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/4ba4127f-92bf-49b1-b176-5c258845d0cb.webp",
+      "to": "heavy-rain-street-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/4c1a50b3-9b4f-436e-94d3-cddf0f31648b.webp",
+      "to": "lightning-map.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/4f6b0817-4b48-4561-9f39-56ff50626902.webp",
+      "to": "greek-island-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/50565531-8b7e-46ce-834c-5ac5c3a7d87f.webp",
+      "to": "raindrops-5.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/544d6c41-9cce-4e9a-945a-17e96c233cc9.webp",
+      "to": "athens-acropolis.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/5452c091-4f4a-4b00-9d63-cac86b73cc45.webp",
+      "to": "stormy-sea-waves.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/563b1de1-4692-4314-8a06-e7b0bf250584.webp",
+      "to": "stormy-sea-waves-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/58b6387f-1236-43e6-b0dd-53ac9352066b.webp",
+      "to": "raindrops-6.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/6d10246e-dcce-4cfd-b2fe-1fffb91726b1.webp",
+      "to": "sunny-sky-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/6e3af81d-1180-41a7-9339-f5d9064a1c43.webp",
+      "to": "strong-wind-trees-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/795f72d0-f580-40f2-88a5-671b21e7c25f.webp",
+      "to": "heavy-rain-street-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/7d95c401-8692-4560-a13c-976cb45cdab5.webp",
+      "to": "strong-wind-trees-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/82b2683e-047e-4f6a-b165-2cd923476ea3.webp",
+      "to": "stormy-sea-waves-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/88ebe1ab-42ea-4fff-8825-c255d5267daa.webp",
+      "to": "thunderstorm-8.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/8b57399e-96f8-4b02-b37c-a6f6da67a407.webp",
+      "to": "storm-clouds-4.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/925e2622-7345-4d2d-9884-1f36c53aff2a.webp",
+      "to": "supercell-cloud-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/93caa5b3-68b3-41fd-952d-769a7377c439.webp",
+      "to": "thunderstorm-9.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/97dcc3b7-ca6d-4054-a65c-a89e7d2606bc.webp",
+      "to": "greek-island-4.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/9b5d48b4-ec44-4af1-992e-1c1e77f272e6.webp",
+      "to": "thunderstorm-10.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/9c920b01-95f4-4b06-927b-73cee413af10.webp",
+      "to": "raindrops-7.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/a1dc2f27-2201-46a8-89a3-d22267392077.webp",
+      "to": "stormy-sea-waves-4.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/a6bde606-e99f-4ff4-9809-9f2bd04a09e4.webp",
+      "to": "greek-island-5.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/ab5e800b-1a37-474d-844b-44d97d16bb80.webp",
+      "to": "sunset-clouds.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/ad5135a7-f9f6-4926-964d-92da4876a328.webp",
+      "to": "storm-clouds-5.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/b94146a8-1033-4cbd-aa09-dc5aa2d3626e.webp",
+      "to": "storm-clouds-6.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/bf1152c5-a699-4daa-8e74-bd412486cd9a.webp",
+      "to": "thunderstorm-11.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/c0b8b5ef-4b77-4386-ac9b-0bd1d3dd0d36.webp",
+      "to": "supercell-cloud-4.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/c537bda9-adff-43a3-9939-34abfd39300d.webp",
+      "to": "storm-clouds-7.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/ca97950e-aee3-400b-b393-597ae042db47.webp",
+      "to": "raindrops-8.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/cf4b62cf-6ac0-4f92-80bc-a111481a7b23.webp",
+      "to": "storm-clouds-8.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/d65fd4f4-ccb9-4d9e-b28d-b6c05f25db0c.webp",
+      "to": "greek-beach-summer-5.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/d8d203d9-a4c6-4460-8cf1-21b6cba72fe7.webp",
+      "to": "thunderstorm-12.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/d941390e-f0ae-4d6b-b26e-a4be9bb51d7e.webp",
+      "to": "flood-2.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/ea10a815-39e5-4ffb-a875-2c6bbb0916bf.webp",
+      "to": "thunderstorm-13.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/ea5dd9ee-99b5-47c6-97e3-810d03202754.webp",
+      "to": "stormy-sea-waves-5.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/ee8ae229-1d2b-4dc3-aadf-ecdfe2e69362.webp",
+      "to": "snow-mountains.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/f08c26d3-caeb-4b43-8632-5318cd847b26.webp",
+      "to": "thunderstorm-14.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/f24d77e0-a09e-4d73-b0ec-0d2cbf27d1c7.webp",
+      "to": "flood-3.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/f4fee724-50e0-47f9-9dce-cf080fb82df0.webp",
+      "to": "storm-clouds-9.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/fa8c6e8b-50e2-4b0c-ab18-04f0d7334151.webp",
+      "to": "storm-clouds-10.webp"
+    },
+    {
+      "from": "01ee9c04-b4a8-422c-81ac-76d59129301a/foggymeteora.webp",
+      "to": "meteora.webp"
+    },
+    {
+      "from": "1789684295023-zonalwinds17sept.webp",
+      "to": "ensemble-meteogram.webp"
+    },
+    {
+      "from": "1789685307930-ensoinanutshell.webp",
+      "to": "rainfall-chart.webp"
+    },
+    {
+      "from": "1790333237888-orange-warning.webp",
+      "to": "logo.webp"
+    },
+    {
+      "from": "1790333241924-red-warning.webp",
+      "to": "logo-2.webp"
+    },
+    {
+      "from": "1790460506621-radarlightning.webp",
+      "to": "greece-weather-map-2.webp"
+    },
+    {
+      "from": "1790460510868-radar.webp",
+      "to": "greece-weather-map-3.webp"
+    },
+    {
+      "from": "1790463070975-lightningdata.webp",
+      "to": "greece-weather-map-4.webp"
+    },
+    {
+      "from": "1790463684032-radardata.webp",
+      "to": "greece-weather-map-5.webp"
+    },
+    {
+      "from": "1790467595790-radar2.webp",
+      "to": "greece-weather-map-6.webp"
+    },
+    {
+      "from": "1790467602087-lightningdata2.webp",
+      "to": "greece-weather-map-7.webp"
+    },
+    {
+      "from": "1790843016844-roadissuekriti.webp",
+      "to": "heavy-rain-street-4.webp"
+    },
+    {
+      "from": "1790843030093-kritiflood.webp",
+      "to": "flood-4.webp"
+    },
+    {
+      "from": "1790843035734-kritiflood2.webp",
+      "to": "flood-5.webp"
+    },
+    {
+      "from": "1790849073044-warning.webp",
+      "to": "logo-3.webp"
+    },
+    {
+      "from": "1791498680981-lightningmap.webp",
+      "to": "lightning-map-2.webp"
+    },
+    {
+      "from": "1791498685801-livelightningmap.webp",
+      "to": "lightning-map-3.webp"
+    },
+    {
+      "from": "1791729985547-screenshot-2026-10-11-at-17-36-54-real-time-lightning-map-lightningmaps-org.webp",
+      "to": "lightning-map-4.webp"
+    },
+    {
+      "from": "1791729990050-screenshot-2026-10-11-at-17-37-06-radar-lightning-owcast.webp",
+      "to": "greece-weather-map-8.webp"
+    },
+    {
+      "from": "1791729995444-screenshot-2026-10-11-at-17-37-36-blitzortung-org---live-lightning-map.webp",
+      "to": "greece-weather-map-9.webp"
+    },
+    {
+      "from": "migrated/clearskyacropolis.jpg",
+      "to": "athens-acropolis.jpg"
+    },
+    {
+      "from": "migrated/cloudychios.jpg",
+      "to": "athens-acropolis-2.jpg"
+    },
+    {
+      "from": "migrated/cumulonimbusstorm.jpg",
+      "to": "thunderstorm.jpg"
+    },
+    {
+      "from": "migrated/danielfloods.jpg",
+      "to": "flood.jpg"
+    },
+    {
+      "from": "migrated/fallgreece.jpg",
+      "to": "snow-mountains.jpg"
+    },
+    {
+      "from": "migrated/highseawaves.jpg",
+      "to": "stormy-sea-waves.jpg"
+    },
+    {
+      "from": "migrated/ianoseye.jpg",
+      "to": "medicane-satellite.jpg"
+    },
+    {
+      "from": "migrated/nightstorm.jpg",
+      "to": "thunderstorm-2.jpg"
+    },
+    {
+      "from": "migrated/radar.jpg",
+      "to": "radar-rain.jpg"
+    },
+    {
+      "from": "migrated/rainontheground.jpg",
+      "to": "raindrops.jpg"
+    },
+    {
+      "from": "migrated/rainycarwindow.jpg",
+      "to": "heavy-rain-street.jpg"
+    },
+    {
+      "from": "migrated/saffirsimpsonscale.png",
+      "to": "wind-forecast-map.png"
+    },
+    {
+      "from": "migrated/seastorm.jpg",
+      "to": "greek-beach-summer.jpg"
+    },
+    {
+      "from": "migrated/spiralbands.png",
+      "to": "medicane-satellite.png"
+    },
+    {
+      "from": "migrated/stormcell.jpg",
+      "to": "storm-clouds.jpg"
+    },
+    {
+      "from": "migrated/stormysea.jpg",
+      "to": "thunderstorm-3.jpg"
+    },
+    {
+      "from": "migrated/sunnyacropolis.jpg",
+      "to": "athens-acropolis-3.jpg"
+    },
+    {
+      "from": "migrated/tstorm.jpg",
+      "to": "thunderstorm-4.jpg"
+    },
+    {
+      "from": "migrated/windysea.jpg",
+      "to": "stormy-sea-waves-2.jpg"
+    },
+    {
+      "from": "raindrops.webp",
+      "to": "raindrops-9.webp"
+    }
+  ]
+}
