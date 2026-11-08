@@ -2,6 +2,7 @@ import { deletePostAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { Pagination } from "@/components/admin/Pagination";
 import { formatDate } from "@/components/PostCard";
+import { pageSizeFor } from "@/lib/page-size";
 import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 import { isLive } from "@/lib/visibility";
@@ -76,7 +77,7 @@ export default async function AdminPostsPage({
 		)
 		.sort((a, b) => (view === "draft" ? Date.parse(b.updated_at) - Date.parse(a.updated_at) : 0));
 
-	const pager = paginate(filtered, pageParam);
+	const pager = paginate(filtered, pageParam, await pageSizeFor("posts"));
 	const rows = pager.items;
 
 	const query = (extra: Record<string, string>) => {

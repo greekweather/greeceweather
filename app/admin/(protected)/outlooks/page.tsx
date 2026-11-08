@@ -2,6 +2,7 @@ import { deleteOutlookAction } from "@/app/outlook-actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { Pagination } from "@/components/admin/Pagination";
 import { formatOutlookDate } from "@/lib/outlook/format";
+import { pageSizeFor } from "@/lib/page-size";
 import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 import { isLive } from "@/lib/visibility";
@@ -23,7 +24,7 @@ export default async function AdminOutlooksPage({
 		throw new Error(error.message);
 	}
 
-	const pager = paginate(data ?? [], page);
+	const pager = paginate(data ?? [], page, await pageSizeFor("outlooks"));
 
 	return (
 		<>

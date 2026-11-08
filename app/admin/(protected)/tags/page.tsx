@@ -1,6 +1,7 @@
 import { deleteTagAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { Pagination } from "@/components/admin/Pagination";
+import { pageSizeFor } from "@/lib/page-size";
 import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,7 +22,7 @@ export default async function AdminTagsPage({
 		throw new Error(error.message);
 	}
 
-	const pager = paginate(tags ?? [], page);
+	const pager = paginate(tags ?? [], page, await pageSizeFor("tags"));
 
 	return (
 		<>

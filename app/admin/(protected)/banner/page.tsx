@@ -2,6 +2,7 @@ import { deleteBannerAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { Pagination } from "@/components/admin/Pagination";
 import { BANNER_STATUS_LABEL, getBannerStatus } from "@/lib/banner";
+import { pageSizeFor } from "@/lib/page-size";
 import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 
@@ -36,7 +37,7 @@ export default async function AdminBannerPage({
 		throw new Error(error.message);
 	}
 
-	const pager = paginate(data ?? [], page);
+	const pager = paginate(data ?? [], page, await pageSizeFor("banner"));
 
 	return (
 		<>

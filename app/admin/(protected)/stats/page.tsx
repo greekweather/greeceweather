@@ -1,5 +1,6 @@
 import { Pagination } from "@/components/admin/Pagination";
 import { ViewsChart } from "@/components/admin/ViewsChart";
+import { pageSizeFor } from "@/lib/page-size";
 import { paginate } from "@/lib/pagination";
 import { lastDays, parseRange, RANGES } from "@/lib/stats";
 import { createClient } from "@/lib/supabase/server";
@@ -73,7 +74,7 @@ export default async function StatsPage({
 		.map((post) => ({ ...post, recent: perPost.get(post.slug) ?? 0 }))
 		.sort((a, b) => b.recent - a.recent || b.views - a.views);
 
-	const pager = paginate(table, params.page);
+	const pager = paginate(table, params.page, await pageSizeFor("stats"));
 	const topRecent = Math.max(1, ...table.map((post) => post.recent));
 
 	const query = (patch: Record<string, string | undefined>) => {

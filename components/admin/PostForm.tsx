@@ -7,7 +7,7 @@ import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import { PostPreview } from "@/components/admin/PostPreview";
 import { TagPicker } from "@/components/admin/TagPicker";
-import { greeklishSlug } from "@/lib/slug";
+import { greeklishSlug, imageNameFromUrl } from "@/lib/slug";
 
 type FormPost = {
 	id?: string;
@@ -168,11 +168,16 @@ export function PostForm({
 		[title, slug, description, content, imageUrl, imageAlt, imageCaption, selectedTagIds],
 	);
 
+	const autoAltRef = useRef("");
 	const initialRef = useRef(JSON.stringify(snapshot()));
 	const lastSavedRef = useRef(initialRef.current);
 	const draftIdRef = useRef(draftId);
 	const submittingRef = useRef(false);
 	const savingRef = useRef(false);
+	const snapshotRef = useRef(snapshot);
+	const saveNowRef = useRef<(keepalive?: boolean) => Promise<void>>(async () => {});
+
+	snapshotRef.current = snapshot;
 
 	draftIdRef.current = draftId;
 
@@ -215,10 +220,17 @@ export function PostForm({
 				setSaveState("error");
 			} finally {
 				savingRef.current = false;
+
+				// typing went on while this save was running: save that too
+				if (JSON.stringify(snapshotRef.current()) !== lastSavedRef.current) {
+					window.setTimeout(() => void saveNowRef.current(), 300);
+				}
 			}
 		},
 		[snapshot],
 	);
+
+	saveNowRef.current = saveNow;
 
 	const saveLocal = useCallback(() => {
 		try {
@@ -259,7 +271,7 @@ export function PostForm({
 			} else {
 				saveLocal();
 			}
-		}, 2500);
+		}, 500);
 
 		return () => window.clearTimeout(timer);
 	}, [canAutosaveToServer, saveNow, saveLocal]);
@@ -547,11 +559,16 @@ export function PostForm({
 
 			<ImagePicker
 				currentUrl={imageUrl}
-				onSelect={(url, alt) => {
+				onSelect={(url) => {
 					setImageUrl(url);
 
-					if (!imageAlt && alt) {
-						setImageAlt(alt);
+					// the alt text becomes the picture's own name (not its address); a name filled
+					// in by an earlier pick is replaced, one you typed yourself is kept
+					const name = imageNameFromUrl(url);
+
+					if (name && (!imageAlt || imageAlt === autoAltRef.current)) {
+						setImageAlt(name);
+						autoAltRef.current = name;
 					}
 				}}
 			/>

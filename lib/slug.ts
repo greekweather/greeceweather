@@ -67,3 +67,19 @@ export function storageFileBase(fileName: string): string {
 			.slice(0, 80) || "image"
 	);
 }
+
+// "https://…/post-images/01ee…/foggy-meteora.webp" -> "foggy meteora" (just the picture's name,
+// nothing of the address). Machine names such as UUIDs give "" so no alt text is invented.
+export function imageNameFromUrl(url: string): string {
+	let last = url.split(/[?#]/)[0].split("/").pop() ?? "";
+
+	try {
+		last = decodeURIComponent(last);
+	} catch {}
+
+	const base = last.replace(/\.[a-z0-9]{2,5}$/i, "");
+
+	if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(base)) return "";
+
+	return base.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+}

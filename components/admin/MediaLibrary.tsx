@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { useState } from "react";
 
-import { findVisualDuplicate } from "@/lib/image-hash";
+import { useDuplicatePrompt } from "@/components/admin/DuplicatePrompt";
+import { findVisualDuplicate, indexUploaded } from "@/lib/image-hash";
 import { uploadKeepingName } from "@/lib/image-upload";
 import { storageFileBase } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/client";
@@ -68,7 +69,16 @@ async function optimizeImage(file: File): Promise<Blob> {
 	}
 }
 
-export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
+export function MediaLibrary({
+	initialFiles,
+	libraryIndex,
+	query,
+}: {
+	initialFiles: MediaFile[];
+	/** every image in the bucket (name + address), for the duplicate check */
+	libraryIndex: { name: string; url: string }[];
+	query: string;
+}) {
 	const [files, setFiles] = useState(initialFiles);
 	const [uploading, setUploading] = useState(false);
 	const [message, setMessage] = useState("");
@@ -76,9 +86,9 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 	const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
 	const [dragging, setDragging] = useState(false);
 	const [scan, setScan] = useState("");
-	const [query, setQuery] = useState("");
 
 	const supabase = createClient();
+	const { ask, dialog } = useDuplicatePrompt();
 
 	// One file: returns the stored entry, or throws with a readable reason.
 	async function uploadOne(file: File): Promise<MediaFile> {
@@ -113,7 +123,7 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 
 		const failures: string[] = [];
 		const skippedDuplicates: string[] = [];
-		const library = [...files];
+		const library = [...libraryIndex];
 		let done = 0;
 
 		for (const [index, file] of images.entries()) {
@@ -126,20 +136,19 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 
 				setScan("");
 
-				if (
-					lookalike &&
-					!window.confirm(
-						`Η «${file.name}» μοιάζει πολύ με την υπάρχουσα «${lookalike.name}».\n\n` +
-							"OK = ανέβασμα παρ' όλα αυτά\nΑκύρωση = παράλειψη",
-					)
-				) {
-					skippedDuplicates.push(file.name);
-					continue;
+				if (lookalike) {
+					const answer = await ask(file, lookalike, "Παράλειψη");
+
+					if (answer === "existing") {
+						skippedDuplicates.push(file.name);
+						continue;
+					}
 				}
 
 				const stored = await uploadOne(file);
 
-				library.unshift(stored);
+				await indexUploaded(file, stored.url);
+				library.unshift({ name: stored.name, url: stored.url });
 				setFiles((current) => [stored, ...current]);
 				done += 1;
 			} catch (error) {
@@ -184,11 +193,6 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 		await navigator.clipboard.writeText(url);
 		setMessage("Το URL αντιγράφηκε.");
 	}
-
-	const needle = query.trim().toLowerCase();
-	const visibleFiles = needle
-		? files.filter((file) => file.name.toLowerCase().includes(needle))
-		: files;
 
 	return (
 		<div>
@@ -242,24 +246,41 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 
 			{message && <div className="notice success">{message}</div>}
 
-			{files.length > 0 && (
+			<form className="media-search" action="/admin/media" method="get">
+				<span className="media-search-icon" aria-hidden="true">
+					⌕
+				</span>
+
 				<input
 					type="search"
-					className="media-search"
-					placeholder="Αναζήτηση ονόματος…"
+					name="q"
+					defaultValue={query}
+					placeholder="Αναζήτηση εικόνας με όνομα…"
 					aria-label="Αναζήτηση εικόνας με όνομα"
-					value={query}
-					onChange={(event) => setQuery(event.target.value)}
 				/>
-			)}
+
+				<button className="button" type="submit">
+					Αναζήτηση
+				</button>
+
+				{query && (
+					<a className="button secondary" href="/admin/media">
+						Καθαρισμός
+					</a>
+				)}
+			</form>
 
 			{files.length === 0 ? (
 				<div className="form-card">
-					<p>Δεν υπάρχουν εικόνες στο Media Library.</p>
+					<p>
+						{query
+							? `Καμία εικόνα με όνομα «${query}».`
+							: "Δεν υπάρχουν εικόνες στο Media Library."}
+					</p>
 				</div>
 			) : (
 				<div className="media-grid">
-					{visibleFiles.map((file) => (
+					{files.map((file) => (
 						<article className="media-card" key={file.name}>
 							<div className="media-preview">
 								<Image src={file.url} alt={file.name} width={700} height={438} />
@@ -292,6 +313,8 @@ export function MediaLibrary({ initialFiles }: { initialFiles: MediaFile[] }) {
 					))}
 				</div>
 			)}
+
+			{dialog}
 
 			{fileToDelete && (
 				<div className="delete-confirm-overlay">

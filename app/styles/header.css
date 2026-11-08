@@ -153,9 +153,35 @@
 		padding-top: 0;
 	}
 
+	.site-header .header-inner {
+		gap: 12px;
+	}
+
+	/* the name shrinks with the screen so ".gr" never runs into the buttons */
+	.site-header .brand {
+		flex: 1 1 auto;
+		min-width: 0;
+		gap: 8px;
+		font-size: clamp(0.98rem, 5vw, 1.3rem);
+		white-space: nowrap;
+	}
+
+	.site-header .brand > span {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.site-header .brand img {
+		flex: 0 0 auto;
+		width: 30px;
+		height: 30px;
+	}
+
 	.site-header .header-right {
 		display: flex;
-		gap: 10px;
+		flex: 0 0 auto;
+		gap: 8px;
 	}
 
 	.site-header .site-nav,

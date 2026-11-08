@@ -2,6 +2,7 @@ import { purgeDeletedAction, restoreDeletedAction } from "@/app/backup-actions";
 import { BackupRestore } from "@/components/admin/BackupRestore";
 import { Pagination } from "@/components/admin/Pagination";
 import { PurgeConfirmButton } from "@/components/admin/PurgeConfirmButton";
+import { pageSizeFor } from "@/lib/page-size";
 import { paginate } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 import { TRASH_KIND_LABEL, type TrashKind } from "@/lib/trash";
@@ -28,7 +29,7 @@ export default async function BackupPage({
 		.select("id,kind,label,created_at")
 		.order("created_at", { ascending: false });
 
-	const pager = paginate(data ?? [], page);
+	const pager = paginate(data ?? [], page, await pageSizeFor("backup"));
 
 	return (
 		<>

@@ -1,6 +1,6 @@
 "use client";
 
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { type CSSProperties, type RefObject, useEffect, useRef, useState } from "react";
 
 type Format = "map" | "square" | "story";
 
@@ -172,6 +172,8 @@ export function DownloadPng({
 	const [failed, setFailed] = useState(false);
 	const [open, setOpen] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
+	const [up, setUp] = useState(false);
+	const [room, setRoom] = useState<number | null>(null);
 
 	useEffect(() => {
 		if (!open) return;
@@ -428,7 +430,22 @@ export function DownloadPng({
 					className="button secondary outlook-download-toggle"
 					aria-haspopup="menu"
 					aria-expanded={open}
-					onClick={() => setOpen((value) => !value)}
+					onClick={() => {
+						if (!open && menuRef.current) {
+							// keep clear of the footer and the bottom tab bar: open upwards when the
+							// space below the button is short
+							const rect = menuRef.current.getBoundingClientRect();
+							const reserve = 90;
+							const below = window.innerHeight - rect.bottom - reserve;
+							const above = rect.top - 16;
+							const flip = below < 220 && above > below;
+
+							setUp(flip);
+							setRoom(Math.max(150, Math.floor(flip ? above : below)));
+						}
+
+						setOpen((value) => !value);
+					}}
 					disabled={busy !== null}
 				>
 					{busy ? "Δημιουργία…" : "Λήψη ως"}
@@ -438,7 +455,11 @@ export function DownloadPng({
 				</button>
 
 				{open && (
-					<div className="outlook-download-menu" role="menu">
+					<div
+						className={`outlook-download-menu${up ? " up" : ""}`}
+						role="menu"
+						style={room ? ({ "--menu-room": `${room}px` } as CSSProperties) : undefined}
+					>
 						{items.map((item) => (
 							<button
 								key={item.format}

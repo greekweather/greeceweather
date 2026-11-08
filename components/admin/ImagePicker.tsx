@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { findVisualDuplicate } from "@/lib/image-hash";
+import { useDuplicatePrompt } from "@/components/admin/DuplicatePrompt";
+import { findVisualDuplicate, indexUploaded } from "@/lib/image-hash";
 import { listImages, type StoredImage, uploadImage } from "@/lib/image-upload";
 
 export function ImagePicker({
@@ -10,10 +11,10 @@ export function ImagePicker({
 	onSelect,
 }: {
 	currentUrl: string;
-	onSelect: (url: string, alt?: string) => void;
+	onSelect: (url: string) => void;
 }) {
+	const { ask, dialog: duplicateDialog } = useDuplicatePrompt();
 	const dialogRef = useRef<HTMLDialogElement>(null);
-	const altByUrl = useRef<Record<string, string>>({});
 
 	const [images, setImages] = useState<StoredImage[]>([]);
 	const [selected, setSelected] = useState("");
@@ -34,6 +35,8 @@ export function ImagePicker({
 	}
 
 	function open() {
+		// start from an empty list: never show what an earlier visit saw (deleted images)
+		setImages([]);
 		setSelected(currentUrl);
 		setStatus("");
 		setQuery("");
@@ -47,43 +50,72 @@ export function ImagePicker({
 
 	function choose() {
 		if (!selected) return;
-		onSelect(selected, altByUrl.current[selected]);
+		onSelect(selected);
 		close();
 	}
 
-	async function addNew(file: File | undefined) {
-		if (!file) return;
+	// One or many files, one after the other. The last uploaded (or matched) image is selected.
+	async function addMany(list: File[]) {
+		const files = list.filter((file) => file.type.startsWith("image/"));
+
+		if (files.length === 0) return;
+
 		setBusy(true);
-		setStatus("Έλεγχος για διπλότυπα…");
+
+		const library = [...images];
+		let added = 0;
+		let reused = 0;
+		const failed: string[] = [];
+
 		try {
-			const lookalike = await findVisualDuplicate(file, images, (done, total) =>
-				setStatus(`Έλεγχος για διπλότυπα… ${done}/${total}`),
-			);
+			for (const [index, file] of files.entries()) {
+				const prefix = files.length > 1 ? `${index + 1}/${files.length} · ` : "";
 
-			if (lookalike) {
-				const name = lookalike.path.split("/").pop();
-				const upload = window.confirm(
-					`Η εικόνα μοιάζει πολύ με την υπάρχουσα «${name}».\n\n` +
-						"OK = ανέβασμα παρ' όλα αυτά\nΑκύρωση = χρήση της υπάρχουσας",
-				);
+				try {
+					setStatus(`${prefix}Έλεγχος για διπλότυπα…`);
 
-				if (!upload) {
-					setSelected(lookalike.url);
-					setQuery("");
-					setStatus(`Επιλέχθηκε η υπάρχουσα «${name}».`);
-					return;
+					const lookalike = await findVisualDuplicate(file, library, (done, total) =>
+						setStatus(`${prefix}Έλεγχος για διπλότυπα… ${done}/${total}`),
+					);
+
+					if (lookalike) {
+						const answer = await ask(
+							file,
+							{ name: lookalike.path.split("/").pop() ?? lookalike.path, url: lookalike.url },
+							"Χρήση της υπάρχουσας",
+						);
+
+						if (answer === "existing") {
+							setSelected(lookalike.url);
+							reused += 1;
+							continue;
+						}
+					}
+
+					setStatus(`${prefix}Συμπίεση και upload…`);
+
+					const image = await uploadImage(file);
+
+					await indexUploaded(file, image.url);
+					library.unshift(image);
+					setImages((current) => [image, ...current]);
+					setSelected(image.url);
+					added += 1;
+				} catch (e) {
+					failed.push(`${file.name}: ${e instanceof Error ? e.message : "αποτυχία"}`);
 				}
 			}
 
-			setStatus("Συμπίεση και upload…");
-
-			const image = await uploadImage(file);
-			altByUrl.current[image.url] = file.name.replace(/\.[^.]+$/, "");
-			setImages((current) => [image, ...current]);
-			setSelected(image.url);
-			setStatus("Η εικόνα ανέβηκε και προστέθηκε στη βιβλιοθήκη.");
-		} catch (e) {
-			setStatus(e instanceof Error ? e.message : "Αποτυχία upload.");
+			setQuery("");
+			setStatus(
+				[
+					added > 0 ? `Ανέβηκαν ${added} εικόνες.` : "",
+					reused > 0 ? `Χρησιμοποιήθηκε υπάρχουσα (${reused}).` : "",
+					failed.length > 0 ? `Απέτυχαν: ${failed.join(" · ")}` : "",
+				]
+					.filter(Boolean)
+					.join(" "),
+			);
 		} finally {
 			setBusy(false);
 		}
@@ -117,15 +149,18 @@ export function ImagePicker({
 
 				<div className="image-picker-toolbar">
 					<label className="button image-picker-add">
-						<span>{busy ? "Ανέβασμα…" : "+ Προσθήκη νέας"}</span>
+						<span>{busy ? "Ανέβασμα…" : "+ Προσθήκη (μία ή πολλές)"}</span>
 
 						<input
 							type="file"
 							accept="image/jpeg,image/png,image/webp"
+							multiple
 							disabled={busy}
 							onChange={(e) => {
-								void addNew(e.target.files?.[0]);
+								const chosen = Array.from(e.target.files ?? []);
+
 								e.target.value = "";
+								void addMany(chosen);
 							}}
 						/>
 					</label>
@@ -166,7 +201,15 @@ export function ImagePicker({
 										title={image.path.split("/").pop()}
 										onClick={() => setSelected(image.url)}
 									>
-										<Image src={image.url} alt="" width={240} height={150} />
+										<Image
+											src={image.url}
+											alt=""
+											width={240}
+											height={150}
+											onError={() =>
+												setImages((current) => current.filter((item) => item.url !== image.url))
+											}
+										/>
 										<span className="image-picker-name">{image.path.split("/").pop()}</span>
 									</button>
 								);
@@ -185,6 +228,8 @@ export function ImagePicker({
 					</button>
 				</div>
 			</dialog>
+
+			{duplicateDialog}
 		</div>
 	);
 }

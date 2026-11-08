@@ -1,3 +1,5 @@
+import { PageSizeSelect } from "@/components/admin/PageSizeSelect";
+import { PAGE_SIZE_OPTIONS } from "@/lib/page-size-shared";
 import { pageWindow } from "@/lib/pagination";
 
 // Page links under an admin list. `href(n)` builds the link for page n, so each list keeps
@@ -8,6 +10,7 @@ export function Pagination({
 	total,
 	from,
 	to,
+	pageSize,
 	href,
 }: {
 	page: number;
@@ -15,15 +18,24 @@ export function Pagination({
 	total: number;
 	from: number;
 	to: number;
+	pageSize: number;
 	href: (page: number) => string;
 }) {
 	if (total === 0) return null;
 
 	return (
 		<nav className="admin-pager" aria-label="Σελίδες">
-			<p className="admin-pager-summary">
-				{from}–{to} από {total}
-			</p>
+			<div className="admin-pager-info">
+				<p className="admin-pager-summary">
+					{from}–{to} από {total}
+				</p>
+
+				<PageSizeSelect
+					size={pageSize}
+					options={[...new Set<number>([...PAGE_SIZE_OPTIONS, pageSize])].sort((a, b) => a - b)}
+					firstPageHref={href(1)}
+				/>
+			</div>
 
 			{pages > 1 && (
 				<ul>
