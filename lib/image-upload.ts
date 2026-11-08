@@ -93,7 +93,7 @@ export async function uploadImage(file: File): Promise<StoredImage> {
 	} = await supabase.auth.getUser();
 	if (!user) throw new Error("Η συνεδρία έληξε. Κάνε ξανά σύνδεση.");
 
-	const path = await uploadKeepingName(`${user.id}/`, compressed.name, compressed);
+	const path = await uploadKeepingName("", compressed.name, compressed);
 	const { data } = supabase.storage.from(IMAGE_BUCKET).getPublicUrl(path);
 	return {
 		path,
