@@ -19,3 +19,6 @@ npm-debug.log*
 
 # Natural Earth source data
 data
+
+# rename images script
+rename-images-log.json

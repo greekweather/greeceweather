@@ -489,25 +489,20 @@
 	font-weight: 700;
 }
 
+/* desktop: Επεξεργασία, Αντίγραφο, Προβολή and Διαγραφή share one row (and wrap if the
+   column is narrow); the two groups only matter for the phone layout below */
 .outlook-row-actions {
-	display: flex;
-	flex-direction: column;
-	align-items: stretch;
-	gap: 8px;
-	min-width: 0;
-}
-
-.outlook-row-actions-top {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
+	min-width: 0;
 }
 
+.outlook-row-actions-top,
 .outlook-row-actions-bottom {
-	display: flex;
-	justify-content: center;
+	display: contents;
 }
 
 /* <fieldset> used as a plain group: drop the browser's default frame */

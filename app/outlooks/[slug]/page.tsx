@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AdminEditLink } from "@/components/AdminEditLink";
 import { JsonLd } from "@/components/JsonLd";
 import { Markdown } from "@/components/Markdown";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
@@ -118,6 +119,8 @@ export default async function OutlookPage({ params }: { params: Promise<{ slug: 
 					<Markdown content={outlook.summary} />
 				</div>
 			)}
+
+			<AdminEditLink href={`/admin/outlooks/${outlook.id}/edit`} />
 		</div>
 	);
 }

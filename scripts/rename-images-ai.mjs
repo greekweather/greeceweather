@@ -1,21 +1,32 @@
 #!/usr/bin/env node
-// Looks at every image in the "post-images" bucket with Claude and renames it after what it
-// shows ("polar-vortex-chart", "enso-explained", "thunderstorm", "raindrops"...). Posts that
-// use the image (main picture and pictures inside the text) are updated to the new address.
+// Looks at every image in the "post-images" bucket and renames it after what it shows
+// ("polar-vortex-chart", "enso-explained", "thunderstorm", "raindrops"...). Posts that use the
+// image (main picture and pictures inside the text) are updated to the new address.
+//
+// FREE, no account and no key: the default engine is CLIP, a small image model that runs on
+// your own computer. Install it once (it is NOT added to package.json, so Vercel is untouched):
+//
+//   npm install --no-save @huggingface/transformers
+//
+// Then, from the project folder (needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY):
 //
 //   node --env-file=.env.local scripts/rename-images-ai.mjs            # preview only
 //   node --env-file=.env.local scripts/rename-images-ai.mjs --apply    # really rename
 //
-// Options
-//   --all          rename every image (default: only generic names such as UUIDs, IMG_1234,
-//                  Screenshot..., 1699999999-photo)
-//   --limit=N      look at no more than N images
-//   --model=NAME   Claude model (default claude-haiku-5-5)
-//   --undo=FILE    put everything back using a log written by an earlier --apply
+// The first run downloads the model (about 100 MB, once). CLIP does not invent names: it
+// chooses the best match from the LABELS list below. Add your own topics there; that is the
+// whole way to teach it. An image whose best match is not convincing keeps its name.
 //
-// Needs in the environment: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and
-// ANTHROPIC_API_KEY. Every --apply writes rename-images-log.json (old name -> new name);
-// keep it, it is what --undo reads.
+// Options
+//   --all             rename every image (default: only generic names such as UUIDs, IMG_1234,
+//                     Screenshot..., 1699999999-photo)
+//   --limit=N         look at no more than N images
+//   --min=0.2         how sure CLIP must be (0-1) before it renames; raise it to be stricter
+//   --engine=claude   use Claude instead (paid API, needs ANTHROPIC_API_KEY; free-form names)
+//   --model=NAME      Claude model for --engine=claude (default claude-haiku-5-5)
+//   --undo=FILE       put everything back using a log written by an earlier --apply
+//
+// Every --apply writes rename-images-log.json (old name -> new name); keep it for --undo.
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
@@ -108,6 +119,104 @@ function need(name) {
 	}
 
 	return value;
+}
+
+// Topic list for the free engine: [what CLIP is asked to look for, the file name it gives].
+// Add or edit lines freely. The more specific the topic, the better the result.
+export const LABELS = [
+	["a weather forecast map of Greece", "greece-weather-map"],
+	["a weather forecast map of Europe", "europe-weather-map"],
+	["a weather forecast map of the Mediterranean sea", "mediterranean-weather-map"],
+	["a precipitation forecast map", "precipitation-forecast-map"],
+	["a temperature forecast map", "temperature-forecast-map"],
+	["a wind forecast map with arrows", "wind-forecast-map"],
+	["a surface pressure map with isobars", "pressure-map-isobars"],
+	["a 500 hPa geopotential height map", "500hpa-geopotential-map"],
+	["a polar vortex chart", "polar-vortex-chart"],
+	["a jet stream map", "jet-stream-map"],
+	["an ENSO El Nino La Nina sea surface temperature anomaly chart", "enso-explained"],
+	["a sea surface temperature anomaly map", "sea-surface-temperature-map"],
+	["a satellite image of clouds over Europe", "satellite-clouds-europe"],
+	["a satellite image of a storm system", "satellite-storm"],
+	["a weather radar image with rain echoes", "radar-rain"],
+	["a lightning map", "lightning-map"],
+	["an ensemble forecast meteogram with many lines", "ensemble-meteogram"],
+	["a meteogram with temperature and rain bars", "meteogram"],
+	["a snow depth or snowfall forecast map", "snow-forecast-map"],
+	["a heatwave temperature map in red and orange", "heatwave-map"],
+	["a cold wave map with blue colours", "cold-wave-map"],
+	["a Saharan dust forecast map", "saharan-dust-map"],
+	["a wave height forecast map of the sea", "sea-wave-height-map"],
+	["a hurricane or medicane spiral seen from space", "medicane-satellite"],
+	["a chart or infographic explaining a weather concept", "weather-explainer"],
+	["a line chart with temperature data", "temperature-chart"],
+	["a bar chart with rainfall totals", "rainfall-chart"],
+	["a photo of a thunderstorm with lightning", "thunderstorm"],
+	["a photo of dark storm clouds", "storm-clouds"],
+	["a photo of a supercell or shelf cloud", "supercell-cloud"],
+	["a photo of a tornado or waterspout", "waterspout"],
+	["a photo of heavy rain in a street", "heavy-rain-street"],
+	["a close-up photo of raindrops", "raindrops"],
+	["a photo of hail on the ground", "hail"],
+	["a photo of snow-covered mountains", "snow-mountains"],
+	["a photo of a snowy village or road", "snowy-village"],
+	["a photo of fog or mist over the land", "fog"],
+	["a photo of a rainbow", "rainbow"],
+	["a photo of a sunset with colourful clouds", "sunset-clouds"],
+	["a photo of a clear blue sky with sun", "sunny-sky"],
+	["a photo of a flooded street or river", "flood"],
+	["a photo of strong waves hitting the coast", "stormy-sea-waves"],
+	["a photo of a calm Greek beach in summer", "greek-beach-summer"],
+	["a photo of a wildfire with smoke", "wildfire-smoke"],
+	["a photo of a dry cracked ground in drought", "drought"],
+	["a photo of frost or ice on plants", "frost"],
+	["a photo of strong wind bending trees", "strong-wind-trees"],
+	["a photo of Meteora rock formations", "meteora"],
+	["a photo of the Acropolis in Athens", "athens-acropolis"],
+	["a photo of a Greek island with white houses", "greek-island"],
+	["a logo or icon", "logo"],
+	["a screenshot of a website or app", "screenshot"],
+];
+
+let clip = null;
+
+async function clipPick(bytes, min) {
+	if (!clip) {
+		let transformers;
+
+		try {
+			transformers = await import("@huggingface/transformers");
+		} catch {
+			throw new Error(
+				"Λείπει το πακέτο του δωρεάν μοντέλου. Τρέξε μία φορά:  npm install --no-save @huggingface/transformers",
+			);
+		}
+
+		console.log("Φόρτωση μοντέλου CLIP (την πρώτη φορά κατεβαίνουν ~100MB)…");
+		clip = {
+			RawImage: transformers.RawImage,
+			classify: await transformers.pipeline(
+				"zero-shot-image-classification",
+				"Xenova/clip-vit-base-patch32",
+			),
+		};
+	}
+
+	const image = await clip.RawImage.fromBlob(new Blob([bytes]));
+	const results = await clip.classify(
+		image,
+		LABELS.map(([prompt]) => prompt),
+		{
+			hypothesis_template: "{}",
+		},
+	);
+	const best = results[0];
+
+	if (!best || best.score < min) return "";
+
+	const hit = LABELS.find(([prompt]) => prompt === best.label);
+
+	return hit ? hit[1] : "";
 }
 
 async function listAll(supabase, path = "") {
@@ -256,7 +365,9 @@ async function main() {
 	const all = arg("all") === true;
 	const limit = Number(arg("limit") ?? Number.POSITIVE_INFINITY);
 	const model = typeof arg("model") === "string" ? arg("model") : "claude-haiku-5-5";
-	const apiKey = need("ANTHROPIC_API_KEY");
+	const engine = arg("engine") === "claude" ? "claude" : "clip";
+	const min = Number(arg("min") ?? 0.2);
+	const apiKey = engine === "claude" ? need("ANTHROPIC_API_KEY") : "";
 	const baseUrl = process.env.ANTHROPIC_BASE_URL ?? "https://api.anthropic.com";
 
 	const paths = await listAll(supabase);
@@ -285,7 +396,8 @@ async function main() {
 	const moves = [];
 
 	for (const [index, path] of candidates.entries()) {
-		const folder = path.includes("/") ? `${path.slice(0, path.lastIndexOf("/") + 1)}` : "";
+		// every renamed image goes to the root of the bucket: no user-id folder in the address
+		const folder = "";
 		const ext = path.split(".").pop().toLowerCase();
 
 		try {
@@ -297,22 +409,25 @@ async function main() {
 
 			if (bytes.length > MAX_BYTES) throw new Error("πολύ μεγάλο αρχείο (>4,5MB), το παρέλειψα");
 
-			const name = await askClaude({
-				apiKey,
-				baseUrl,
-				model,
-				bytes,
-				mediaType: EXTENSIONS[ext],
-				hint: titlesFor(path),
-			});
+			const name =
+				engine === "claude"
+					? await askClaude({
+							apiKey,
+							baseUrl,
+							model,
+							bytes,
+							mediaType: EXTENSIONS[ext],
+							hint: titlesFor(path),
+						})
+					: await clipPick(bytes, min);
 
-			if (!name) throw new Error("το μοντέλο δεν έδωσε όνομα");
+			if (!name) throw new Error("καμία σίγουρη αντιστοίχιση, κρατάει το όνομά της");
 
 			const target = uniqueName(name, folder, ext, taken);
 
 			taken.add(target.toLowerCase());
 			moves.push([path, target]);
-			console.log(`[${index + 1}/${candidates.length}] ${path}\n      → ${target}`);
+			console.log(`[${index + 1}/${candidates.length}] ${path.split("/").pop()} → ${target}`);
 		} catch (error) {
 			console.error(`[${index + 1}/${candidates.length}] ${path}: ${error.message}`);
 		}
