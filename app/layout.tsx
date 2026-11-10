@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, Noto_Serif } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import Image from "next/image";
 import Link from "next/link";
 import { AdminLink } from "@/components/AdminLink";
@@ -114,6 +115,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 						<PushToggle />
 					</div>
 				</footer>
+				<Analytics />
 			</body>
 		</html>
 	);
