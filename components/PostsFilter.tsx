@@ -16,7 +16,6 @@ const categoryOptions = [
 const sortOptions = [
 	{ label: "Νεότερα", value: "newest" },
 	{ label: "Παλαιότερα", value: "oldest" },
-	{ label: "Δημοφιλέστερα", value: "popular" },
 ];
 
 type OpenDropdown = "tag" | "sort" | null;
@@ -211,10 +210,6 @@ function filterCards(category: string, tag: string, sort: string, search: string
 		.sort((a, b) => {
 			const da = Number(a.dataset.date || 0);
 			const db = Number(b.dataset.date || 0);
-
-			if (sort === "popular") {
-				return Number(b.dataset.views || 0) - Number(a.dataset.views || 0);
-			}
 
 			if (sort === "oldest") {
 				return da - db;

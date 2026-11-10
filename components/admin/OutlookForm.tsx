@@ -5,6 +5,7 @@ import { OutlookEditor } from "@/components/outlook/OutlookEditor";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
 import { athensLocalToUTC, utcToAthensLocal } from "@/lib/date";
 import { formatOutlookDate } from "@/lib/outlook/format";
+import { TITLE_FIT_CHARS, TITLE_MAX_CHARS, titleFit } from "@/lib/outlook/title";
 import {
 	DEFAULT_TITLE,
 	EMPTY_MAP_DATA,
@@ -69,6 +70,7 @@ export function OutlookForm({
 	const [summary, setSummary] = useState(outlook?.summary ?? "");
 	const [showPreview, setShowPreview] = useState(false);
 
+	const fit = titleFit(title);
 	const issuedIso = safeIso(issued);
 	const validIso = safeIso(validUntil);
 	const mapJson = useMemo(() => JSON.stringify(data), [data]);
@@ -95,6 +97,23 @@ export function OutlookForm({
 						required
 						onChange={(event) => setTitle(event.target.value)}
 					/>
+					{fit.tooLong ? (
+						<small className="form-warning" role="alert">
+							Ο τίτλος είναι πολύ μεγάλος ({title.trim().length} χαρακτήρες) και δεν χωράει στην
+							κεφαλίδα του χάρτη ούτε με το μικρότερο μέγεθος. Κράτησέ τον έως {TITLE_MAX_CHARS}{" "}
+							χαρακτήρες.
+						</small>
+					) : fit.shrunk ? (
+						<small className="outlook-title-note">
+							Μεγάλος τίτλος: η γραφή μικραίνει αυτόματα για να χωρέσει. Για κανονικό μέγεθος
+							κράτησέ τον έως {TITLE_FIT_CHARS} χαρακτήρες.
+						</small>
+					) : (
+						<small>
+							Χωράει στο κανονικό μέγεθος έως {TITLE_FIT_CHARS} χαρακτήρες, και μικραίνει αυτόματα
+							έως {TITLE_MAX_CHARS}.
+						</small>
+					)}
 				</div>
 
 				<div className="form-field">

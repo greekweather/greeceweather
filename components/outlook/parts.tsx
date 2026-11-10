@@ -11,7 +11,12 @@ import {
 	SCALE,
 	toUnits,
 } from "@/lib/outlook/geo";
-import { closedSplinePath, ellipsePathUnits, polygonCentroid } from "@/lib/outlook/shapes";
+import {
+	closedSplinePath,
+	ellipsePathUnits,
+	openSplineSegment,
+	polygonCentroid,
+} from "@/lib/outlook/shapes";
 import {
 	type Area,
 	CHANCE_STYLE,
@@ -21,9 +26,11 @@ import {
 	PLAIN_LOW_CODE,
 	type PressureClass,
 	pressureClass,
+	pressureColor,
 	type Storm,
 	type StormType,
 	stormType,
+	type Track,
 	type XMarker,
 } from "@/lib/outlook/types";
 
@@ -349,7 +356,11 @@ export function MarkersLayer({ markers }: { markers: XMarker[] }) {
 }
 
 const RING_RADII = [13.5, 17.5, 21.5, 25.5];
-const DISC_R = 9.5;
+// The deeper the low, the bolder it looks: a bigger centre, thicker rings and a stronger tint
+// of its own colour inside, on top of the colour change and the extra rings.
+const DISC_R = [8.5, 9.5, 10.5, 11.5];
+const RING_W = [1.5, 1.8, 2.1, 2.5];
+const TINT = [0.07, 0.12, 0.18, 0.26];
 
 function polar(angleDeg: number, radius: number): [number, number] {
 	const a = (angleDeg * Math.PI) / 180;
@@ -399,6 +410,7 @@ export function StormSymbol({ cls, type }: { cls: PressureClass; type: StormType
 	return (
 		<g pointerEvents="none">
 			<circle r={outer + 2.2} fill="#fff" fillOpacity={0.78} />
+			<circle r={outer} fill={cls.color} fillOpacity={TINT[cls.rings - 1]} />
 
 			{arms.map((start) => (
 				<g key={start} fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -409,7 +421,7 @@ export function StormSymbol({ cls, type }: { cls: PressureClass; type: StormType
 
 			{radii.map((r) =>
 				family === "subtropical" ? (
-					<g key={r} fill="none" stroke={cls.color} strokeWidth={1.7}>
+					<g key={r} fill="none" stroke={cls.color} strokeWidth={RING_W[cls.rings - 1]}>
 						<path d={`M${-r} 0A${r} ${r} 0 0 1 ${r} 0`} />
 						<path d={`M${r} 0A${r} ${r} 0 0 1 ${-r} 0`} strokeDasharray="3.4 2.6" />
 					</g>
@@ -419,13 +431,13 @@ export function StormSymbol({ cls, type }: { cls: PressureClass; type: StormType
 						r={r}
 						fill="none"
 						stroke={cls.color}
-						strokeWidth={1.7}
+						strokeWidth={RING_W[cls.rings - 1]}
 						strokeDasharray={family === "extratropical" ? "3.6 2.6" : undefined}
 					/>
 				),
 			)}
 
-			<circle r={DISC_R} fill={cls.color} stroke="#fff" strokeWidth={1.6} />
+			<circle r={DISC_R[cls.rings - 1]} fill={cls.color} stroke="#fff" strokeWidth={1.6} />
 			<text
 				textAnchor="middle"
 				dominantBaseline="central"
@@ -528,6 +540,140 @@ export function StormsLayer({ storms }: { storms: Storm[] }) {
 					</g>
 				);
 			})}
+		</g>
+	);
+}
+
+// ---- tracks: the path of a low, coloured by pressure ----
+
+function TrackShape({ track }: { track: Track }) {
+	const pts = track.points.map((p) => toUnits(p.x, p.y));
+	const segments = pts.slice(0, -1).map((_, i) => {
+		const a = track.points[i].pressure;
+		const b = track.points[i + 1].pressure;
+
+		return { ...openSplineSegment(pts, i), color: pressureColor((a + b) / 2) };
+	});
+	const hit = segments.map((segment) => segment.d).join("");
+	const first = pts[0];
+
+	return (
+		<g data-oid={track.id}>
+			<path
+				d={hit}
+				fill="none"
+				stroke="transparent"
+				strokeWidth={20}
+				style={{ pointerEvents: "stroke" }}
+			/>
+
+			<g fill="none" strokeLinecap="round" strokeLinejoin="round" pointerEvents="none">
+				{segments.map((segment) => (
+					<path
+						key={`c-${segment.d}`}
+						d={segment.d}
+						stroke="#fff"
+						strokeWidth={8}
+						strokeOpacity={0.9}
+					/>
+				))}
+				{segments.map((segment) => (
+					<path key={`l-${segment.d}`} d={segment.d} stroke={segment.color} strokeWidth={4} />
+				))}
+			</g>
+
+			<g pointerEvents="none">
+				{segments.map(
+					(segment) =>
+						segment.length > 46 && (
+							<path
+								key={`a-${segment.d}`}
+								d="M-5 -5.5L5.5 0L-5 5.5Z"
+								fill={segment.color}
+								stroke="#fff"
+								strokeWidth={1.6}
+								strokeLinejoin="round"
+								transform={`translate(${segment.mid[0]} ${segment.mid[1]}) rotate(${segment.angle})`}
+							/>
+						),
+				)}
+
+				{pts.map((p, i) => {
+					const point = track.points[i];
+					const end = i === pts.length - 1;
+
+					return (
+						<g
+							// biome-ignore lint/suspicious/noArrayIndexKey: track points have no id
+							key={`p-${i}`}
+							transform={`translate(${p[0]} ${p[1]})`}
+						>
+							{end && (
+								<circle
+									r={11}
+									fill="none"
+									stroke={pressureColor(point.pressure)}
+									strokeWidth={2}
+								/>
+							)}
+							<circle
+								r={end ? 7 : 6}
+								fill={pressureColor(point.pressure)}
+								stroke="#fff"
+								strokeWidth={2}
+							/>
+						</g>
+					);
+				})}
+
+				<g fontFamily={FONT} textAnchor="middle" fill="#101820" style={HALO} strokeWidth={3.4}>
+					{track.points.map((point, i) => {
+						const text = [point.label, track.showPressure ? `${point.pressure}` : ""]
+							.filter(Boolean)
+							.join(" · ");
+
+						return (
+							text && (
+								<text
+									// biome-ignore lint/suspicious/noArrayIndexKey: track points have no id
+									key={`t-${i}`}
+									x={pts[i][0]}
+									y={pts[i][1] - (i === pts.length - 1 ? 17 : 12)}
+									fontSize={11}
+									fontWeight={700}
+								>
+									{text}
+								</text>
+							)
+						);
+					})}
+				</g>
+
+				{track.name && (
+					<text
+						x={first[0] + 12}
+						y={first[1] + 20}
+						fontFamily={FONT}
+						fontSize={13}
+						fontWeight={700}
+						fill="#101820"
+						style={HALO}
+						strokeWidth={3.4}
+					>
+						{track.name.toLocaleUpperCase("el-GR")}
+					</text>
+				)}
+			</g>
+		</g>
+	);
+}
+
+export function TracksLayer({ tracks }: { tracks: Track[] }) {
+	return (
+		<g>
+			{tracks.map((track) => (
+				<TrackShape key={track.id} track={track} />
+			))}
 		</g>
 	);
 }

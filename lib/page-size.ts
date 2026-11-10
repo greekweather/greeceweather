@@ -11,7 +11,6 @@ export const LIST_PAGE_SIZE = {
 	banner: 25,
 	tags: 25,
 	backup: 25,
-	stats: 25,
 } as const;
 
 export type PagedList = keyof typeof LIST_PAGE_SIZE;

@@ -7,7 +7,6 @@ import { ImageLightbox } from "@/components/ImageLightbox";
 import { JsonLd } from "@/components/JsonLd";
 import { Markdown } from "@/components/Markdown";
 import { formatDate } from "@/components/PostCard";
-import { ViewCounter } from "@/components/ViewCounter";
 import { getPublishedPostBySlug } from "@/lib/posts";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { plainText } from "@/lib/text";
@@ -87,7 +86,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 					],
 				}}
 			/>
-			<ViewCounter slug={post.slug} />
 			<div className="container article-container">
 				<header className="article-header">
 					<Link className="back-link" href="/">

@@ -6,8 +6,10 @@ import {
 	FONT,
 	MarkersLayer,
 	StormsLayer,
+	TracksLayer,
 } from "@/components/outlook/parts";
 import { MAP_H, MAP_W } from "@/lib/outlook/geo";
+import { titleFit } from "@/lib/outlook/title";
 import type { LegendPosition, MapData } from "@/lib/outlook/types";
 
 const HEADER_H = 88;
@@ -85,7 +87,9 @@ export function OutlookGraphic({
 	mapOnly = false,
 }: GraphicProps) {
 	const clipId = `${idPrefix}-clip`;
-	const empty = data.areas.length + data.markers.length + data.storms.length === 0;
+	const empty =
+		data.areas.length + data.markers.length + data.storms.length + data.tracks.length === 0;
+	const titleSize = titleFit(title).fontSize;
 
 	return (
 		<svg
@@ -114,7 +118,7 @@ export function OutlookGraphic({
 					<text x={22} y={24} fontSize={12} fontWeight={700} letterSpacing={1.6} fill="#5b6773">
 						GREECEWEATHER.GR · ΧΑΡΤΕΣ ΚΑΙΡΟΥ
 					</text>
-					<text x={22} y={56} fontSize={30} fontWeight={700} fill={NAVY}>
+					<text x={22} y={54} fontSize={titleSize} fontWeight={700} fill={NAVY}>
 						{title}
 					</text>
 					<text x={22} y={76} fontSize={12.5} fill="#38485a">
@@ -159,9 +163,16 @@ export function OutlookGraphic({
 					<BaseMap />
 					<AreasLayer areas={data.areas} prefix={idPrefix} />
 					<MarkersLayer markers={data.markers} />
+					<TracksLayer tracks={data.tracks} />
 					<StormsLayer storms={data.storms} />
 					{!mapOnly && (
-						<Legend prefix={idPrefix} position={legendPosition} mapW={MAP_W} mapH={MAP_H} />
+						<Legend
+							prefix={idPrefix}
+							position={legendPosition}
+							mapW={MAP_W}
+							mapH={MAP_H}
+							showTracks={data.tracks.length > 0}
+						/>
 					)}
 					{empty && !mapOnly && <EmptyNotice />}
 				</g>

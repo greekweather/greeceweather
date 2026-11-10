@@ -28,7 +28,7 @@ export function chanceCategory(chance: number): ChanceCategory {
 	return "high";
 }
 
-type PressureClassId = "low" | "significant" | "deep" | "very-deep";
+export type PressureClassId = "low" | "significant" | "deep" | "very-deep";
 
 export type PressureClass = {
 	id: PressureClassId;
@@ -43,6 +43,8 @@ export type PressureClass = {
 	range: string;
 };
 
+// Colours go from cool to hot as the pressure falls: blue, amber, red, violet. They are used by
+// the storm symbols AND by the tracks, so a colour always means the same strength.
 export const MIN_PRESSURE = 870;
 export const MAX_PRESSURE = 1015;
 
@@ -53,7 +55,7 @@ export const PRESSURE_CLASSES: PressureClass[] = [
 		min: 1000,
 		max: MAX_PRESSURE,
 		rings: 1,
-		color: "#3b87c4",
+		color: "#2f86d6",
 		range: "1000–1015 hPa",
 	},
 	{
@@ -62,7 +64,7 @@ export const PRESSURE_CLASSES: PressureClass[] = [
 		min: 990,
 		max: 999,
 		rings: 2,
-		color: "#2f5fd0",
+		color: "#e39500",
 		range: "990–999 hPa",
 	},
 	{
@@ -71,7 +73,7 @@ export const PRESSURE_CLASSES: PressureClass[] = [
 		min: 975,
 		max: 989,
 		rings: 3,
-		color: "#7a3fc2",
+		color: "#d9302a",
 		range: "975–989 hPa",
 	},
 	{
@@ -80,7 +82,7 @@ export const PRESSURE_CLASSES: PressureClass[] = [
 		min: MIN_PRESSURE,
 		max: 974,
 		rings: 4,
-		color: "#c01572",
+		color: "#8f2aa8",
 		range: "974 hPa και χαμηλότερα",
 	},
 ];
@@ -185,23 +187,59 @@ export type Storm = {
 	labelPos: LabelPos;
 };
 
-export type MapElement = Area | XMarker | Storm;
+/** One position of a track: where the centre is and how deep the low is there. */
+export type TrackPoint = {
+	x: number;
+	y: number;
+	/** Central pressure in hPa; decides the colour of the dot and of the line leaving it. */
+	pressure: number;
+	/** Optional text next to the dot, e.g. a time such as "Τρ 12Z". */
+	label: string;
+};
+
+/** The path of a low: positions joined by a smooth line, coloured by pressure. */
+export type Track = {
+	id: string;
+	kind: "track";
+	name: string;
+	points: TrackPoint[];
+	/** Write the pressure under each dot. */
+	showPressure?: boolean;
+};
+
+export type MapElement = Area | XMarker | Storm | Track;
 
 export type MapData = {
 	v: 1;
 	areas: Area[];
 	markers: XMarker[];
 	storms: Storm[];
+	tracks: Track[];
 };
 
-export const EMPTY_MAP_DATA: MapData = { v: 1, areas: [], markers: [], storms: [] };
+export const EMPTY_MAP_DATA: MapData = { v: 1, areas: [], markers: [], storms: [], tracks: [] };
 
 export const LIMITS = {
 	areas: 40,
 	markers: 30,
 	storms: 20,
+	tracks: 10,
+	trackPoints: 40,
 	polygonPoints: 60,
 } as const;
+
+/** A pressure that stands for each class, used by the quick colour buttons. */
+export const CLASS_QUICK_PRESSURE: Record<PressureClassId, number> = {
+	low: 1008,
+	significant: 995,
+	deep: 982,
+	"very-deep": 965,
+};
+
+/** Colour of the track at a given pressure (the class colour; grey outside the classes). */
+export function pressureColor(hpa: number): string {
+	return pressureClass(hpa)?.color ?? "#8a96a3";
+}
 
 export const DEFAULT_TITLE = "2026–2027 Named Storm Development Chances";
 

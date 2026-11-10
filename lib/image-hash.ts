@@ -1,3 +1,5 @@
+import { createClient } from "@/lib/supabase/client";
+
 // Visual duplicate check, entirely in the browser: every picture is shrunk to a 9x8 grey
 // grid and one bit is kept per neighbouring pair (a "difference hash"). Copies, resized or
 // recompressed versions of the same picture end up with almost the same 64 bits.
@@ -175,11 +177,76 @@ function saveIndex() {
 	} catch {}
 }
 
+// ---- the shared copy ----
+// The index is also kept in the database (table image_fingerprints, see
+// supabase/changes-2026-11-09.sql), so a new browser or device does not have to download the
+// whole library again. If the table does not exist yet everything still works, just locally.
+type Row = { url: string; hash: string; ratio: number; colors: number[] };
+
+let remoteLoaded: Promise<void> | null = null;
+let remoteBroken = false;
+
+function loadRemote(): Promise<void> {
+	if (remoteBroken) return Promise.resolve();
+
+	remoteLoaded ??= (async () => {
+		try {
+			const supabase = createClient();
+			const known = loadIndex();
+			const PAGE = 1000;
+
+			for (let from = 0; from < MAX_INDEXED; from += PAGE) {
+				const { data, error } = await supabase
+					.from("image_fingerprints")
+					.select("url,hash,ratio,colors")
+					.range(from, from + PAGE - 1);
+
+				if (error) throw error;
+
+				for (const row of (data ?? []) as Row[]) {
+					known[row.url] = { hash: row.hash, ratio: row.ratio, colors: row.colors };
+				}
+
+				if ((data?.length ?? 0) < PAGE) break;
+			}
+
+			saveIndex();
+		} catch {
+			remoteBroken = true;
+		}
+	})();
+
+	return remoteLoaded;
+}
+
+async function saveRemote(entries: Record<string, ImageFingerprint>) {
+	const rows: Row[] = Object.entries(entries).map(([url, f]) => ({ url, ...f }));
+
+	if (remoteBroken || rows.length === 0) return;
+
+	try {
+		const supabase = createClient();
+
+		for (let i = 0; i < rows.length; i += 200) {
+			const { error } = await supabase
+				.from("image_fingerprints")
+				.upsert(rows.slice(i, i + 200), { onConflict: "url" });
+
+			if (error) throw error;
+		}
+	} catch {
+		remoteBroken = true;
+	}
+}
+
 /** Adds a just-uploaded file to the index under its new address. Never throws. */
 export async function indexUploaded(file: Blob, url: string): Promise<void> {
 	try {
-		loadIndex()[url] = await fingerprintFile(file);
+		const fp = await fingerprintFile(file);
+
+		loadIndex()[url] = fp;
 		saveIndex();
+		void saveRemote({ [url]: fp });
 	} catch {}
 }
 
@@ -193,9 +260,12 @@ export async function fingerprintLibrary<T extends { url: string }>(
 	images: T[],
 	onProgress?: (done: number, total: number) => void,
 ): Promise<(T & { fingerprint: ImageFingerprint })[]> {
+	await loadRemote();
+
 	const known = loadIndex();
 	const list = images.slice(0, MAX_SCANNED);
 	const missing = list.filter((item) => !known[item.url]);
+	const fresh: Record<string, ImageFingerprint> = {};
 	let done = 0;
 	let next = 0;
 
@@ -206,7 +276,10 @@ export async function fingerprintLibrary<T extends { url: string }>(
 			next += 1;
 
 			try {
-				known[item.url] = await fingerprintUrl(item.url);
+				const fp = await fingerprintUrl(item.url);
+
+				known[item.url] = fp;
+				fresh[item.url] = fp;
 			} catch {}
 
 			done += 1;
@@ -217,8 +290,9 @@ export async function fingerprintLibrary<T extends { url: string }>(
 	}
 
 	if (missing.length > 0) {
-		await Promise.all([worker(), worker(), worker(), worker()]);
+		await Promise.all(Array.from({ length: 8 }, worker));
 		saveIndex();
+		await saveRemote(fresh);
 	}
 
 	return list.flatMap((item) =>

@@ -11,6 +11,7 @@ import {
 	MarkersLayer,
 	StormsLayer,
 	symbolRadius,
+	TracksLayer,
 } from "@/components/outlook/parts";
 import {
 	addElement,
@@ -18,6 +19,7 @@ import {
 	defaultEllipse,
 	defaultMarker,
 	defaultStorm,
+	defaultTrack,
 	describeElement,
 	duplicateElement,
 	findElement,
@@ -45,17 +47,23 @@ import {
 	normalizeAngle,
 } from "@/lib/outlook/shapes";
 import {
+	CLASS_QUICK_PRESSURE,
 	type EllipseArea,
 	LIMITS,
+	MAX_PRESSURE,
 	type MapData,
 	type MapElement,
+	MIN_PRESSURE,
 	markerScale,
 	type PolygonArea,
+	PRESSURE_CLASSES,
 	pressureClass,
+	pressureColor,
 	stormType,
+	type TrackPoint,
 } from "@/lib/outlook/types";
 
-type Tool = "select" | "ellipse" | "polygon" | "x" | "storm" | "pan";
+type Tool = "select" | "ellipse" | "polygon" | "x" | "storm" | "track" | "pan";
 
 type View = { x: number; y: number; w: number };
 
@@ -100,6 +108,12 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
 		label: "Καταιγίδα",
 		key: "L",
 		hint: "Πάτα στον χάρτη για να βάλεις σύμβολο καταιγίδας ή χαμηλού. Τα στοιχεία του (όνομα, hPa, τύπος) ορίζονται δίπλα.",
+	},
+	{
+		id: "track",
+		label: "Διαδρομή",
+		key: "T",
+		hint: "Διάλεξε χρώμα (πίεση) και πάτα στον χάρτη για να βάλεις τα σημεία της διαδρομής. Άλλαξε χρώμα όποτε βαθαίνει ή αδυνατίζει το χαμηλό. Τέλος: κλικ ξανά στο τελευταίο σημείο, διπλό κλικ ή Enter.",
 	},
 	{
 		id: "pan",
@@ -156,6 +170,16 @@ function ToolIcon({ tool }: { tool: Tool }) {
 					<path d="M12 18.5A6.5 6.5 0 0 1 5.5 12" />
 				</svg>
 			);
+		case "track":
+			return (
+				<svg {...common} aria-hidden="true">
+					<path d="M4 18C8 8 12 17 16 9" />
+					<circle cx="4" cy="18" r="1.6" />
+					<circle cx="10" cy="13" r="1.6" />
+					<circle cx="16" cy="9" r="1.6" />
+					<path d="M20 5l-3 .8.9 2.9z" />
+				</svg>
+			);
 		default:
 			return (
 				<svg {...common} aria-hidden="true">
@@ -208,6 +232,8 @@ export function OutlookEditor({
 	const [ellipseDraft, setEllipseDraft] = useState<{ a: Pt; b: Pt } | null>(null);
 	const [polyDraft, setPolyDraft] = useState<Pt[]>([]);
 	const [hover, setHover] = useState<Pt | null>(null);
+	const [trackDraft, setTrackDraft] = useState<TrackPoint[]>([]);
+	const [nextPressure, setNextPressure] = useState(1005);
 	const [panning, setPanning] = useState(false);
 	const [past, setPast] = useState<MapData[]>([]);
 	const [future, setFuture] = useState<MapData[]>([]);
@@ -289,6 +315,7 @@ export function OutlookEditor({
 		setTool(next);
 		setPolyDraft([]);
 		setEllipseDraft(null);
+		setTrackDraft([]);
 		setHover(null);
 		gesture.current = null;
 		if (next !== "select") setSelectedId(null);
@@ -349,6 +376,30 @@ export function OutlookEditor({
 		setSelectedId(area.id);
 		setTool("select");
 	}
+
+	function finishTrack(points: TrackPoint[]) {
+		if (points.length < 2) {
+			setTrackDraft([]);
+			return;
+		}
+
+		if (valueRef.current.tracks.length >= LIMITS.tracks) {
+			say(`Έως ${LIMITS.tracks} διαδρομές ανά χάρτη.`);
+			setTrackDraft([]);
+			return;
+		}
+
+		const track = defaultTrack(points);
+
+		commit(addElement(valueRef.current, track));
+		setTrackDraft([]);
+		setHover(null);
+		setSelectedId(track.id);
+		setTool("select");
+	}
+
+	const finishTrackRef = useRef(finishTrack);
+	finishTrackRef.current = finishTrack;
 
 	const finishPolygonRef = useRef(finishPolygon);
 	finishPolygonRef.current = finishPolygon;
@@ -494,6 +545,28 @@ export function OutlookEditor({
 			return;
 		}
 
+		if (tool === "track") {
+			const lastPoint = trackDraft[trackDraft.length - 1];
+
+			if (lastPoint) {
+				const near = dist(p, [lastPoint.x, lastPoint.y]) * SCALE;
+
+				// a click on the last point ends the track
+				if (near < HANDLE_PX * 1.6 * upp) {
+					finishTrack(trackDraft);
+					return;
+				}
+			}
+
+			if (trackDraft.length >= LIMITS.trackPoints) return say("Πάρα πολλά σημεία.");
+
+			setTrackDraft([
+				...trackDraft,
+				{ x: round3(p[0]), y: round3(p[1]), pressure: nextPressure, label: "" },
+			]);
+			return;
+		}
+
 		if (tool === "x" || tool === "storm") {
 			addAt(p, tool === "x" ? "x" : "storm");
 			return;
@@ -506,6 +579,32 @@ export function OutlookEditor({
 			const index = Number(handleEl.getAttribute("data-index") ?? 0);
 			const base = valueRef.current;
 			const el = findElement(base, selectedRef.current);
+
+			if (handle === "tmid" && el && el.kind === "track") {
+				// insert a position between two others and start dragging it
+				if (el.points.length >= LIMITS.trackPoints) return say("Πάρα πολλά σημεία.");
+
+				const a = el.points[index];
+				const b = el.points[index + 1];
+				const mid: TrackPoint = {
+					x: (a.x + b.x) / 2,
+					y: (a.y + b.y) / 2,
+					pressure: Math.round((a.pressure + b.pressure) / 2),
+					label: "",
+				};
+				const points = [...el.points.slice(0, index + 1), mid, ...el.points.slice(index + 1)];
+
+				onChange(replaceElement(base, { ...el, points }));
+				gesture.current = {
+					kind: "handle",
+					id: el.id,
+					handle: "tp",
+					index: index + 1,
+					base,
+					moved: true,
+				};
+				return;
+			}
 
 			if (handle === "mid" && el && el.kind === "area" && el.shape === "polygon") {
 				// insert a vertex in the middle of the side and start dragging it
@@ -585,7 +684,11 @@ export function OutlookEditor({
 		const g = gesture.current;
 
 		if (!g) {
-			if (tool === "polygon" && polyDraft.length > 0) setHover(p);
+			if (
+				(tool === "polygon" && polyDraft.length > 0) ||
+				(tool === "track" && trackDraft.length > 0)
+			)
+				setHover(p);
 			return;
 		}
 
@@ -640,6 +743,20 @@ export function OutlookEditor({
 
 		if (g.kind === "handle") {
 			const el = findElement(g.base, g.id);
+
+			if (el?.kind === "track" && g.handle === "tp") {
+				g.moved = true;
+				onChange(
+					replaceElement(g.base, {
+						...el,
+						points: el.points.map((q, i) =>
+							i === g.index ? { ...q, x: round3(p[0]), y: round3(p[1]) } : q,
+						),
+					}),
+				);
+				return;
+			}
+
 			if (el?.kind !== "area") return;
 			g.moved = true;
 
@@ -720,11 +837,34 @@ export function OutlookEditor({
 			return;
 		}
 
+		if (tool === "track" && trackDraft.length >= 2) {
+			finishTrack(trackDraft);
+			return;
+		}
+
 		if (tool !== "select") return;
 
 		const target = event.target as Element;
 		const handleEl = target.closest("[data-handle]");
 		const el = findElement(valueRef.current, selectedRef.current);
+
+		// double click on a track position removes it
+		if (
+			handleEl?.getAttribute("data-handle") === "tp" &&
+			el &&
+			el.kind === "track" &&
+			el.points.length > 2
+		) {
+			const index = Number(handleEl.getAttribute("data-index"));
+
+			commit(
+				replaceElement(valueRef.current, {
+					...el,
+					points: el.points.filter((_, i) => i !== index),
+				}),
+			);
+			return;
+		}
 
 		// double click on a vertex removes it
 		if (
@@ -789,6 +929,7 @@ export function OutlookEditor({
 
 			if (event.key === "Escape") {
 				setPolyDraft([]);
+				setTrackDraft([]);
 				setEllipseDraft(null);
 				gesture.current = null;
 				setTool("select");
@@ -801,10 +942,26 @@ export function OutlookEditor({
 				return;
 			}
 
+			if (event.key === "Enter" && tool === "track") {
+				finishTrackRef.current(trackDraft);
+				return;
+			}
+
+			// 1-4 pick the colour (pressure class) of the next track points
+			if (tool === "track" && /^[1-4]$/.test(event.key)) {
+				const cls = PRESSURE_CLASSES[Number(event.key) - 1];
+
+				setNextPressure(CLASS_QUICK_PRESSURE[cls.id]);
+				return;
+			}
+
 			if (event.key === "Backspace" || event.key === "Delete") {
 				if (tool === "polygon" && polyDraft.length > 0) {
 					event.preventDefault();
 					setPolyDraft(polyDraft.slice(0, -1));
+				} else if (tool === "track" && trackDraft.length > 0) {
+					event.preventDefault();
+					setTrackDraft(trackDraft.slice(0, -1));
 				} else if (selectedRef.current) {
 					event.preventDefault();
 					deleteSelectedRef.current();
@@ -826,7 +983,7 @@ export function OutlookEditor({
 			window.removeEventListener("keydown", onKeyDown);
 			window.removeEventListener("keyup", onKeyUp);
 		};
-	}, [tool, polyDraft, undo, redo]);
+	}, [tool, polyDraft, trackDraft, undo, redo]);
 
 	const handleR = HANDLE_PX * upp;
 	const stroke = "#1a5a96";
@@ -961,6 +1118,53 @@ export function OutlookEditor({
 			);
 		}
 
+		if (selected.kind === "track") {
+			const pts = selected.points.map((p) => toUnits(p.x, p.y));
+
+			return (
+				<g>
+					{pts.slice(0, -1).map((p, i) => {
+						const q = pts[i + 1];
+
+						return (
+							<circle
+								// biome-ignore lint/suspicious/noArrayIndexKey: positions have no id
+								key={`tm-${i}`}
+								data-handle="tmid"
+								data-index={i}
+								cx={(p[0] + q[0]) / 2}
+								cy={(p[1] + q[1]) / 2}
+								r={handleR * 0.6}
+								fill="#fff"
+								fillOpacity={0.85}
+								stroke={stroke}
+								strokeWidth={1.5}
+								vectorEffect="non-scaling-stroke"
+								style={{ cursor: "copy" }}
+							/>
+						);
+					})}
+					{pts.map((p, i) => (
+						<circle
+							// biome-ignore lint/suspicious/noArrayIndexKey: positions have no id
+							key={`tp-${i}`}
+							data-handle="tp"
+							data-index={i}
+							cx={p[0]}
+							cy={p[1]}
+							r={handleR * 1.15}
+							fill="none"
+							stroke={stroke}
+							strokeWidth={2.5}
+							strokeDasharray="4 3"
+							vectorEffect="non-scaling-stroke"
+							style={{ cursor: "grab", pointerEvents: "all" }}
+						/>
+					))}
+				</g>
+			);
+		}
+
 		const [x, y] = toUnits(selected.x, selected.y);
 		let radius = selected.kind === "x" ? 18 * markerScale(selected) : 18;
 
@@ -1023,6 +1227,61 @@ export function OutlookEditor({
 					/>
 					<circle cx={a[0]} cy={a[1]} r={handleR * 0.7} fill={stroke} />
 					<circle cx={b[0]} cy={b[1]} r={handleR * 0.7} fill={stroke} />
+				</g>
+			);
+		}
+
+		if (trackDraft.length > 0) {
+			const draftTrack = {
+				id: "draft",
+				kind: "track" as const,
+				name: "",
+				points: trackDraft,
+			};
+			const lastPoint = trackDraft[trackDraft.length - 1];
+			const from = toUnits(lastPoint.x, lastPoint.y);
+			const rubber = hover ? toUnits(hover[0], hover[1]) : null;
+			const color = pressureColor(nextPressure);
+
+			return (
+				<g pointerEvents="none">
+					{trackDraft.length >= 2 ? (
+						<g opacity={0.9}>
+							<TracksLayer tracks={[draftTrack]} />
+						</g>
+					) : (
+						<circle
+							cx={from[0]}
+							cy={from[1]}
+							r={7}
+							fill={pressureColor(lastPoint.pressure)}
+							stroke="#fff"
+							strokeWidth={2}
+						/>
+					)}
+					{rubber && (
+						<g>
+							<line
+								x1={from[0]}
+								y1={from[1]}
+								x2={rubber[0]}
+								y2={rubber[1]}
+								stroke={color}
+								strokeWidth={3}
+								strokeDasharray="6 5"
+								strokeLinecap="round"
+							/>
+							<circle
+								cx={rubber[0]}
+								cy={rubber[1]}
+								r={6}
+								fill={color}
+								fillOpacity={0.55}
+								stroke="#fff"
+								strokeWidth={2}
+							/>
+						</g>
+					)}
 				</g>
 			);
 		}
@@ -1174,6 +1433,73 @@ export function OutlookEditor({
 				{notice || toolInfo?.hint}
 			</p>
 
+			{tool === "track" && (
+				<div className="outlook-track-bar" data-editor-toolbar>
+					<span className="outlook-track-bar-label">Χρώμα επόμενου σημείου:</span>
+
+					<div className="outlook-track-chips">
+						{PRESSURE_CLASSES.map((cls, i) => {
+							const active = pressureClass(nextPressure)?.id === cls.id;
+
+							return (
+								<button
+									key={cls.id}
+									type="button"
+									className={active ? "active" : ""}
+									aria-pressed={active}
+									title={`${cls.name} · ${cls.range} (πλήκτρο ${i + 1})`}
+									onClick={() => setNextPressure(CLASS_QUICK_PRESSURE[cls.id])}
+								>
+									<span className="outlook-track-swatch" style={{ background: cls.color }} />
+									<span>{cls.name}</span>
+								</button>
+							);
+						})}
+					</div>
+
+					<label className="outlook-track-pressure">
+						<span>hPa</span>
+						<input
+							type="number"
+							inputMode="numeric"
+							min={MIN_PRESSURE}
+							max={MAX_PRESSURE}
+							value={nextPressure}
+							onChange={(event) => {
+								const value = Math.round(Number(event.target.value));
+
+								if (Number.isFinite(value)) {
+									setNextPressure(Math.min(MAX_PRESSURE, Math.max(MIN_PRESSURE, value)));
+								}
+							}}
+						/>
+					</label>
+
+					{trackDraft.length > 0 && (
+						<div className="outlook-track-actions">
+							<button
+								type="button"
+								className="button"
+								disabled={trackDraft.length < 2}
+								onClick={() => finishTrack(trackDraft)}
+							>
+								Τέλος ({trackDraft.length})
+							</button>
+							<button
+								type="button"
+								className="button secondary"
+								onClick={() => setTrackDraft(trackDraft.slice(0, -1))}
+							>
+								Αναίρεση σημείου
+							</button>
+							<button type="button" className="button secondary" onClick={() => setTrackDraft([])}>
+								Ακύρωση
+							</button>
+						</div>
+					)}
+				</div>
+			)}
+
 			<div className="outlook-workspace">
 				<div className="outlook-stage">
 					<svg
@@ -1197,6 +1523,7 @@ export function OutlookEditor({
 						<BaseMap />
 						<AreasLayer areas={value.areas} prefix="ed" />
 						<MarkersLayer markers={value.markers} />
+						<TracksLayer tracks={value.tracks} />
 						<StormsLayer storms={value.storms} />
 						{renderSelection()}
 						{renderDrafts()}

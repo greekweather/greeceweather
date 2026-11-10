@@ -62,11 +62,31 @@ const storm = z.object({
 	labelPos: z.enum(["right", "left", "top", "bottom"]),
 });
 
+const track = z.object({
+	id,
+	kind: z.literal("track"),
+	name: z.string().trim().max(40),
+	showPressure: z.boolean().optional(),
+	points: z
+		.array(
+			z.object({
+				x: coord,
+				y: coord,
+				pressure: z.number().int().min(MIN_PRESSURE).max(MAX_PRESSURE),
+				label: z.string().trim().max(24),
+			}),
+		)
+		.min(2)
+		.max(LIMITS.trackPoints),
+});
+
 const mapDataSchema = z.object({
 	v: z.literal(1),
 	areas: z.array(z.discriminatedUnion("shape", [ellipse, polygon])).max(LIMITS.areas),
 	markers: z.array(marker).max(LIMITS.markers),
 	storms: z.array(storm).max(LIMITS.storms),
+	// maps saved before tracks existed have no "tracks" at all
+	tracks: z.array(track).max(LIMITS.tracks).default([]),
 });
 
 const MAX_JSON_CHARS = 200_000;
@@ -74,7 +94,9 @@ const MAX_JSON_CHARS = 200_000;
 type ParseResult = { ok: true; value: MapData } | { ok: false; error: string };
 
 function hasUniqueIds(data: MapData): boolean {
-	const ids = [...data.areas, ...data.markers, ...data.storms].map((item) => item.id);
+	const ids = [...data.areas, ...data.markers, ...data.storms, ...data.tracks].map(
+		(item) => item.id,
+	);
 	return new Set(ids).size === ids.length;
 }
 
@@ -118,6 +140,10 @@ export function parseMapData(raw: string): ParseResult {
 		),
 		markers: parsed.data.markers.map((m) => ({ ...m, x: round3(m.x), y: round3(m.y) })),
 		storms: parsed.data.storms.map((s) => ({ ...s, x: round3(s.x), y: round3(s.y) })),
+		tracks: parsed.data.tracks.map((t) => ({
+			...t,
+			points: t.points.map((p) => ({ ...p, x: round3(p.x), y: round3(p.y) })),
+		})),
 	};
 
 	if (!hasUniqueIds(value)) {
@@ -130,5 +156,7 @@ export function parseMapData(raw: string): ParseResult {
 /** Reads map_data coming from the database; falls back to an empty map when it is damaged. */
 export function mapDataFromDb(raw: unknown): MapData {
 	const parsed = mapDataSchema.safeParse(raw);
-	return parsed.success ? (parsed.data as MapData) : { v: 1, areas: [], markers: [], storms: [] };
+	return parsed.success
+		? (parsed.data as MapData)
+		: { v: 1, areas: [], markers: [], storms: [], tracks: [] };
 }

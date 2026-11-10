@@ -55,8 +55,36 @@ async function compressImage(file: File): Promise<File> {
 	return new File([blob], `${storageFileBase(file.name)}.webp`, { type: "image/webp" });
 }
 
-// Uploads under the name the file had on the visitor's computer. If that name is taken in the
-// bucket it becomes name-2.webp, name-3.webp… so nothing is ever overwritten.
+function escapeRegExp(text: string) {
+	return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// The next free name: "name" if nothing uses it, otherwise one more than the highest
+// existing "name-N" (thunderstorm-4 and thunderstorm-5 exist -> thunderstorm-6).
+async function nextFreeName(prefix: string, base: string): Promise<string> {
+	const supabase = createClient();
+	const { data, error } = await supabase.storage
+		.from(IMAGE_BUCKET)
+		.list(prefix.replace(/\/$/, ""), { limit: 1000, search: base });
+	if (error) throw error;
+
+	const pattern = new RegExp(`^${escapeRegExp(base)}(?:-(\\d+))?\\.webp$`, "i");
+	let highest = 0;
+	let plainTaken = false;
+
+	for (const item of data ?? []) {
+		const match = pattern.exec(item.name);
+		if (!match) continue;
+		if (match[1]) highest = Math.max(highest, Number(match[1]));
+		else plainTaken = true;
+	}
+
+	if (!plainTaken && highest === 0) return base;
+	return `${base}-${Math.max(highest, 1) + 1}`;
+}
+
+// Uploads under the name the file had on the visitor's computer. If that name is taken the
+// number continues after the highest one (name-2, name-3… name-6), and nothing is overwritten.
 export async function uploadKeepingName(
 	prefix: string,
 	name: string,
@@ -64,9 +92,10 @@ export async function uploadKeepingName(
 ): Promise<string> {
 	const supabase = createClient();
 	const base = name.replace(/\.webp$/i, "");
+	let candidate = await nextFreeName(prefix, base);
 
-	for (let attempt = 1; attempt <= 30; attempt += 1) {
-		const path = `${prefix}${attempt === 1 ? base : `${base}-${attempt}`}.webp`;
+	for (let attempt = 0; attempt < 5; attempt += 1) {
+		const path = `${prefix}${candidate}.webp`;
 		const { error } = await supabase.storage.from(IMAGE_BUCKET).upload(path, body, {
 			cacheControl: "31536000",
 			contentType: "image/webp",
@@ -74,13 +103,13 @@ export async function uploadKeepingName(
 		});
 
 		if (!error) return path;
+		if (!/already exists|duplicate|resource already/i.test(error.message)) throw error;
 
-		const taken = /already exists|duplicate|resource already/i.test(error.message);
-
-		if (!taken) throw error;
+		// Lost a race with another upload: look again.
+		candidate = await nextFreeName(prefix, base);
 	}
 
-	throw new Error("Υπάρχουν ήδη πολλές εικόνες με το ίδιο όνομα.");
+	throw new Error("Δεν βρέθηκε ελεύθερο όνομα για την εικόνα.");
 }
 
 // Compresses the file, uploads it to the bucket and returns it as a stored image.

@@ -31,7 +31,7 @@ export default async function AdminPostsPage({
 
 	const view = status === "draft" ? "draft" : status === "published" ? "published" : "all";
 
-	const sortOrder = sort === "oldest" ? "oldest" : sort === "views" ? "views" : "latest";
+	const sortOrder = sort === "oldest" ? "oldest" : "latest";
 	const ascending = sortOrder === "oldest";
 
 	const supabase = await createClient();
@@ -39,11 +39,8 @@ export default async function AdminPostsPage({
 	const [{ data, error }, { data: tagRows }] = await Promise.all([
 		supabase
 			.from("posts")
-			.select("id,title,slug,published,published_at,views,updated_at,post_tags(tags(id,name))")
-			.order(sortOrder === "views" ? "views" : "published_at", {
-				ascending: sortOrder === "views" ? false : ascending,
-				nullsFirst: false,
-			}),
+			.select("id,title,slug,published,published_at,updated_at,post_tags(tags(id,name))")
+			.order("published_at", { ascending, nullsFirst: false }),
 		supabase.from("tags").select("id,name").order("name"),
 	]);
 
@@ -195,13 +192,6 @@ export default async function AdminPostsPage({
 						>
 							Παλαιότερα πρώτα
 						</a>
-
-						<a
-							className={`button secondary ${sortOrder === "views" ? "active" : ""}`}
-							href={query({ sort: "views" })}
-						>
-							Περισσότερες προβολές
-						</a>
 					</div>
 				</div>
 
@@ -212,7 +202,6 @@ export default async function AdminPostsPage({
 								<th>Τίτλος</th>
 								<th>Κατάσταση</th>
 								<th>{view === "draft" ? "Τελευταία αποθήκευση" : "Δημοσίευση"}</th>
-								<th>Προβολές</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -254,8 +243,6 @@ export default async function AdminPostsPage({
 											</>
 										)}
 									</td>
-
-									<td data-label="Προβολές">{Number(post.views ?? 0).toLocaleString("el-GR")}</td>
 
 									<td
 										style={{

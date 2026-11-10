@@ -28,7 +28,6 @@ export default async function PostsPage() {
 								data-title={post.title || "-"}
 								data-tags={post.tags.map((t) => t.toLocaleLowerCase("el-GR")).join("|")}
 								data-date={post.published_at ? Date.parse(post.published_at) : 0}
-								data-views={post.views}
 							>
 								<PostCard post={post} />
 							</div>
