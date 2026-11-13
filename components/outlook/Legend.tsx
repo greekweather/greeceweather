@@ -9,7 +9,6 @@ import {
 
 const LEGEND_W = 296;
 const LEGEND_H = 452;
-const TRACK_LEGEND_H = 48;
 const PAD = 12;
 
 const CATEGORIES: ChanceCategory[] = ["low", "medium", "high", "none"];
@@ -32,18 +31,14 @@ export function Legend({
 	position,
 	mapW,
 	mapH,
-	showTracks = false,
 }: {
 	prefix: string;
 	position: LegendPosition;
 	mapW: number;
 	mapH: number;
-	/** Adds a line explaining the colours of the tracks. */
-	showTracks?: boolean;
 }) {
-	const legendH = LEGEND_H + (showTracks ? TRACK_LEGEND_H : 0);
 	const x = position === "tl" || position === "bl" ? 12 : mapW - LEGEND_W - 12;
-	const y = position === "tl" || position === "tr" ? 12 : mapH - legendH - 12;
+	const y = position === "tl" || position === "tr" ? 12 : mapH - LEGEND_H - 12;
 	const solidX = 118;
 	const hatchX = 200;
 	const swatchW = 70;
@@ -52,7 +47,7 @@ export function Legend({
 		<g transform={`translate(${x} ${y})`} fontFamily={FONT} pointerEvents="none">
 			<rect
 				width={LEGEND_W}
-				height={legendH}
+				height={LEGEND_H}
 				rx={4}
 				fill="#ffffff"
 				fillOpacity={0.94}
@@ -160,27 +155,6 @@ export function Legend({
 						μισοί δακτύλιοι = υποτροπικό · σπείρες = τροπικό / medicane
 					</text>
 				</g>
-
-				{showTracks && (
-					<g>
-						<Rule y={420} />
-						<text x={PAD} y={436} fontSize={10.5} fontWeight={700} fill="#16324f">
-							Διαδρομή:
-						</text>
-						{PRESSURE_CLASSES.map((cls, i) => (
-							<g key={cls.id} transform={`translate(${PAD + 70 + i * 52} 432)`}>
-								{i > 0 && <line x1={-52 + 8} x2={-8} stroke={cls.color} strokeWidth={3} />}
-								<circle r={6} fill={cls.color} stroke="#fff" strokeWidth={1.6} />
-							</g>
-						))}
-						<text x={PAD} y={451} fontSize={9} fill="#5b6773">
-							Χρώμα = πίεση κέντρου: μπλε 1000 και άνω, πορτοκαλί 990–999,
-						</text>
-						<text x={PAD} y={462} fontSize={9} fill="#5b6773">
-							κόκκινο 975–989, βιολετί κάτω από 975 hPa
-						</text>
-					</g>
-				)}
 			</g>
 		</g>
 	);

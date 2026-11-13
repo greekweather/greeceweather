@@ -6,7 +6,6 @@ import {
 	FONT,
 	MarkersLayer,
 	StormsLayer,
-	TracksLayer,
 } from "@/components/outlook/parts";
 import { MAP_H, MAP_W } from "@/lib/outlook/geo";
 import { titleFit } from "@/lib/outlook/title";
@@ -87,8 +86,7 @@ export function OutlookGraphic({
 	mapOnly = false,
 }: GraphicProps) {
 	const clipId = `${idPrefix}-clip`;
-	const empty =
-		data.areas.length + data.markers.length + data.storms.length + data.tracks.length === 0;
+	const empty = data.areas.length + data.markers.length + data.storms.length === 0;
 	const titleSize = titleFit(title).fontSize;
 
 	return (
@@ -163,16 +161,9 @@ export function OutlookGraphic({
 					<BaseMap />
 					<AreasLayer areas={data.areas} prefix={idPrefix} />
 					<MarkersLayer markers={data.markers} />
-					<TracksLayer tracks={data.tracks} />
 					<StormsLayer storms={data.storms} />
 					{!mapOnly && (
-						<Legend
-							prefix={idPrefix}
-							position={legendPosition}
-							mapW={MAP_W}
-							mapH={MAP_H}
-							showTracks={data.tracks.length > 0}
-						/>
+						<Legend prefix={idPrefix} position={legendPosition} mapW={MAP_W} mapH={MAP_H} />
 					)}
 					{empty && !mapOnly && <EmptyNotice />}
 				</g>

@@ -1,6 +1,7 @@
 import { deletePostAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { Pagination } from "@/components/admin/Pagination";
+import { RememberPostsQuery } from "@/components/admin/PostsListLink";
 import { formatDate } from "@/components/PostCard";
 import { pageSizeFor } from "@/lib/page-size";
 import { paginate } from "@/lib/pagination";
@@ -93,6 +94,7 @@ export default async function AdminPostsPage({
 
 	return (
 		<>
+			<RememberPostsQuery />
 			<header className="admin-page-header">
 				<div>
 					<p className="eyebrow">ΠΕΡΙΕΧΟΜΕΝΟ</p>

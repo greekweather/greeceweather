@@ -29,6 +29,47 @@ export function PostsFilter({ tags }: { tags: string[] }) {
 	const [openDropdown, setOpenDropdown] = useState<OpenDropdown>(null);
 
 	const filterRef = useRef<HTMLDivElement>(null);
+	const restored = useRef(false);
+
+	// Coming back (browser Back) shows the page again with the filters it had: they live in
+	// the address, which the browser keeps in its history entry.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const wantedCategory = params.get("cat");
+		const wantedSort = params.get("sort");
+
+		if (wantedCategory && categoryOptions.some((o) => o.value === wantedCategory)) {
+			setCategory(wantedCategory);
+		}
+
+		if (params.get("tag")) setTag(params.get("tag") as string);
+		if (wantedSort && sortOptions.some((o) => o.value === wantedSort)) setSort(wantedSort);
+
+		const q = params.get("q") ?? "";
+
+		setSearch(q);
+		setAppliedSearch(q);
+		restored.current = true;
+	}, []);
+
+	useEffect(() => {
+		if (!restored.current) return;
+
+		const params = new URLSearchParams();
+
+		if (category !== "all") params.set("cat", category);
+		if (tag !== "all") params.set("tag", tag);
+		if (sort !== "newest") params.set("sort", sort);
+		if (appliedSearch.trim()) params.set("q", appliedSearch.trim());
+
+		const query = params.toString();
+		const url = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+
+		if (url !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+			window.history.replaceState(window.history.state, "", url);
+		}
+	}, [category, tag, sort, appliedSearch]);
 
 	const tagOptions = useMemo(
 		() =>

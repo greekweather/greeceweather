@@ -2,8 +2,8 @@
 // (the "ΑΝΕΠΙΣΗΜΟ" box and the dates sit on the right). A normal title is drawn at TITLE_BASE;
 // a long one shrinks down to TITLE_MIN; beyond that it would run into the box on the right.
 
-export const TITLE_BASE = 22;
-export const TITLE_MIN = 16;
+export const TITLE_BASE = 18;
+export const TITLE_MIN = 13;
 const TITLE_ROOM = 880;
 // average width of a bold Greek or Latin letter, as a share of the font size
 const CHAR_WIDTH = 0.6;

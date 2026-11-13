@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { signOutAction } from "@/app/actions";
 import { AdminTabBar } from "@/components/admin/AdminTabBar";
+import { PostsListLink } from "@/components/admin/PostsListLink";
 import { requireAdmin } from "@/lib/auth";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -20,7 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 					<div className="admin-nav-group">
 						<span>Περιεχόμενο</span>
 
-						<Link href="/admin/posts">Άρθρα</Link>
+						<PostsListLink>Άρθρα</PostsListLink>
 						<Link href="/admin/tags">Ετικέτες</Link>
 						<Link href="/admin/media">Πολυμέσα</Link>
 						<Link href="/admin/banner">Μπάνερ</Link>

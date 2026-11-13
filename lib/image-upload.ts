@@ -1,7 +1,7 @@
 import { storageFileBase } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/client";
 
-const IMAGE_BUCKET = "post-images";
+export const IMAGE_BUCKET = "post-images";
 
 const MAX_INPUT_BYTES = 8 * 1024 * 1024;
 const MAX_OUTPUT_BYTES = 800 * 1024;

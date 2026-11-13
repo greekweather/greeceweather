@@ -6,8 +6,6 @@ import {
 	pressureClass,
 	type Storm,
 	stormType,
-	type Track,
-	type TrackPoint,
 	type XMarker,
 } from "@/lib/outlook/types";
 
@@ -21,7 +19,7 @@ export function newId(): string {
 }
 
 export function allElements(data: MapData): MapElement[] {
-	return [...data.areas, ...data.markers, ...data.storms, ...data.tracks];
+	return [...data.areas, ...data.markers, ...data.storms];
 }
 
 export function findElement(data: MapData, id: string | null): MapElement | null {
@@ -32,7 +30,6 @@ export function findElement(data: MapData, id: string | null): MapElement | null
 export function addElement(data: MapData, el: MapElement): MapData {
 	if (el.kind === "area") return { ...data, areas: [...data.areas, el] };
 	if (el.kind === "x") return { ...data, markers: [...data.markers, el] };
-	if (el.kind === "track") return { ...data, tracks: [...data.tracks, el] };
 	return { ...data, storms: [...data.storms, el] };
 }
 
@@ -43,9 +40,6 @@ export function replaceElement(data: MapData, next: MapElement): MapData {
 	if (next.kind === "x") {
 		return { ...data, markers: data.markers.map((m) => (m.id === next.id ? next : m)) };
 	}
-	if (next.kind === "track") {
-		return { ...data, tracks: data.tracks.map((t) => (t.id === next.id ? next : t)) };
-	}
 	return { ...data, storms: data.storms.map((s) => (s.id === next.id ? next : s)) };
 }
 
@@ -55,7 +49,6 @@ export function removeElement(data: MapData, id: string): MapData {
 		areas: data.areas.filter((a) => a.id !== id),
 		markers: data.markers.filter((m) => m.id !== id),
 		storms: data.storms.filter((s) => s.id !== id),
-		tracks: data.tracks.filter((t) => t.id !== id),
 	};
 }
 
@@ -67,15 +60,6 @@ export function translateElement<T extends MapElement>(el: T, dx: number, dy: nu
 			points: el.points.map((p): [number, number] => {
 				const [x, y] = clampToMap(p[0] + dx, p[1] + dy);
 				return [x, y];
-			}),
-		};
-	}
-	if (el.kind === "track") {
-		return {
-			...el,
-			points: el.points.map((p) => {
-				const [x, y] = clampToMap(p.x + dx, p.y + dy);
-				return { ...p, x, y };
 			}),
 		};
 	}
@@ -116,10 +100,6 @@ export function defaultStorm(x: number, y: number): Storm {
 	};
 }
 
-export function defaultTrack(points: TrackPoint[]): Track {
-	return { id: newId(), kind: "track", name: "", points };
-}
-
 /** A copy of the element, a little to the south-east, with a new id. */
 export function duplicateElement(el: MapElement): MapElement {
 	const copy = translateElement(el, 1.2, -0.9);
@@ -135,10 +115,6 @@ export function describeElement(el: MapElement): string {
 	}
 	if (el.kind === "x") {
 		return el.label ? `Διαταραχή (X) · ${el.label}` : "Διαταραχή (X)";
-	}
-	if (el.kind === "track") {
-		const lowest = Math.min(...el.points.map((p) => p.pressure));
-		return `Διαδρομή${el.name ? ` · ${el.name}` : ""} · ${el.points.length} σημεία · έως ${lowest} hPa`;
 	}
 	const cls = pressureClass(el.pressure);
 	const type = stormType(el.type);

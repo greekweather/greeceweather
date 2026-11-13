@@ -120,35 +120,3 @@ export function normalizeAngle(deg: number): number {
 	if (v <= -180) v += 360;
 	return v;
 }
-
-const round2 = (v: number) => Math.round(v * 100) / 100;
-
-/**
- * One piece of an open smooth curve through the points: the Bezier from points[i] to
- * points[i + 1] (Catmull-Rom, the neighbours shape the bend). Returns the path, the middle of
- * the piece and the direction there, so an arrow can be drawn on it.
- */
-export function openSplineSegment(
-	points: readonly Pt[],
-	i: number,
-): { d: string; mid: Pt; angle: number; length: number } {
-	const p1 = points[i];
-	const p2 = points[i + 1];
-	const p0 = points[i - 1] ?? p1;
-	const p3 = points[i + 2] ?? p2;
-	const c1: Pt = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
-	const c2: Pt = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
-	const mid: Pt = [
-		(p1[0] + 3 * c1[0] + 3 * c2[0] + p2[0]) / 8,
-		(p1[1] + 3 * c1[1] + 3 * c2[1] + p2[1]) / 8,
-	];
-	const tx = 0.75 * (c1[0] - p1[0]) + 1.5 * (c2[0] - c1[0]) + 0.75 * (p2[0] - c2[0]);
-	const ty = 0.75 * (c1[1] - p1[1]) + 1.5 * (c2[1] - c1[1]) + 0.75 * (p2[1] - c2[1]);
-
-	return {
-		d: `M${round2(p1[0])} ${round2(p1[1])}C${round2(c1[0])} ${round2(c1[1])} ${round2(c2[0])} ${round2(c2[1])} ${round2(p2[0])} ${round2(p2[1])}`,
-		mid,
-		angle: (Math.atan2(ty, tx) * 180) / Math.PI,
-		length: Math.hypot(p2[0] - p1[0], p2[1] - p1[1]),
-	};
-}

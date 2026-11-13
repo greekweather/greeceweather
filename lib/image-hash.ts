@@ -315,3 +315,20 @@ export async function findVisualDuplicate<T extends { url: string }>(
 		return null;
 	}
 }
+
+/** An image was renamed: its fingerprint moves to the new address, nothing is downloaded. */
+export async function renameIndexed(oldUrl: string, newUrl: string): Promise<void> {
+	try {
+		const known = loadIndex();
+
+		if (known[oldUrl]) {
+			known[newUrl] = known[oldUrl];
+			delete known[oldUrl];
+			saveIndex();
+		}
+
+		if (!remoteBroken) {
+			await createClient().from("image_fingerprints").update({ url: newUrl }).eq("url", oldUrl);
+		}
+	} catch {}
+}

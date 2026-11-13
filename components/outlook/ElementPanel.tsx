@@ -6,7 +6,6 @@ import { normalizeAngle } from "@/lib/outlook/shapes";
 import {
 	type Area,
 	CHANCE_STYLE,
-	CLASS_QUICK_PRESSURE,
 	chanceCategory,
 	HORIZONS,
 	LABEL_POSITIONS,
@@ -15,13 +14,10 @@ import {
 	MAX_PRESSURE,
 	type MapElement,
 	MIN_PRESSURE,
-	PRESSURE_CLASSES,
 	pressureClass,
-	pressureColor,
 	STORM_TYPES,
 	type Storm,
 	type StormTypeId,
-	type Track,
 	type XMarker,
 } from "@/lib/outlook/types";
 
@@ -364,121 +360,6 @@ function StormFields({ storm, onChange }: { storm: Storm; onChange: Patch }) {
 	);
 }
 
-function TrackFields({ track, onChange }: { track: Track; onChange: Patch }) {
-	const setPoint = (index: number, patch: Partial<Track["points"][number]>, key?: string) =>
-		onChange(
-			{
-				...track,
-				points: track.points.map((point, i) => (i === index ? { ...point, ...patch } : point)),
-			},
-			key,
-		);
-
-	return (
-		<>
-			<TextField
-				label="Όνομα διαδρομής (προαιρετικά)"
-				value={track.name}
-				maxLength={40}
-				placeholder="π.χ. Ελένη"
-				onChange={(name) => onChange({ ...track, name }, `name-${track.id}`)}
-			/>
-
-			<label className="outlook-checkbox">
-				<input
-					type="checkbox"
-					checked={track.showPressure ?? false}
-					onChange={(event) => onChange({ ...track, showPressure: event.target.checked })}
-				/>
-				<span>Γράψε την πίεση δίπλα σε κάθε σημείο</span>
-			</label>
-
-			<div className="outlook-field">
-				<span className="outlook-field-label">Σημεία διαδρομής ({track.points.length})</span>
-
-				<ol className="outlook-track-points">
-					{track.points.map((point, i) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: positions have no id
-						<li key={i}>
-							<span
-								className="outlook-track-swatch"
-								style={{ background: pressureColor(point.pressure) }}
-							/>
-
-							<input
-								type="number"
-								inputMode="numeric"
-								aria-label={`Πίεση σημείου ${i + 1} (hPa)`}
-								min={MIN_PRESSURE}
-								max={MAX_PRESSURE}
-								value={point.pressure}
-								onChange={(event) => {
-									const value = Math.round(Number(event.target.value));
-
-									if (Number.isFinite(value) && value >= MIN_PRESSURE && value <= MAX_PRESSURE) {
-										setPoint(i, { pressure: value }, `tp-${track.id}-${i}`);
-									}
-								}}
-							/>
-
-							<input
-								type="text"
-								aria-label={`Ετικέτα σημείου ${i + 1}`}
-								placeholder="π.χ. Τρ 12Z"
-								maxLength={24}
-								value={point.label}
-								onChange={(event) =>
-									setPoint(i, { label: event.target.value }, `tl-${track.id}-${i}`)
-								}
-							/>
-
-							<button
-								type="button"
-								className="outlook-track-remove"
-								aria-label={`Διαγραφή σημείου ${i + 1}`}
-								disabled={track.points.length <= 2}
-								onClick={() =>
-									onChange({ ...track, points: track.points.filter((_, index) => index !== i) })
-								}
-							>
-								×
-							</button>
-						</li>
-					))}
-				</ol>
-
-				<div className="outlook-presets-row">
-					{PRESSURE_CLASSES.map((cls) => (
-						<button
-							key={cls.id}
-							type="button"
-							title={`Βάλε σε όλα τα σημεία ${CLASS_QUICK_PRESSURE[cls.id]} hPa`}
-							onClick={() =>
-								onChange({
-									...track,
-									points: track.points.map((point) => ({
-										...point,
-										pressure: CLASS_QUICK_PRESSURE[cls.id],
-									})),
-								})
-							}
-						>
-							<span className="outlook-track-swatch" style={{ background: cls.color }} /> όλα{" "}
-							{CLASS_QUICK_PRESSURE[cls.id]}
-						</button>
-					))}
-				</div>
-
-				<small>
-					Το χρώμα κάθε τμήματος βγαίνει από τη μέση πίεση των δύο άκρων του. Σύρε τους κύκλους
-					πάνω στον χάρτη για να μετακινήσεις σημεία· πάτα τα μικρά + για να προσθέσεις σημείο·
-					διπλό κλικ σε σημείο για να το σβήσεις.
-				</small>
-			</div>
-		</>
-	);
-}
-
 export function ElementPanel({
 	element,
 	onChange,
@@ -497,9 +378,7 @@ export function ElementPanel({
 				: "Ελεύθερο σχήμα"
 			: element.kind === "x"
 				? "Διαταραχή (X)"
-				: element.kind === "track"
-					? "Διαδρομή"
-					: "Καταιγίδα / χαμηλό";
+				: "Καταιγίδα / χαμηλό";
 
 	return (
 		<div className="outlook-panel">
@@ -508,7 +387,6 @@ export function ElementPanel({
 			{element.kind === "area" && <AreaFields area={element} onChange={onChange} />}
 			{element.kind === "x" && <MarkerFields marker={element} onChange={onChange} />}
 			{element.kind === "storm" && <StormFields storm={element} onChange={onChange} />}
-			{element.kind === "track" && <TrackFields track={element} onChange={onChange} />}
 
 			<div className="outlook-panel-actions">
 				<button type="button" className="button secondary" onClick={onDuplicate}>

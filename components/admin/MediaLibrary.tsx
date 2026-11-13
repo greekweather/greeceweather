@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { useDuplicatePrompt } from "@/components/admin/DuplicatePrompt";
 import { findVisualDuplicate, indexUploaded } from "@/lib/image-hash";
+import { renameImage } from "@/lib/image-rename";
 import { uploadKeepingName } from "@/lib/image-upload";
 import { storageFileBase } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/client";
@@ -86,6 +87,8 @@ export function MediaLibrary({
 	const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
 	const [dragging, setDragging] = useState(false);
 	const [scan, setScan] = useState("");
+	const [renaming, setRenaming] = useState<{ name: string; value: string } | null>(null);
+	const [renameBusy, setRenameBusy] = useState(false);
 
 	const supabase = createClient();
 	const { ask, dialog } = useDuplicatePrompt();
@@ -189,6 +192,33 @@ export function MediaLibrary({
 		setFileToDelete(null);
 	}
 
+	async function submitRename() {
+		if (!renaming || renameBusy) return;
+
+		setRenameBusy(true);
+		setMessage("");
+
+		try {
+			const result = await renameImage(renaming.name, renaming.value);
+
+			setFiles((current) =>
+				current.map((file) =>
+					file.name === renaming.name ? { ...file, name: result.name, url: result.url } : file,
+				),
+			);
+			setRenaming(null);
+			setMessage(
+				result.postsUpdated > 0
+					? `Η εικόνα μετονομάστηκε σε «${result.name}» και ενημερώθηκαν ${result.postsUpdated} άρθρα.`
+					: `Η εικόνα μετονομάστηκε σε «${result.name}». Δεν τη χρησιμοποιεί κανένα άρθρο.`,
+			);
+		} catch (error) {
+			setMessage(error instanceof Error ? error.message : "Η μετονομασία απέτυχε.");
+		} finally {
+			setRenameBusy(false);
+		}
+	}
+
 	async function copyUrl(url: string) {
 		await navigator.clipboard.writeText(url);
 		setMessage("Το URL αντιγράφηκε.");
@@ -287,7 +317,42 @@ export function MediaLibrary({
 							</div>
 
 							<div className="media-card-body">
-								<strong title={file.name}>{file.name}</strong>
+								{renaming?.name === file.name ? (
+									<form
+										className="media-rename"
+										onSubmit={(event) => {
+											event.preventDefault();
+											void submitRename();
+										}}
+									>
+										<input
+											type="text"
+											value={renaming.value}
+											aria-label="Νέο όνομα εικόνας"
+											// biome-ignore lint/a11y/noAutofocus: opened by the visitor's own click
+											autoFocus
+											onChange={(event) => setRenaming({ ...renaming, value: event.target.value })}
+											onKeyDown={(event) => {
+												if (event.key === "Escape") setRenaming(null);
+											}}
+										/>
+
+										<button className="button" type="submit" disabled={renameBusy}>
+											{renameBusy ? "…" : "OK"}
+										</button>
+
+										<button
+											className="button secondary"
+											type="button"
+											disabled={renameBusy}
+											onClick={() => setRenaming(null)}
+										>
+											Ακύρωση
+										</button>
+									</form>
+								) : (
+									<strong title={file.name}>{file.name}</strong>
+								)}
 
 								{file.size !== null && <span>{Math.round(file.size / 1024)} KB</span>}
 
@@ -298,6 +363,16 @@ export function MediaLibrary({
 										onClick={() => void copyUrl(file.url)}
 									>
 										Copy URL
+									</button>
+
+									<button
+										className="button secondary"
+										type="button"
+										onClick={() =>
+											setRenaming({ name: file.name, value: file.name.replace(/\.[a-z0-9]{2,5}$/i, "") })
+										}
+									>
+										Μετονομασία
 									</button>
 
 									<button

@@ -19,6 +19,15 @@ const TABS: Tab[] = [
 export function AdminTabBar({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
 	const [open, setOpen] = useState(false);
+	const [postsQuery, setPostsQuery] = useState("");
+
+	// the Άρθρα tab returns to the list with the filters it last had
+	// biome-ignore lint/correctness/useExhaustiveDependencies: re-read after each navigation
+	useEffect(() => {
+		try {
+			setPostsQuery(sessionStorage.getItem("greeceweather:admin-posts-query") ?? "");
+		} catch {}
+	}, [pathname]);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: close the sheet after navigating
 	useEffect(() => {
@@ -52,7 +61,7 @@ export function AdminTabBar({ children }: { children: React.ReactNode }) {
 					return (
 						<Link
 							key={tab.href}
-							href={tab.href}
+							href={tab.href === "/admin/posts" ? `${tab.href}${postsQuery}` : tab.href}
 							className={`tabbar-item ${active ? "active" : ""}`}
 							aria-current={active ? "page" : undefined}
 						>

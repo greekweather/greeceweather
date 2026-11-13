@@ -683,14 +683,39 @@
 
 .media-actions {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 8px;
 }
 
 .media-actions .button {
-	flex: 1;
+	flex: 1 1 88px;
 	padding: 8px 10px;
 	font-size: 12px;
 	text-align: center;
+}
+
+.media-rename {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.media-rename input {
+	flex: 1 1 100%;
+	min-width: 0;
+	min-height: 38px;
+	padding: 0 10px;
+	border: 1px solid var(--a-field-border);
+	border-radius: 8px;
+	background: var(--a-card);
+	color: inherit;
+	font: inherit;
+}
+
+.media-rename .button {
+	flex: 1;
+	padding: 8px 10px;
+	font-size: 12px;
 }
 
 .banner-option {

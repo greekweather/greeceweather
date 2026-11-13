@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deletePostAction } from "@/app/actions";
 import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import { PostPreview } from "@/components/admin/PostPreview";
+import { PostsListLink } from "@/components/admin/PostsListLink";
 import { TagPicker } from "@/components/admin/TagPicker";
 import { greeklishSlug, imageNameFromUrl } from "@/lib/slug";
 
@@ -90,6 +90,7 @@ export function PostForm({
 	const [published, setPublished] = useState(post?.published ?? false);
 	const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
 	const [recovered, setRecovered] = useState<LocalCopy | null>(null);
+	const [justSaved, setJustSaved] = useState(false);
 
 	const measureGridRef = useRef<HTMLDivElement>(null);
 	const titleMeasureRef = useRef<HTMLHeadingElement>(null);
@@ -324,10 +325,43 @@ export function PostForm({
 	const showImageWarning = publishAttempted && !hasImage;
 	const showSlugWarning = publishAttempted && !hasSlug;
 
+	const draftText =
+		saveState === "saving"
+			? "Αποθήκευση πρόχειρου…"
+			: saveState === "saved"
+				? "Το πρόχειρο αποθηκεύτηκε αυτόματα"
+				: saveState === "error"
+					? "Αποτυχία αυτόματης αποθήκευσης"
+					: "Αυτόματη αποθήκευση πρόχειρου ενεργή";
+
+	const statusText = justSaved
+		? "Αποθηκεύτηκε ✓"
+		: canAutosaveToServer
+			? draftText
+			: "Δημοσιευμένο: οι αλλαγές κρατούνται τοπικά μέχρι να πατήσεις 'Αποθήκευση'.";
+
 	return (
 		<form
 			id="post-form"
-			action={action}
+			action={async (formData) => {
+				await action(formData);
+
+				// Saving keeps the editor open, so what is on screen is now the saved version.
+				const current = JSON.stringify(snapshotRef.current());
+
+				initialRef.current = current;
+				lastSavedRef.current = current;
+				submittingRef.current = false;
+
+				try {
+					localStorage.removeItem(localKey(post?.id));
+					if (draftIdRef.current) localStorage.removeItem(localKey(draftIdRef.current));
+				} catch {}
+
+				setRecovered(null);
+				setJustSaved(true);
+				window.setTimeout(() => setJustSaved(false), 4000);
+			}}
 			className="form-card form-grid"
 			onSubmit={(event) => {
 				const form = event.currentTarget;
@@ -650,16 +684,11 @@ export function PostForm({
 					Αποθήκευση
 				</button>
 
-				<span className={`autosave-status ${saveState}`} aria-live="polite">
-					{canAutosaveToServer
-						? saveState === "saving"
-							? "Αποθήκευση πρόχειρου…"
-							: saveState === "saved"
-								? "Το πρόχειρο αποθηκεύτηκε αυτόματα"
-								: saveState === "error"
-									? "Αποτυχία αυτόματης αποθήκευσης"
-									: "Αυτόματη αποθήκευση πρόχειρου ενεργή"
-						: "Δημοσιευμένο: οι αλλαγές κρατούνται τοπικά μέχρι να πατήσεις 'Αποθήκευση'."}
+				<span
+					className={`autosave-status ${justSaved ? "saved" : saveState}`}
+					aria-live="polite"
+				>
+					{statusText}
 				</span>
 
 				{draftId && (
@@ -673,9 +702,7 @@ export function PostForm({
 					/>
 				)}
 
-				<Link className="button secondary" href="/admin/posts">
-					Ακύρωση
-				</Link>
+				<PostsListLink className="button secondary">Ακύρωση</PostsListLink>
 			</div>
 
 			<div
