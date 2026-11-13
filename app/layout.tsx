@@ -7,6 +7,7 @@ import Link from "next/link";
 import { AdminLink } from "@/components/AdminLink";
 import { InstallApp } from "@/components/InstallApp";
 import { MobileTabBar } from "@/components/MobileTabBar";
+import { NotificationGuide } from "@/components/NotificationGuide";
 import { PushToggle } from "@/components/PushToggle";
 import { PwaRegister } from "@/components/PwaRegister";
 import { RefreshOnNavigate } from "@/components/RefreshOnNavigate";
@@ -115,6 +116,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 						<PushToggle />
 					</div>
 				</footer>
+				<NotificationGuide />
 				<Analytics />
 			</body>
 		</html>

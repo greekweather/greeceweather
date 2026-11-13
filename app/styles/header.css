@@ -189,3 +189,128 @@
 		display: none;
 	}
 }
+
+/* In-app notification help (components/NotificationGuide.tsx). */
+.push-guide-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: grid;
+	place-items: center;
+	padding: 16px;
+	background: rgba(14, 34, 51, 0.55);
+}
+
+.push-guide {
+	width: min(460px, 100%);
+	max-height: calc(100dvh - 32px);
+	overflow-y: auto;
+	padding: 22px;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--surface);
+	box-shadow: var(--shadow);
+	color: var(--text);
+}
+
+.push-guide h2 {
+	margin: 0 0 10px;
+	font-size: 1.15rem;
+}
+
+.push-guide p {
+	margin: 0 0 10px;
+	line-height: 1.5;
+}
+
+.push-guide ol {
+	margin: 0 0 14px;
+	padding-left: 22px;
+	display: grid;
+	gap: 8px;
+	line-height: 1.45;
+}
+
+.push-guide .push-guide-note {
+	color: var(--signal-ink);
+	font-weight: 600;
+}
+
+.push-guide-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.push-toasts {
+	position: fixed;
+	right: 16px;
+	bottom: 16px;
+	z-index: 900;
+	display: grid;
+	gap: 10px;
+	width: min(380px, calc(100vw - 32px));
+	pointer-events: none;
+}
+
+.push-toast {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px 14px;
+	padding: 14px 16px;
+	border: 1px solid var(--border);
+	border-left: 4px solid var(--accent);
+	border-radius: var(--radius-sm);
+	background: var(--surface);
+	box-shadow: var(--shadow);
+	color: var(--text);
+	pointer-events: auto;
+}
+
+.push-toast.warn {
+	border-left-color: var(--signal);
+}
+
+.push-toast p {
+	margin: 3px 0 0;
+	font-size: 0.88rem;
+	line-height: 1.4;
+}
+
+.push-toast .push-toast-note {
+	color: var(--signal-ink);
+}
+
+.push-toast-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.push-toast-actions .button {
+	min-height: 38px;
+	padding-block: 6px;
+}
+
+.push-toast-close {
+	width: 32px;
+	height: 32px;
+	border: 0;
+	background: transparent;
+	color: var(--muted);
+	font-size: 1.4rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+@media (max-width: 700px) {
+	/* above the bottom tab bar */
+	.push-toasts {
+		right: 12px;
+		bottom: calc(76px + env(safe-area-inset-bottom));
+		width: calc(100vw - 24px);
+	}
+}
