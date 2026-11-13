@@ -369,7 +369,10 @@ export function MediaLibrary({
 										className="button secondary"
 										type="button"
 										onClick={() =>
-											setRenaming({ name: file.name, value: file.name.replace(/\.[a-z0-9]{2,5}$/i, "") })
+											setRenaming({
+												name: file.name,
+												value: file.name.replace(/\.[a-z0-9]{2,5}$/i, ""),
+											})
 										}
 									>
 										Μετονομασία
