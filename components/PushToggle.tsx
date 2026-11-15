@@ -3,6 +3,12 @@
 import { useEffect, useState } from "react";
 import { disablePush, enablePush, openGuide, usePush } from "@/lib/push-client";
 
+const HINT = {
+	"ios-install": "Για ειδοποιήσεις στο iPhone πρόσθεσε πρώτα την εφαρμογή στην αρχική οθόνη.",
+	denied:
+		"Οι ειδοποιήσεις είναι μπλοκαρισμένες. Επίτρεψέ τες από τις ρυθμίσεις του browser για αυτό το site.",
+} as const;
+
 function Bell({ on }: { on: boolean }) {
 	return (
 		<svg
