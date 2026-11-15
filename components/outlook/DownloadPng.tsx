@@ -418,7 +418,7 @@ export function DownloadPng({
 	}
 
 	const items: { format: Format; label: string; hint: string }[] = [
-		{ format: "map", label: "PNG", hint: "ο χάρτης όπως φαίνεται" },
+		{ format: "map", label: "PNG", hint: "Ο χάρτης όπως φαίνεται" },
 		{ format: "square", label: "Τετράγωνο", hint: "1080 × 1080 · post" },
 		{ format: "story", label: "Story", hint: "1080 × 1920 · κάθετο" },
 	];

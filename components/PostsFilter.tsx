@@ -33,7 +33,6 @@ export function PostsFilter({ tags }: { tags: string[] }) {
 
 	// Coming back (browser Back) shows the page again with the filters it had: they live in
 	// the address, which the browser keeps in its history entry.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
 		const wantedCategory = params.get("cat");

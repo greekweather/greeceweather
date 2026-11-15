@@ -684,10 +684,7 @@ export function PostForm({
 					Αποθήκευση
 				</button>
 
-				<span
-					className={`autosave-status ${justSaved ? "saved" : saveState}`}
-					aria-live="polite"
-				>
+				<span className={`autosave-status ${justSaved ? "saved" : saveState}`} aria-live="polite">
 					{statusText}
 				</span>
 

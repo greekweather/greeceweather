@@ -11,11 +11,7 @@ import {
 	SCALE,
 	toUnits,
 } from "@/lib/outlook/geo";
-import {
-	closedSplinePath,
-	ellipsePathUnits,
-	polygonCentroid,
-} from "@/lib/outlook/shapes";
+import { closedSplinePath, ellipsePathUnits, polygonCentroid } from "@/lib/outlook/shapes";
 import {
 	type Area,
 	CHANCE_STYLE,

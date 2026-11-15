@@ -72,10 +72,7 @@ export async function nextFreeName(
 		.list(prefix.replace(/\/$/, ""), { limit: 1000, search: base });
 	if (error) throw error;
 
-	const pattern = new RegExp(
-		`^${escapeRegExp(base)}(?:-(\\d+))?${escapeRegExp(extension)}$`,
-		"i",
-	);
+	const pattern = new RegExp(`^${escapeRegExp(base)}(?:-(\\d+))?${escapeRegExp(extension)}$`, "i");
 	let highest = 0;
 	let plainTaken = false;
 
