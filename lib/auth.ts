@@ -1,5 +1,21 @@
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+
+// How far the sign-in has got with the second factor. supabase.auth.mfa.
+// getAuthenticatorAssuranceLevel() reads the user out of the cookie, which Supabase warns can
+// be forged on the server. Here the level comes from the verified token (getClaims) and the
+// factors from the user the Auth server just confirmed (getUser).
+async function assuranceLevel(supabase: SupabaseClient, user: User) {
+	const { data } = await supabase.auth.getClaims();
+	const claims = data?.claims as { aal?: string } | undefined;
+	const enrolled = (user.factors ?? []).some((factor) => factor.status === "verified");
+
+	return {
+		currentLevel: claims?.aal === "aal2" ? "aal2" : "aal1",
+		nextLevel: enrolled ? "aal2" : "aal1",
+	};
+}
 
 export async function getUser() {
 	const supabase = await createClient();
@@ -26,10 +42,10 @@ export async function requireAdmin() {
 	const user = await requireAdminMember();
 
 	const supabase = await createClient();
-	const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+	const aal = await assuranceLevel(supabase, user);
 
-	if (aal?.currentLevel !== "aal2") {
-		redirect(aal?.nextLevel === "aal2" ? "/admin/login?step=mfa" : "/admin/security");
+	if (aal.currentLevel !== "aal2") {
+		redirect(aal.nextLevel === "aal2" ? "/admin/login?step=mfa" : "/admin/security");
 	}
 
 	return user;
@@ -46,7 +62,5 @@ export async function isAdminSession() {
 
 	if (isMember !== true) return false;
 
-	const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-
-	return aal?.currentLevel === "aal2";
+	return (await assuranceLevel(supabase, userData.user)).currentLevel === "aal2";
 }

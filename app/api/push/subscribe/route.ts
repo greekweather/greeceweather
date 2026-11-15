@@ -74,8 +74,13 @@ export async function POST(request: Request) {
 
 	try {
 		supabase = createServiceClient();
-	} catch {
-		return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+	} catch (error) {
+		console.error("push subscribe: service client", error);
+
+		return NextResponse.json(
+			{ error: "Server misconfigured", reason: "no-service-key" },
+			{ status: 500 },
+		);
 	}
 
 	const { error } = await supabase.from("push_subscriptions").upsert(
@@ -88,7 +93,17 @@ export async function POST(request: Request) {
 		{ onConflict: "endpoint" },
 	);
 
-	if (error) return NextResponse.json({ error: "Could not save" }, { status: 500 });
+	if (error) {
+		console.error("push subscribe: save", error);
+
+		// 42P01 / PGRST205: the table does not exist (the SQL was not run)
+		const missingTable = error.code === "42P01" || error.code === "PGRST205";
+
+		return NextResponse.json(
+			{ error: "Could not save", reason: missingTable ? "table-missing" : "save-failed" },
+			{ status: 500 },
+		);
+	}
 
 	return NextResponse.json({ ok: true });
 }

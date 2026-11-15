@@ -251,6 +251,21 @@ function start() {
 
 // ---- actions ----------------------------------------------------------------------------------
 
+// What went wrong on the server, in words the owner of the site can act on.
+function serverReason(status: number, reason?: string) {
+	if (reason === "no-service-key") {
+		return "ο server δεν έχει ρυθμιστεί: λείπει το SUPABASE_SERVICE_ROLE_KEY στο Vercel";
+	}
+
+	if (reason === "table-missing") {
+		return "λείπει ο πίνακας push_subscriptions: τρέξε το supabase/changes-2026-11-02.sql";
+	}
+
+	if (reason === "save-failed") return "ο server δεν μπόρεσε να αποθηκεύσει τη συσκευή";
+
+	return `ο server απάντησε ${status}`;
+}
+
 export async function enablePush() {
 	if (!PUBLIC_KEY) return;
 
@@ -277,7 +292,10 @@ export async function enablePush() {
 		if (!response.ok) {
 			// the phone is subscribed but the site could not save it: undo, so nothing is half-done
 			await subscription.unsubscribe().catch(() => {});
-			throw new Error(`ο server απάντησε ${response.status}`);
+
+			const data = (await response.json().catch(() => ({}))) as { reason?: string };
+
+			throw new Error(serverReason(response.status, data.reason));
 		}
 
 		remember(true);

@@ -89,6 +89,7 @@ export function MediaLibrary({
 	const [scan, setScan] = useState("");
 	const [renaming, setRenaming] = useState<{ name: string; value: string } | null>(null);
 	const [renameBusy, setRenameBusy] = useState(false);
+	const [renameWarning, setRenameWarning] = useState("");
 
 	const supabase = createClient();
 	const { ask, dialog } = useDuplicatePrompt();
@@ -197,6 +198,7 @@ export function MediaLibrary({
 
 		setRenameBusy(true);
 		setMessage("");
+		setRenameWarning("");
 
 		try {
 			const result = await renameImage(renaming.name, renaming.value);
@@ -213,7 +215,8 @@ export function MediaLibrary({
 					: `Η εικόνα μετονομάστηκε σε «${result.name}». Δεν τη χρησιμοποιεί κανένα άρθρο.`,
 			);
 		} catch (error) {
-			setMessage(error instanceof Error ? error.message : "Η μετονομασία απέτυχε.");
+			// shown right under the field, in the same style as the other warnings
+			setRenameWarning(error instanceof Error ? error.message : "Η μετονομασία απέτυχε.");
 		} finally {
 			setRenameBusy(false);
 		}
@@ -277,17 +280,19 @@ export function MediaLibrary({
 			{message && <div className="notice success">{message}</div>}
 
 			<form className="media-search" action="/admin/media" method="get">
-				<span className="media-search-icon" aria-hidden="true">
-					⌕
-				</span>
+				<div className="media-search-field">
+					<span className="media-search-icon" aria-hidden="true">
+						⌕
+					</span>
 
-				<input
-					type="search"
-					name="q"
-					defaultValue={query}
-					placeholder="Αναζήτηση εικόνας με όνομα…"
-					aria-label="Αναζήτηση εικόνας με όνομα"
-				/>
+					<input
+						type="search"
+						name="q"
+						defaultValue={query}
+						placeholder="Αναζήτηση εικόνας με όνομα…"
+						aria-label="Αναζήτηση εικόνας με όνομα"
+					/>
+				</div>
 
 				<button className="button" type="submit">
 					Αναζήτηση
@@ -331,11 +336,20 @@ export function MediaLibrary({
 											aria-label="Νέο όνομα εικόνας"
 											// biome-ignore lint/a11y/noAutofocus: opened by the visitor's own click
 											autoFocus
-											onChange={(event) => setRenaming({ ...renaming, value: event.target.value })}
+											onChange={(event) => {
+												setRenaming({ ...renaming, value: event.target.value });
+												setRenameWarning("");
+											}}
 											onKeyDown={(event) => {
 												if (event.key === "Escape") setRenaming(null);
 											}}
 										/>
+
+										{renameWarning && (
+											<p className="notice media-rename-warning" role="alert">
+												{renameWarning}
+											</p>
+										)}
 
 										<button className="button" type="submit" disabled={renameBusy}>
 											{renameBusy ? "…" : "OK"}
@@ -345,7 +359,10 @@ export function MediaLibrary({
 											className="button secondary"
 											type="button"
 											disabled={renameBusy}
-											onClick={() => setRenaming(null)}
+											onClick={() => {
+												setRenaming(null);
+												setRenameWarning("");
+											}}
 										>
 											Ακύρωση
 										</button>
@@ -368,12 +385,13 @@ export function MediaLibrary({
 									<button
 										className="button secondary"
 										type="button"
-										onClick={() =>
+										onClick={() => {
+											setRenameWarning("");
 											setRenaming({
 												name: file.name,
 												value: file.name.replace(/\.[a-z0-9]{2,5}$/i, ""),
-											})
-										}
+											});
+										}}
 									>
 										Μετονομασία
 									</button>

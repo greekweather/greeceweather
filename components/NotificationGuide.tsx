@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	closeGuide,
 	detectPlatform,
@@ -190,6 +190,8 @@ export function NotificationGuide() {
 	const messages = useMessages();
 	const { state } = usePush();
 	const [revokedHidden, setRevokedHidden] = useState(true);
+	const [revokedLeaving, setRevokedLeaving] = useState(false);
+	const revokedRef = useRef<HTMLDivElement>(null);
 	const [testing, setTesting] = useState(false);
 	const [testNote, setTestNote] = useState("");
 
@@ -224,6 +226,44 @@ export function NotificationGuide() {
 
 	const showRevoked = state === "denied" && !revokedHidden;
 
+	// fades out, then is gone for the rest of the visit
+	const hideRevoked = useCallback(() => {
+		setRevokedLeaving(true);
+
+		window.setTimeout(() => {
+			setRevokedHidden(true);
+			setRevokedLeaving(false);
+
+			try {
+				sessionStorage.setItem("gw-push-revoked-hidden", "1");
+			} catch {}
+		}, 450);
+	}, []);
+
+	// It leaves by itself after 3 seconds, or as soon as the visitor touches, scrolls or types
+	// anywhere on the site (not on the card itself, so its button still works).
+	useEffect(() => {
+		if (!showRevoked) return;
+
+		const timer = window.setTimeout(hideRevoked, 3000);
+		const onTouch = (event: Event) => {
+			if (event.target instanceof Node && revokedRef.current?.contains(event.target)) return;
+
+			hideRevoked();
+		};
+
+		document.addEventListener("pointerdown", onTouch, true);
+		document.addEventListener("keydown", onTouch, true);
+		window.addEventListener("scroll", onTouch, { passive: true, once: true });
+
+		return () => {
+			window.clearTimeout(timer);
+			document.removeEventListener("pointerdown", onTouch, true);
+			document.removeEventListener("keydown", onTouch, true);
+			window.removeEventListener("scroll", onTouch);
+		};
+	}, [showRevoked, hideRevoked]);
+
 	async function runTest(id: number) {
 		setTesting(true);
 		setTestNote("");
@@ -254,7 +294,11 @@ export function NotificationGuide() {
 
 			<div className="push-toasts" aria-live="polite">
 				{showRevoked && (
-					<div className="push-toast warn" role="status">
+					<div
+						className={`push-toast warn${revokedLeaving ? " leaving" : ""}`}
+						role="status"
+						ref={revokedRef}
+					>
 						<div>
 							<strong>Οι ειδοποιήσεις έχουν απενεργοποιηθεί</strong>
 							<p>Είχες ενεργές ειδοποιήσεις, αλλά η συσκευή τις μπλόκαρε.</p>
@@ -269,13 +313,7 @@ export function NotificationGuide() {
 								type="button"
 								className="push-toast-close"
 								aria-label="Κλείσιμο"
-								onClick={() => {
-									setRevokedHidden(true);
-
-									try {
-										sessionStorage.setItem("gw-push-revoked-hidden", "1");
-									} catch {}
-								}}
+								onClick={hideRevoked}
 							>
 								×
 							</button>

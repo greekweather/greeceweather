@@ -586,6 +586,12 @@
 	margin: 0 0 20px;
 }
 
+.media-search-field {
+	position: relative;
+	flex: 1 1 260px;
+	min-width: 0;
+}
+
 .media-search-icon {
 	position: absolute;
 	top: 50%;
@@ -597,7 +603,8 @@
 }
 
 .media-search input[type="search"] {
-	flex: 1 1 260px;
+	display: block;
+	width: 100%;
 	min-width: 0;
 	min-height: 46px;
 	padding: 0 14px 0 40px;
@@ -626,7 +633,7 @@
 }
 
 @media (max-width: 520px) {
-	.media-search input[type="search"] {
+	.media-search-field {
 		flex-basis: 100%;
 	}
 
@@ -710,6 +717,14 @@
 	background: var(--a-card);
 	color: inherit;
 	font: inherit;
+}
+
+.media-rename-warning {
+	flex: 1 1 100%;
+	margin: 0;
+	padding: 8px 10px;
+	font-size: 12.5px;
+	line-height: 1.4;
 }
 
 .media-rename .button {

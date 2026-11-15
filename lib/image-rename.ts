@@ -1,6 +1,6 @@
 import { refreshAfterImageRenameAction } from "@/app/actions";
 import { renameIndexed } from "@/lib/image-hash";
-import { IMAGE_BUCKET } from "@/lib/image-upload";
+import { IMAGE_BUCKET, nextFreeName } from "@/lib/image-upload";
 import { storageFileBase } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/client";
 
@@ -19,20 +19,19 @@ export async function renameImage(oldName: string, typed: string): Promise<Renam
 	const supabase = createClient();
 	const extension = /\.[a-z0-9]{2,5}$/i.exec(oldName)?.[0] ?? ".webp";
 	const withoutExtension = typed.trim().replace(/\.[a-z0-9]{2,5}$/i, "");
-	const newName = `${storageFileBase(withoutExtension)}${extension}`;
+	const base = storageFileBase(withoutExtension);
 
 	if (!withoutExtension) throw new Error("Γράψε ένα όνομα.");
-	if (newName === oldName) throw new Error("Το όνομα είναι το ίδιο.");
+	if (`${base}${extension}` === oldName) {
+		throw new Error("Δεν άλλαξες το όνομα. Γράψε ένα διαφορετικό όνομα για την εικόνα.");
+	}
 
 	const bucket = supabase.storage.from(IMAGE_BUCKET);
+
+	// A name that is already used gets a number, as with uploads: snowy -> snowy-2.
+	const newName = `${await nextFreeName("", base, extension)}${extension}`;
 	const oldUrl = bucket.getPublicUrl(oldName).data.publicUrl;
 	const newUrl = bucket.getPublicUrl(newName).data.publicUrl;
-
-	const { data: taken } = await bucket.list("", { limit: 100, search: newName });
-
-	if ((taken ?? []).some((item) => item.name === newName)) {
-		throw new Error(`Υπάρχει ήδη εικόνα με το όνομα «${newName}».`);
-	}
 
 	const { error: moveError } = await bucket.move(oldName, newName);
 

@@ -387,20 +387,7 @@ export function DownloadPng({
 			const png = await makePng(format);
 			const file = new File([png], `${name}.png`, { type: "image/png" });
 
-			// Phones: the share sheet offers "Save image" and works where a plain download link
-			// is ignored (iOS Safari). Everywhere else: a normal download.
-			const touch = window.matchMedia("(pointer: coarse)").matches;
-
-			if (touch && navigator.canShare?.({ files: [file] })) {
-				try {
-					await navigator.share({ files: [file], title: name });
-					return;
-				} catch (error) {
-					// the visitor closed the sheet: nothing more to do
-					if (error instanceof DOMException && error.name === "AbortError") return;
-				}
-			}
-
+			// The file is always saved first, on every device.
 			const href = URL.createObjectURL(png);
 			const link = document.createElement("a");
 			link.href = href;
@@ -409,6 +396,20 @@ export function DownloadPng({
 			link.click();
 			link.remove();
 			setTimeout(() => URL.revokeObjectURL(href), 10_000);
+
+			// Phones: once it is saved, the "send to" sheet opens as well (WhatsApp, Viber,
+			// Messenger…), so the picture can go straight on to someone.
+			const touch = window.matchMedia("(pointer: coarse)").matches;
+
+			if (touch && navigator.canShare?.({ files: [file] })) {
+				await new Promise((resolve) => setTimeout(resolve, 900));
+
+				try {
+					await navigator.share({ files: [file], title: name });
+				} catch {
+					// closed without sending, or the browser wanted a fresh tap: the file is saved
+				}
+			}
 		} catch {
 			setFailed(true);
 		} finally {

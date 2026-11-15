@@ -61,14 +61,21 @@ function escapeRegExp(text: string) {
 
 // The next free name: "name" if nothing uses it, otherwise one more than the highest
 // existing "name-N" (thunderstorm-4 and thunderstorm-5 exist -> thunderstorm-6).
-async function nextFreeName(prefix: string, base: string): Promise<string> {
+export async function nextFreeName(
+	prefix: string,
+	base: string,
+	extension = ".webp",
+): Promise<string> {
 	const supabase = createClient();
 	const { data, error } = await supabase.storage
 		.from(IMAGE_BUCKET)
 		.list(prefix.replace(/\/$/, ""), { limit: 1000, search: base });
 	if (error) throw error;
 
-	const pattern = new RegExp(`^${escapeRegExp(base)}(?:-(\\d+))?\\.webp$`, "i");
+	const pattern = new RegExp(
+		`^${escapeRegExp(base)}(?:-(\\d+))?${escapeRegExp(extension)}$`,
+		"i",
+	);
 	let highest = 0;
 	let plainTaken = false;
 
