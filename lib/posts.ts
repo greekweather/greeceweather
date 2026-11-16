@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { log, safeError } from "@/lib/log";
 import { createPublicClient } from "@/lib/supabase/public";
 
 type Post = {
@@ -77,6 +78,8 @@ export async function getPublishedPosts(limit?: number): Promise<PostSummary[]> 
 	const { data, error } = await query;
 
 	if (error) {
+		log.error("posts.load_failed", { error: safeError(error) });
+
 		throw new Error("Δεν ήταν δυνατή η φόρτωση των άρθρων.");
 	}
 

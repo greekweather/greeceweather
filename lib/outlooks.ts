@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { log, safeError } from "@/lib/log";
 import { mapDataFromDb } from "@/lib/outlook/schema";
 import type { LegendPosition, MapData } from "@/lib/outlook/types";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -40,6 +41,8 @@ export const getPublishedOutlooks = cache(async (): Promise<Outlook[]> => {
 		.order("issued_at", { ascending: false });
 
 	if (error) {
+		log.error("outlooks.load_failed", { error: safeError(error) });
+
 		throw new Error("Δεν ήταν δυνατή η φόρτωση των χαρτών.");
 	}
 
