@@ -5,7 +5,8 @@ import { SITE_URL } from "@/lib/site";
 
 const siteUrl = SITE_URL;
 
-export const revalidate = 600;
+// built on request (cached by the CDN), so the build does not need the database
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const posts = await getPublishedPosts();

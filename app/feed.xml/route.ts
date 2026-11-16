@@ -2,7 +2,8 @@ import { buildFeed, feedResponse, imageMimeType } from "@/lib/feed";
 import { getPublishedPosts } from "@/lib/posts";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
-export const revalidate = 600;
+// built on request (and cached by the CDN), so the build does not need the database
+export const dynamic = "force-dynamic";
 
 const MAX_ITEMS = 30;
 

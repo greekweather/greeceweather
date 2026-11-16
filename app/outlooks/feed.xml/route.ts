@@ -4,7 +4,8 @@ import { getPublishedOutlooks } from "@/lib/outlooks";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { plainText } from "@/lib/text";
 
-export const revalidate = 600;
+// built on request (and cached by the CDN), so the build does not need the database
+export const dynamic = "force-dynamic";
 
 const MAX_ITEMS = 30;
 

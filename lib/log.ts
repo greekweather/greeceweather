@@ -171,7 +171,7 @@ function write(level: Level, event: string, fields: Record<string, unknown> = {}
 		...(clean(fields) as Record<string, unknown>),
 	};
 	const json = JSON.stringify(record);
-	const colour = process.stdout?.isTTY === true || process.env.LOG_COLOR === "1";
+	const colour = process.env.LOG_COLOR === "1" || isTerminal();
 	const line = colour
 		? `${ANSI[level]} ${level.toUpperCase()} \x1b[0m ${json}`
 		: `${MARKER[level]} ${level.toUpperCase()} ${json}`;
@@ -179,6 +179,14 @@ function write(level: Level, event: string, fields: Record<string, unknown> = {}
 	if (RANK[level] >= RANK.error) console.error(line);
 	else if (level === "warn") console.warn(line);
 	else console.log(line);
+}
+
+// Is the output a terminal? Looked up through globalThis so the file also loads in the Edge
+// runtime (which has no process.stdout) without a build warning.
+function isTerminal(): boolean {
+	const proc = (globalThis as { process?: { stdout?: { isTTY?: boolean } } }).process;
+
+	return proc?.stdout?.isTTY === true;
 }
 
 type Fields = Record<string, unknown>;
