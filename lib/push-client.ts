@@ -319,14 +319,14 @@ function start() {
 // What went wrong on the server, in words the owner of the site can act on.
 function serverReason(status: number, reason?: string) {
 	if (reason === "no-service-key") {
-		return "ο server δεν έχει ρυθμιστεί: λείπει το SUPABASE_SERVICE_ROLE_KEY στο Vercel";
+		return "Ο server δεν έχει ρυθμιστεί: λείπει το SUPABASE_SERVICE_ROLE_KEY στο Vercel";
 	}
 
 	if (reason === "table-missing") {
-		return "λείπει ο πίνακας push_subscriptions: τρέξε το supabase/changes-2026-11-02.sql";
+		return "Λείπει ο πίνακας push_subscriptions: τρέξε το supabase/changes-2026-11-02.sql";
 	}
 
-	if (reason === "save-failed") return "ο server δεν μπόρεσε να αποθηκεύσει τη συσκευή";
+	if (reason === "save-failed") return "Ο server δεν μπόρεσε να αποθηκεύσει τη συσκευή";
 
 	return `ο server απάντησε ${status}`;
 }
