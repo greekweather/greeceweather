@@ -1,5 +1,6 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
+import { log } from "@/lib/log";
 import { createClient } from "@/lib/supabase/server";
 
 // How far the sign-in has got with the second factor. supabase.auth.mfa.
@@ -32,7 +33,14 @@ export async function requireAdminMember() {
 	if (userError || !userData.user) redirect("/admin/login");
 
 	const { data: isMember, error } = await supabase.rpc("is_admin_member");
-	if (error || !isMember) redirect("/admin/login?error=not-authorized");
+	if (error || !isMember) {
+		// a signed-in account that is not an admin tried the admin area
+		log.warn("admin.denied", {
+			reason: error ? "membership check failed" : "not an admin",
+			user: userData.user.id.slice(0, 8),
+		});
+		redirect("/admin/login?error=not-authorized");
+	}
 
 	return userData.user;
 }
@@ -45,6 +53,7 @@ export async function requireAdmin() {
 	const aal = await assuranceLevel(supabase, user);
 
 	if (aal.currentLevel !== "aal2") {
+		log.info("admin.second_factor_needed", { user: user.id.slice(0, 8), next: aal.nextLevel });
 		redirect(aal.nextLevel === "aal2" ? "/admin/login?step=mfa" : "/admin/security");
 	}
 

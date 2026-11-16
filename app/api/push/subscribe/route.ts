@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { hostOf, log, requestFields, safeError } from "@/lib/log";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isPushEndpoint } from "@/lib/webpush";
 
@@ -58,24 +59,44 @@ export async function POST(request: Request) {
 			sameSite = new URL(origin).host === request.headers.get("host");
 		} catch {}
 
-		if (!sameSite) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+		if (!sameSite) {
+			log.warn("push.subscribe.cross_origin", {
+				...requestFields(request),
+				origin: hostOf(origin),
+			});
+
+			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+		}
 	}
 
 	const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
-	if (throttled(ip)) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+	if (throttled(ip)) {
+		log.warn("push.subscribe.throttled", requestFields(request));
+
+		return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+	}
 
 	const parsed = schema.safeParse(await request.json().catch(() => null));
 
-	if (!parsed.success)
+	if (!parsed.success) {
+		log.warn("push.subscribe.invalid", {
+			...requestFields(request),
+			fields: parsed.error.issues.map((issue) => issue.path.join(".")),
+		});
+
 		return NextResponse.json({ error: "Invalid subscription" }, { status: 400 });
+	}
 
 	let supabase: ReturnType<typeof createServiceClient>;
 
 	try {
 		supabase = createServiceClient();
 	} catch (error) {
-		console.error("push subscribe: service client", error);
+		log.error("push.subscribe.misconfigured", {
+			...requestFields(request),
+			error: safeError(error),
+		});
 
 		return NextResponse.json(
 			{ error: "Server misconfigured", reason: "no-service-key" },
@@ -94,7 +115,11 @@ export async function POST(request: Request) {
 	);
 
 	if (error) {
-		console.error("push subscribe: save", error);
+		log.error("push.subscribe.save_failed", {
+			...requestFields(request),
+			pushService: hostOf(parsed.data.endpoint),
+			error: safeError(error),
+		});
 
 		// 42P01 / PGRST205: the table does not exist (the SQL was not run)
 		const missingTable = error.code === "42P01" || error.code === "PGRST205";
@@ -104,6 +129,11 @@ export async function POST(request: Request) {
 			{ status: 500 },
 		);
 	}
+
+	log.info("push.subscribe.saved", {
+		...requestFields(request),
+		pushService: hostOf(parsed.data.endpoint),
+	});
 
 	return NextResponse.json({ ok: true });
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildBackup } from "@/lib/backup-build";
 import { isCronAuthorized } from "@/lib/cron";
+import { log, requestFields, safeError, timer } from "@/lib/log";
 import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
@@ -13,20 +14,37 @@ export async function GET(request: Request) {
 		return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 	}
 
+	const elapsed = timer();
 	let supabase: ReturnType<typeof createServiceClient>;
 
 	try {
 		// the service role key sees everything, drafts and safety copies included
 		supabase = createServiceClient();
-	} catch {
+	} catch (error) {
+		log.error("cron.backup.misconfigured", { ...requestFields(request), error: safeError(error) });
+
 		return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
 	}
 
 	const result = await buildBackup(supabase, true);
 
 	if (!result.ok) {
-		return NextResponse.json({ error: result.error }, { status: 500 });
+		log.error("cron.backup.failed", {
+			...requestFields(request),
+			ms: elapsed(),
+			error: safeError(new Error(result.error)),
+		});
+
+		return NextResponse.json({ error: "Backup failed" }, { status: 500 });
 	}
+
+	log.info("cron.backup.done", {
+		...requestFields(request),
+		ms: elapsed(),
+		tables: Object.fromEntries(
+			Object.entries(result.backup.tables).map(([name, rows]) => [name, rows?.length ?? 0]),
+		),
+	});
 
 	return new NextResponse(JSON.stringify(result.backup), {
 		headers: {

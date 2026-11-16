@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { hostOf, log, requestFields, safeError } from "@/lib/log";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isPushEndpoint, sendPush, vapidKeys } from "@/lib/webpush";
 
@@ -49,7 +50,11 @@ export async function POST(request: Request) {
 
 	const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
-	if (throttled(ip)) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+	if (throttled(ip)) {
+		log.warn("push.test.throttled", requestFields(request));
+
+		return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+	}
 
 	const parsed = schema.safeParse(await request.json().catch(() => null));
 
@@ -57,7 +62,11 @@ export async function POST(request: Request) {
 		return NextResponse.json({ error: "Invalid subscription" }, { status: 400 });
 	}
 
-	if (!vapidKeys()) return NextResponse.json({ error: "no-keys" }, { status: 503 });
+	if (!vapidKeys()) {
+		log.error("push.test.no_vapid_keys", requestFields(request));
+
+		return NextResponse.json({ error: "no-keys" }, { status: 503 });
+	}
 
 	try {
 		const supabase = createServiceClient();
@@ -85,8 +94,16 @@ export async function POST(request: Request) {
 			await supabase.from("push_subscriptions").delete().eq("endpoint", data.endpoint);
 		}
 
+		log.info("push.test.sent", {
+			...requestFields(request),
+			pushService: hostOf(data.endpoint),
+			result,
+		});
+
 		return NextResponse.json({ result });
-	} catch {
+	} catch (error) {
+		log.error("push.test.failed", { ...requestFields(request), error: safeError(error) });
+
 		return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
 	}
 }

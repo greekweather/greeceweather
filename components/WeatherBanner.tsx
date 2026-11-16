@@ -58,7 +58,7 @@ async function getActiveForecastUrl(
 }
 
 export async function WeatherBanner() {
-	const supabase = await createPublicClient();
+	const supabase = createPublicClient();
 	const now = new Date().toISOString();
 
 	const { data } = await supabase

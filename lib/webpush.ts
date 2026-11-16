@@ -6,6 +6,7 @@ import {
 	randomBytes,
 	sign,
 } from "node:crypto";
+import { hostOf, log, safeError } from "@/lib/log";
 
 // Web Push without a library: the message is encrypted as in RFC 8291 (aes128gcm) and the
 // request is signed as in RFC 8292 (VAPID). Only node:crypto is used.
@@ -133,7 +134,11 @@ export async function sendPush(
 ): Promise<SendResult> {
 	const keys = vapidKeys();
 
-	if (!keys) return "failed";
+	if (!keys) {
+		log.error("push.no_vapid_keys", { tag: message.tag });
+
+		return "failed";
+	}
 
 	try {
 		const body = encryptPayload(Buffer.from(JSON.stringify(message)), subscription);
@@ -153,8 +158,24 @@ export async function sendPush(
 
 		if (response.status === 404 || response.status === 410) return "gone";
 
+		if (!response.ok) {
+			// 401/403: the push service refused our VAPID signature (wrong or changed keys);
+			// 413: message too large; 429/5xx: the service is busy
+			log.warn("push.send_refused", {
+				pushService: hostOf(subscription.endpoint),
+				status: response.status,
+				tag: message.tag,
+			});
+		}
+
 		return response.ok ? "sent" : "failed";
-	} catch {
+	} catch (error) {
+		log.warn("push.send_error", {
+			pushService: hostOf(subscription.endpoint),
+			tag: message.tag,
+			error: safeError(error),
+		});
+
 		return "failed";
 	}
 }

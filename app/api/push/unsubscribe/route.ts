@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { hostOf, log, requestFields, safeError } from "@/lib/log";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isPushEndpoint } from "@/lib/webpush";
 
@@ -22,7 +23,14 @@ export async function POST(request: Request) {
 			sameSite = new URL(origin).host === request.headers.get("host");
 		} catch {}
 
-		if (!sameSite) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+		if (!sameSite) {
+			log.warn("push.unsubscribe.cross_origin", {
+				...requestFields(request),
+				origin: hostOf(origin),
+			});
+
+			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+		}
 	}
 
 	const parsed = schema.safeParse(await request.json().catch(() => null));
@@ -31,13 +39,22 @@ export async function POST(request: Request) {
 		return NextResponse.json({ error: "Invalid subscription" }, { status: 400 });
 
 	try {
-		await createServiceClient()
+		const { error } = await createServiceClient()
 			.from("push_subscriptions")
 			.delete()
 			.eq("endpoint", parsed.data.endpoint);
-	} catch {
+
+		if (error) throw error;
+	} catch (error) {
+		log.error("push.unsubscribe.failed", { ...requestFields(request), error: safeError(error) });
+
 		return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
 	}
+
+	log.info("push.unsubscribe.done", {
+		...requestFields(request),
+		pushService: hostOf(parsed.data.endpoint),
+	});
 
 	return NextResponse.json({ ok: true });
 }

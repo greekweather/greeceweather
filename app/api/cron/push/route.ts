@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { isCronAuthorized } from "@/lib/cron";
+import { log, requestFields, safeError, timer } from "@/lib/log";
 import { sendPendingNotifications } from "@/lib/push-notify";
 
 export const dynamic = "force-dynamic";
@@ -12,12 +13,21 @@ export async function GET(request: Request) {
 		return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 	}
 
+	const elapsed = timer();
+
 	try {
-		return NextResponse.json(await sendPendingNotifications());
+		const summary = await sendPendingNotifications();
+
+		log.info("cron.push.done", { ...requestFields(request), ms: elapsed(), summary });
+
+		return NextResponse.json(summary);
 	} catch (error) {
-		return NextResponse.json(
-			{ error: error instanceof Error ? error.message : "failed" },
-			{ status: 500 },
-		);
+		log.error("cron.push.failed", {
+			...requestFields(request),
+			ms: elapsed(),
+			error: safeError(error),
+		});
+
+		return NextResponse.json({ error: "failed" }, { status: 500 });
 	}
 }

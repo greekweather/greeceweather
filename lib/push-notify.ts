@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { isSafeBannerUrl } from "@/lib/banner";
+import { log, safeError } from "@/lib/log";
 import { formatOutlookDate } from "@/lib/outlook/format";
 import { createServiceClient } from "@/lib/supabase/service";
 import { type PushMessage, type PushSubscription, sendPush, vapidKeys } from "@/lib/webpush";
@@ -14,6 +15,8 @@ async function broadcast(message: PushMessage, urgent: boolean) {
 	const supabase = createServiceClient();
 	let delivered = 0;
 	let removed = 0;
+	let failed = 0;
+	let total = 0;
 
 	for (let from = 0; ; from += 1000) {
 		const { data, error } = await supabase
@@ -22,6 +25,7 @@ async function broadcast(message: PushMessage, urgent: boolean) {
 			.order("created_at", { ascending: true })
 			.range(from, from + 999);
 
+		if (error) log.error("push.broadcast.read_failed", { error: safeError(error) });
 		if (error || !data) break;
 
 		for (let i = 0; i < data.length; i += PARALLEL) {
@@ -32,6 +36,8 @@ async function broadcast(message: PushMessage, urgent: boolean) {
 				.map((sub) => sub.endpoint);
 
 			delivered += results.filter((result) => result === "sent").length;
+			failed += results.filter((result) => result === "failed").length;
+			total += batch.length;
 
 			if (gone.length > 0) {
 				removed += gone.length;
@@ -41,6 +47,8 @@ async function broadcast(message: PushMessage, urgent: boolean) {
 
 		if (data.length < 1000) break;
 	}
+
+	log.info("push.broadcast", { tag: message.tag, urgent, total, delivered, removed, failed });
 
 	return { delivered, removed };
 }
