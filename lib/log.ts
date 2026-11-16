@@ -10,7 +10,45 @@
 // Raw error objects are never logged: use safeError(), which keeps the name, a cleaned message,
 // the code and the status, and drops the stack's contents from third-party messages.
 
-type Level = "debug" | "info" | "warn" | "error";
+// Severity, from least to most serious:
+//   debug     details for development, not written in production
+//   info      normal things worth knowing (a subscription was saved, a backup finished)
+//   warn      something unexpected that the site handled (a push service refused a message)
+//   error     an operation failed (a request threw, a database write failed)
+//   critical  a failure the owner must act on soon (the backup failed, notification keys missing)
+//   fatal     a part of the site cannot work at all (a required variable is wrong)
+export type Level = "debug" | "info" | "warn" | "error" | "critical" | "fatal";
+
+const RANK: Record<Level, number> = {
+	debug: 0,
+	info: 1,
+	warn: 2,
+	error: 3,
+	critical: 4,
+	fatal: 5,
+};
+
+// Vercel colours its log list by the console method (info, warning, error) and cannot show
+// ANSI colours, so every line also starts with a coloured marker and the level in capitals:
+// easy to spot and to search for ("CRITICAL", "FATAL").
+const MARKER: Record<Level, string> = {
+	debug: "⚪",
+	info: "🟢",
+	warn: "🟡",
+	error: "🔴",
+	critical: "🟣",
+	fatal: "⛔",
+};
+
+// Colours for a terminal (local development, GitHub Actions); never used for Vercel's JSON.
+const ANSI: Record<Level, string> = {
+	debug: "\x1b[90m",
+	info: "\x1b[32m",
+	warn: "\x1b[33m",
+	error: "\x1b[31m",
+	critical: "\x1b[1;35m",
+	fatal: "\x1b[1;37;41m",
+};
 
 const SENSITIVE_KEY = new RegExp(
 	"(pass(word)?|secret|token|authorization|cookie|api[-_]?key|service[-_]?role|private|p256dh|" +
@@ -114,26 +152,44 @@ export function requestFields(request: Request) {
 	};
 }
 
+function minimumLevel(): Level {
+	const wanted = process.env.LOG_LEVEL as Level | undefined;
+
+	if (wanted && wanted in RANK) return wanted;
+
+	return process.env.NODE_ENV === "production" ? "info" : "debug";
+}
+
 function write(level: Level, event: string, fields: Record<string, unknown> = {}) {
-	const line = JSON.stringify({
+	if (RANK[level] < RANK[minimumLevel()]) return;
+
+	const record = {
 		time: new Date().toISOString(),
 		level,
+		category: event.split(".")[0],
 		event,
 		...(clean(fields) as Record<string, unknown>),
-	});
+	};
+	const json = JSON.stringify(record);
+	const colour = process.stdout?.isTTY === true || process.env.LOG_COLOR === "1";
+	const line = colour
+		? `${ANSI[level]} ${level.toUpperCase()} \x1b[0m ${json}`
+		: `${MARKER[level]} ${level.toUpperCase()} ${json}`;
 
-	if (level === "error") console.error(line);
+	if (RANK[level] >= RANK.error) console.error(line);
 	else if (level === "warn") console.warn(line);
 	else console.log(line);
 }
 
+type Fields = Record<string, unknown>;
+
 export const log = {
-	debug: (event: string, fields?: Record<string, unknown>) => {
-		if (process.env.NODE_ENV !== "production") write("debug", event, fields);
-	},
-	info: (event: string, fields?: Record<string, unknown>) => write("info", event, fields),
-	warn: (event: string, fields?: Record<string, unknown>) => write("warn", event, fields),
-	error: (event: string, fields?: Record<string, unknown>) => write("error", event, fields),
+	debug: (event: string, fields?: Fields) => write("debug", event, fields),
+	info: (event: string, fields?: Fields) => write("info", event, fields),
+	warn: (event: string, fields?: Fields) => write("warn", event, fields),
+	error: (event: string, fields?: Fields) => write("error", event, fields),
+	critical: (event: string, fields?: Fields) => write("critical", event, fields),
+	fatal: (event: string, fields?: Fields) => write("fatal", event, fields),
 };
 
 /** Times a piece of work: const done = timer(); … done() -> milliseconds. */

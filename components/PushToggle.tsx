@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { disablePush, enablePush, openGuide, usePush } from "@/lib/push-client";
+import { enablePush, openGuide, openSettings, usePush } from "@/lib/push-client";
 
 const HINT = {
 	"ios-install": "Για ειδοποιήσεις στο iPhone πρόσθεσε πρώτα την εφαρμογή στην αρχική οθόνη.",
@@ -74,12 +74,12 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 			return;
 		}
 
-		if (on) void disablePush();
+		if (on) openSettings();
 		else void enablePush();
 	}
 
 	if (variant === "bell") {
-		const label = on ? "Απενεργοποίηση ειδοποιήσεων" : "Ενεργοποίηση ειδοποιήσεων";
+		const label = on ? "Ρυθμίσεις ειδοποιήσεων" : "Ενεργοποίηση ειδοποιήσεων";
 
 		return (
 			<span className="push-bell-wrap">
@@ -89,7 +89,7 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 					onClick={toggle}
 					disabled={state === "busy"}
 					aria-label={label}
-					aria-pressed={on}
+					aria-haspopup={on ? "dialog" : undefined}
 					title={label}
 				>
 					<Bell on={on} />
@@ -104,9 +104,9 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 		);
 	}
 
-	// Once notifications are on, the box and the footer button have nothing left to offer: they
-	// disappear. The bell in the header stays, filled in, as the way to turn them off again.
-	if (on) return null;
+	// Once notifications are on, the box disappears; the footer button turns into the settings
+	// link, and the bell in the header (filled in) opens the same settings.
+	if (on && variant === "card") return null;
 
 	if (variant === "card") {
 		return (
@@ -114,7 +114,8 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 				<div>
 					<strong>Ειδοποιήσεις</strong>
 					<p>
-						Πάρε ειδοποίηση στο κινητό ή στον υπολογιστή όταν βγαίνει νέος χάρτης ή έκτακτο δελτίο.
+						Πάρε ειδοποίηση στο κινητό ή στον υπολογιστή όταν βγαίνει νέος χάρτης, νέο άρθρο ή
+						έκτακτο δελτίο, και διάλεξε μόνο όσα θες.
 					</p>
 					{(hint || error) && <p className="push-card-hint">{hint || error}</p>}
 				</div>
@@ -134,7 +135,11 @@ export function PushToggle({ variant = "footer" }: { variant?: "bell" | "card" |
 				onClick={toggle}
 				disabled={state === "busy"}
 			>
-				{hint ? "Ειδοποιήσεις: πώς να τις ενεργοποιήσεις" : "Ειδοποιήσεις για χάρτες και έκτακτα"}
+				{on
+					? "Ρυθμίσεις ειδοποιήσεων"
+					: hint
+						? "Ειδοποιήσεις: πώς να τις ενεργοποιήσεις"
+						: "Ειδοποιήσεις για χάρτες, άρθρα και έκτακτα"}
 			</button>
 
 			{error && <p className="install-app-help">{error}</p>}

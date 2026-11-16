@@ -227,9 +227,11 @@ export function ImagePicker({
 						Χρήση εικόνας
 					</button>
 				</div>
-			</dialog>
 
-			{duplicateDialog}
+				{/* inside the popup: a modal <dialog> sits above everything else on the page, so a
+				    prompt placed outside it would only show up after the popup is closed */}
+				{duplicateDialog}
+			</dialog>
 		</div>
 	);
 }

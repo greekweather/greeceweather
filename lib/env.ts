@@ -19,15 +19,16 @@ export class EnvError extends Error {
 }
 
 /** The value of a server-side variable. Throws an EnvError (never including the value). */
-export function requireEnv(
-	name: string,
-	options: { shape?: RegExp; allowTrailingNewline?: boolean } = {},
-): string {
+export function requireEnv(name: string, options: { shape?: RegExp } = {}): string {
 	const raw = process.env[name];
 
 	if (!raw) throw new EnvError(name, "missing");
 
-	const value = options.allowTrailingNewline ? raw.trim() : raw;
+	// a space or newline at the very start / end is a harmless paste slip: it is ignored here.
+	// Only whitespace INSIDE the value (two lines pasted together) is an error.
+	const value = raw.trim();
+
+	if (!value) throw new EnvError(name, "missing");
 
 	if (/\s/.test(value)) throw new EnvError(name, "whitespace");
 	if (options.shape && !options.shape.test(value)) throw new EnvError(name, "shape");

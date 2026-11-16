@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { hostOf, log, requestFields, safeError } from "@/lib/log";
+import { PUSH_TOPICS, parseTopics } from "@/lib/push-topics";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isPushEndpoint } from "@/lib/webpush";
 
@@ -20,6 +21,9 @@ const schema = z.object({
 			.max(60)
 			.refine((value) => byteLength(value) === 16),
 	}),
+	// what the phone wants to hear about; left out, a new phone gets everything and an
+	// existing one keeps its choice
+	topics: z.array(z.enum(PUSH_TOPICS)).max(PUSH_TOPICS.length).optional(),
 });
 
 // Best-effort throttle per server instance: 20 requests per minute per IP address.
@@ -93,7 +97,7 @@ export async function POST(request: Request) {
 	try {
 		supabase = createServiceClient();
 	} catch (error) {
-		log.error("push.subscribe.misconfigured", {
+		log.fatal("push.subscribe.misconfigured", {
 			...requestFields(request),
 			error: safeError(error),
 		});
@@ -104,15 +108,35 @@ export async function POST(request: Request) {
 		);
 	}
 
-	const { error } = await supabase.from("push_subscriptions").upsert(
-		{
-			endpoint: parsed.data.endpoint,
-			p256dh: parsed.data.keys.p256dh,
-			auth: parsed.data.keys.auth,
-			user_agent: (request.headers.get("user-agent") ?? "").slice(0, 200),
-		},
-		{ onConflict: "endpoint" },
-	);
+	const { data: existing } = await supabase
+		.from("push_subscriptions")
+		.select("endpoint")
+		.eq("endpoint", parsed.data.endpoint)
+		.maybeSingle();
+
+	const row = {
+		endpoint: parsed.data.endpoint,
+		p256dh: parsed.data.keys.p256dh,
+		auth: parsed.data.keys.auth,
+		user_agent: (request.headers.get("user-agent") ?? "").slice(0, 200),
+	};
+	const topics = parsed.data.topics ? parseTopics(parsed.data.topics) : null;
+	// the table type does not know the new column yet, so the row is typed as the old shape
+	const withTopics = (topics ? { ...row, topics } : row) as typeof row;
+
+	let { error } = await supabase
+		.from("push_subscriptions")
+		.upsert(withTopics, { onConflict: "endpoint" });
+
+	// the topics column does not exist yet (supabase/changes-2026-11-16.sql not run): save the
+	// phone anyway, it will simply receive everything
+	if (error && topics && (error.code === "42703" || error.code === "PGRST204")) {
+		log.warn("push.subscribe.topics_unavailable", requestFields(request));
+
+		({ error } = await supabase
+			.from("push_subscriptions")
+			.upsert(row, { onConflict: "endpoint" }));
+	}
 
 	if (error) {
 		log.error("push.subscribe.save_failed", {
@@ -130,10 +154,15 @@ export async function POST(request: Request) {
 		);
 	}
 
-	log.info("push.subscribe.saved", {
-		...requestFields(request),
-		pushService: hostOf(parsed.data.endpoint),
-	});
+	// "saved" is a NEW subscription; a phone checking in again is only a debug line
+	log[existing ? "debug" : "info"](
+		existing ? "push.subscribe.refreshed" : "push.subscribe.saved",
+		{
+			...requestFields(request),
+			pushService: hostOf(parsed.data.endpoint),
+			topics: topics ?? undefined,
+		},
+	);
 
 	return NextResponse.json({ ok: true });
 }

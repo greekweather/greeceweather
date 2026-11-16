@@ -16,7 +16,8 @@ export default async function NewOutlookPage({
 	const { from } = await searchParams;
 
 	// "Αντίγραφο": start from an earlier map (areas, storms, title, legend, text). The new one
-	// gets a fresh issue time and slug, and stays a draft until it is published.
+	// keeps the issue time, validity and slug (the form warns about a duplicate slug), and stays a
+	// draft until it is published.
 	let source: OutlookFormValues | undefined;
 	let sourceTitle = "";
 
@@ -33,12 +34,14 @@ export default async function NewOutlookPage({
 			sourceTitle = original.title;
 			source = {
 				title: original.title,
-				slug: "",
+				// the dates and the slug come along; if the slug is already taken (it is, as
+				// the original still exists) the form warns until it is changed
+				slug: original.slug,
 				summary: original.summary,
 				map_data: original.map_data,
 				legend_position: original.legend_position,
-				issued_at: null,
-				valid_until: null,
+				issued_at: original.issued_at,
+				valid_until: original.valid_until,
 				published: false,
 			};
 		}

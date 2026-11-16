@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
+import { PUSH_TOPICS, type PushTopic, parseTopics } from "@/lib/push-topics";
 
 // Everything the browser side of notifications needs, in one place: the state of the
 // permission and of the subscription, turning them on and off, a test message, and the small
@@ -8,6 +9,7 @@ import { useEffect, useSyncExternalStore } from "react";
 
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 const WAS_ON = "gw-push-was-on";
+const TOPICS_KEY = "gw-push-topics";
 
 export type PushState =
 	| "checking"
@@ -117,6 +119,65 @@ function sameKey(subscription: PushSubscription) {
 	return a.length === b.length && a.every((byte, i) => byte === b[i]);
 }
 
+// ---- which notifications this device wants ------------------------------------------------
+
+/** The saved choice, or null if the visitor never made one (then everything is on). */
+function storedTopics(): PushTopic[] | null {
+	try {
+		const raw = localStorage.getItem(TOPICS_KEY);
+
+		return raw ? parseTopics(JSON.parse(raw)) : null;
+	} catch {
+		return null;
+	}
+}
+
+const topicsStore = createStore<PushTopic[]>([...PUSH_TOPICS]);
+
+if (typeof window !== "undefined") topicsStore.set(storedTopics() ?? [...PUSH_TOPICS]);
+
+export function useTopics() {
+	return useSyncExternalStore(
+		topicsStore.subscribe,
+		topicsStore.get,
+		() => [...PUSH_TOPICS] as PushTopic[],
+	);
+}
+
+/** Saves the choice on this device and on the server. Returns false if the server said no. */
+export async function saveTopics(next: PushTopic[]): Promise<boolean> {
+	const topics = parseTopics(next);
+
+	topicsStore.set(topics);
+
+	try {
+		localStorage.setItem(TOPICS_KEY, JSON.stringify(topics));
+	} catch {}
+
+	try {
+		const registration = await readyRegistration();
+		const subscription = await registration.pushManager.getSubscription();
+
+		if (!subscription) return false;
+
+		const response = await post("/api/push/preferences", {
+			endpoint: subscription.endpoint,
+			topics,
+		});
+
+		if (response.status === 404) {
+			// the server forgot this phone: save it again together with the choice
+			const again = await post("/api/push/subscribe", { ...subscription.toJSON(), topics });
+
+			return again.ok;
+		}
+
+		return response.ok;
+	} catch {
+		return false;
+	}
+}
+
 function remember(on: boolean) {
 	try {
 		if (on) localStorage.setItem(WAS_ON, "1");
@@ -209,7 +270,11 @@ export async function refreshPush() {
 		}
 
 		if (subscription) {
-			const response = await post("/api/push/subscribe", subscription.toJSON()).catch(() => null);
+			const chosen = storedTopics();
+			const response = await post("/api/push/subscribe", {
+				...subscription.toJSON(),
+				...(chosen ? { topics: chosen } : {}),
+			}).catch(() => null);
 
 			// keeps the server's copy up to date
 			if (response && !response.ok && response.status >= 400 && response.status < 500) {
@@ -287,7 +352,11 @@ export async function enablePush() {
 		const subscription =
 			(await registration.pushManager.getSubscription()) ?? (await subscribeNow(registration));
 
-		const response = await post("/api/push/subscribe", subscription.toJSON());
+		const chosen = storedTopics();
+		const response = await post("/api/push/subscribe", {
+			...subscription.toJSON(),
+			...(chosen ? { topics: chosen } : {}),
+		});
 
 		if (!response.ok) {
 			// the phone is subscribed but the site could not save it: undo, so nothing is half-done
@@ -385,9 +454,20 @@ export function useGuide() {
 
 // ---- in-app messages: a push that arrives while the site is open, and "just enabled" ---------
 
+// ---- the settings panel -------------------------------------------------------------------------
+
+const settingsStore = createStore(false);
+
+export const openSettings = () => settingsStore.set(true);
+export const closeSettings = () => settingsStore.set(false);
+
+export function useSettingsOpen() {
+	return useSyncExternalStore(settingsStore.subscribe, settingsStore.get, () => false);
+}
+
 export type InAppMessage = {
 	id: number;
-	kind: "push" | "enabled" | "tested";
+	kind: "push";
 	title: string;
 	body: string;
 	url?: string;
@@ -406,12 +486,9 @@ export function dismissMessage(id: number) {
 	messagesStore.set(messagesStore.get().filter((m) => m.id !== id));
 }
 
+// Right after turning notifications on, the panel opens so the visitor picks what to receive.
 function announceEnabled() {
-	pushMessage({
-		kind: "enabled",
-		title: "Οι ειδοποιήσεις είναι ενεργές ✓",
-		body: "Θες να δεις ότι φτάνουν σε αυτή τη συσκευή;",
-	});
+	openSettings();
 }
 
 export function useMessages() {

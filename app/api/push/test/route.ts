@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 	}
 
 	if (!vapidKeys()) {
-		log.error("push.test.no_vapid_keys", requestFields(request));
+		log.critical("push.test.no_vapid_keys", requestFields(request));
 
 		return NextResponse.json({ error: "no-keys" }, { status: 503 });
 	}

@@ -25,7 +25,7 @@ for (const name of SERVER) {
 
 	if (value === undefined || value === "") continue;
 
-	if (/\s/.test(value)) {
+	if (/\s/.test(value.trim())) {
 		problems.push(`${name} contains a space or a line break (pasted two lines into one value?)`);
 	}
 }

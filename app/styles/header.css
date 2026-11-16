@@ -338,3 +338,99 @@
 		width: calc(100vw - 24px);
 	}
 }
+
+/* Which notifications this device gets (components/NotificationSettings.tsx). */
+.push-switches {
+	display: grid;
+	margin: 4px 0 14px;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	overflow: hidden;
+}
+
+.push-switch {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 12px 14px;
+	cursor: pointer;
+}
+
+.push-switch + .push-switch {
+	border-top: 1px solid var(--border);
+}
+
+.push-switch small {
+	display: block;
+	margin-top: 2px;
+	color: var(--muted);
+	font-size: 0.82rem;
+	line-height: 1.35;
+}
+
+.push-switch input {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.push-switch-track {
+	position: relative;
+	flex: none;
+	width: 44px;
+	height: 26px;
+	border-radius: 999px;
+	background: var(--border);
+	transition: background 0.2s ease;
+}
+
+.push-switch-track::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	transition: transform 0.2s ease;
+}
+
+.push-switch input:checked ~ .push-switch-track {
+	background: var(--accent);
+}
+
+.push-switch input:checked ~ .push-switch-track::after {
+	transform: translateX(18px);
+}
+
+.push-switch input:focus-visible ~ .push-switch-track {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.push-settings-ok {
+	color: var(--accent);
+	font-weight: 600;
+}
+
+.push-link {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.push-toast strong {
+	display: block;
+}

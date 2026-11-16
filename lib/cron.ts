@@ -8,7 +8,7 @@ export function isCronAuthorized(request: Request): boolean {
 	const given = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
 
 	if (!secret || secret.length < 16) {
-		log.error("cron.secret_unusable", {
+		log.critical("cron.secret_unusable", {
 			...requestFields(request),
 			reason: secret ? "shorter than 16 characters" : "CRON_SECRET is not set",
 		});

@@ -13,7 +13,14 @@ import { hostOf, log, safeError } from "@/lib/log";
 
 export type PushSubscription = { endpoint: string; p256dh: string; auth: string };
 
-export type PushMessage = { title: string; body: string; url: string; tag?: string };
+export type PushMessage = {
+	title: string;
+	body: string;
+	url: string;
+	tag?: string;
+	/** a picture shown large in the notification (the cover of a map or an article) */
+	image?: string;
+};
 
 const b64 = (data: Buffer | Uint8Array) => Buffer.from(data).toString("base64url");
 const fromB64 = (text: string) => Buffer.from(text, "base64url");
@@ -135,7 +142,7 @@ export async function sendPush(
 	const keys = vapidKeys();
 
 	if (!keys) {
-		log.error("push.no_vapid_keys", { tag: message.tag });
+		log.critical("push.send.failed", { reason: "no VAPID keys on the server", tag: message.tag });
 
 		return "failed";
 	}
@@ -156,23 +163,36 @@ export async function sendPush(
 			signal: AbortSignal.timeout(10_000),
 		});
 
-		if (response.status === 404 || response.status === 410) return "gone";
+		const where = { pushService: hostOf(subscription.endpoint), tag: message.tag };
+
+		if (response.status === 404 || response.status === 410) {
+			log.info("push.send.failed", { ...where, status: response.status, reason: "gone" });
+
+			return "gone";
+		}
 
 		if (!response.ok) {
 			// 401/403: the push service refused our VAPID signature (wrong or changed keys);
 			// 413: message too large; 429/5xx: the service is busy
-			log.warn("push.send_refused", {
-				pushService: hostOf(subscription.endpoint),
+			const keysRefused = response.status === 401 || response.status === 403;
+
+			log[keysRefused ? "error" : "warn"]("push.send.failed", {
+				...where,
 				status: response.status,
-				tag: message.tag,
+				reason: keysRefused ? "VAPID signature refused" : "push service error",
 			});
+
+			return "failed";
 		}
 
-		return response.ok ? "sent" : "failed";
+		log.info("push.send.success", { ...where, status: response.status });
+
+		return "sent";
 	} catch (error) {
-		log.warn("push.send_error", {
+		log.warn("push.send.failed", {
 			pushService: hostOf(subscription.endpoint),
 			tag: message.tag,
+			reason: "request error",
 			error: safeError(error),
 		});
 

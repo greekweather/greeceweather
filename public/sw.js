@@ -62,7 +62,16 @@ self.addEventListener("push", (event) => {
 			return self.registration.showNotification(title, {
 				body: data.body || "",
 				icon: "/icons/icon-192.png",
-				badge: "/icons/icon-192.png",
+				// the small status-bar icon: Android only reads the shape (alpha) of this image,
+				// so it must be a single-colour picture, not the coloured logo
+				badge: "/icons/badge-96.png",
+				// a big picture under the text (the map or the article cover)
+				image:
+					typeof data.image === "string" && data.image.startsWith("https://")
+						? data.image
+						: undefined,
+				vibrate: [120, 60, 120],
+				actions: [{ action: "open", title: "Άνοιγμα" }],
 				lang: "el",
 				tag: data.tag || undefined,
 				renotify: Boolean(data.tag),

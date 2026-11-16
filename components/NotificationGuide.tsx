@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { NotificationSettings } from "@/components/NotificationSettings";
 import {
 	closeGuide,
 	detectPlatform,
@@ -11,10 +12,10 @@ import {
 	type Platform,
 	pushMessage,
 	refreshPush,
-	sendTestPush,
 	useGuide,
 	useMessages,
 	usePush,
+	useSettingsOpen,
 	wasOn,
 } from "@/lib/push-client";
 
@@ -190,12 +191,11 @@ function Guide({ kind }: { kind: GuideKind }) {
 export function NotificationGuide() {
 	const guide = useGuide();
 	const messages = useMessages();
+	const settings = useSettingsOpen();
 	const { state } = usePush();
 	const [revokedHidden, setRevokedHidden] = useState(true);
 	const [revokedLeaving, setRevokedLeaving] = useState(false);
 	const revokedRef = useRef<HTMLDivElement>(null);
-	const [testing, setTesting] = useState(false);
-	const [testNote, setTestNote] = useState("");
 
 	// A notification that arrives while the site is open: the service worker passes it on and it
 	// is shown here instead of as a system notification.
@@ -266,33 +266,10 @@ export function NotificationGuide() {
 		};
 	}, [showRevoked, hideRevoked]);
 
-	async function runTest(id: number) {
-		setTesting(true);
-		setTestNote("");
-
-		const outcome = await sendTestPush();
-
-		setTesting(false);
-
-		if (outcome === "sent") {
-			dismissMessage(id);
-			pushMessage({
-				kind: "tested",
-				title: "Η δοκιμή στάλθηκε",
-				body: "Αν δεν δεις ειδοποίηση σε λίγα δευτερόλεπτα, δες γιατί.",
-			});
-		} else if (outcome === "no-server-keys") {
-			setTestNote("Ο server δεν έχει ρυθμιστεί για ειδοποιήσεις (λείπουν τα VAPID keys).");
-		} else if (outcome === "gone") {
-			setTestNote("Η συσκευή δεν είναι πια καταχωρημένη. Ενεργοποίησε τις ειδοποιήσεις ξανά.");
-		} else {
-			setTestNote("Η δοκιμή δεν μπόρεσε να σταλεί. Δοκίμασε ξανά σε λίγο.");
-		}
-	}
-
 	return (
 		<>
 			{guide && <Guide kind={guide} />}
+			{settings && <NotificationSettings />}
 
 			<div className="push-toasts" aria-live="polite">
 				{showRevoked && (
@@ -328,9 +305,6 @@ export function NotificationGuide() {
 						<div>
 							<strong>{message.title}</strong>
 							{message.body && <p>{message.body}</p>}
-							{testNote && message.kind === "enabled" && (
-								<p className="push-toast-note">{testNote}</p>
-							)}
 						</div>
 
 						<div className="push-toast-actions">
@@ -342,30 +316,6 @@ export function NotificationGuide() {
 								>
 									Άνοιγμα
 								</a>
-							)}
-
-							{message.kind === "enabled" && (
-								<button
-									type="button"
-									className="button"
-									disabled={testing}
-									onClick={() => void runTest(message.id)}
-								>
-									{testing ? "Αποστολή…" : "Δοκιμή"}
-								</button>
-							)}
-
-							{message.kind === "tested" && (
-								<button
-									type="button"
-									className="button secondary"
-									onClick={() => {
-										dismissMessage(message.id);
-										openGuide("not-arriving");
-									}}
-								>
-									Δεν ήρθε
-								</button>
 							)}
 
 							<button

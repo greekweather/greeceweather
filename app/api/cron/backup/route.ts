@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 		// the service role key sees everything, drafts and safety copies included
 		supabase = createServiceClient();
 	} catch (error) {
-		log.error("cron.backup.misconfigured", { ...requestFields(request), error: safeError(error) });
+		log.fatal("cron.backup.misconfigured", { ...requestFields(request), error: safeError(error) });
 
 		return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
 	}
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 	const result = await buildBackup(supabase, true);
 
 	if (!result.ok) {
-		log.error("cron.backup.failed", {
+		log.critical("cron.backup.failed", {
 			...requestFields(request),
 			ms: elapsed(),
 			error: safeError(new Error(result.error)),

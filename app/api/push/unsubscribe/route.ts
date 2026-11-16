@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 		return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
 	}
 
-	log.info("push.unsubscribe.done", {
+	log.info("push.unsubscribe", {
 		...requestFields(request),
 		pushService: hostOf(parsed.data.endpoint),
 	});

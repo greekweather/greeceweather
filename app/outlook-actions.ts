@@ -115,6 +115,22 @@ function dbError(code: string | undefined) {
 		: "Δεν ήταν δυνατή η αποθήκευση του χάρτη.";
 }
 
+/** Is this slug already used by another map? Used by the form to warn before saving. */
+export async function outlookSlugTakenAction(slug: string, exceptId?: string): Promise<boolean> {
+	await requireAdmin();
+
+	if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || slug.length > 100) return false;
+
+	const supabase = await createClient();
+	let query = supabase.from("outlooks").select("id").eq("slug", slug).limit(1);
+
+	if (exceptId && /^[0-9a-f-]{36}$/i.test(exceptId)) query = query.neq("id", exceptId);
+
+	const { data } = await query;
+
+	return (data?.length ?? 0) > 0;
+}
+
 export async function createOutlookAction(
 	_prev: FormState,
 	formData: FormData,

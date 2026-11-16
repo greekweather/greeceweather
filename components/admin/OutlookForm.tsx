@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useId, useMemo, useState } from "react";
+import { useActionState, useEffect, useId, useMemo, useState } from "react";
+import { outlookSlugTakenAction } from "@/app/outlook-actions";
 import { OutlookEditor } from "@/components/outlook/OutlookEditor";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
 import { athensLocalToUTC, utcToAthensLocal } from "@/lib/date";
@@ -70,6 +71,25 @@ export function OutlookForm({
 	const [summary, setSummary] = useState(outlook?.summary ?? "");
 	const [showPreview, setShowPreview] = useState(false);
 
+	const [slugTaken, setSlugTaken] = useState(false);
+
+	// Another map with this slug? Checked a moment after typing stops.
+	useEffect(() => {
+		let cancelled = false;
+		const timer = window.setTimeout(() => {
+			outlookSlugTakenAction(slug, outlook?.id)
+				.then((taken) => {
+					if (!cancelled) setSlugTaken(taken);
+				})
+				.catch(() => {});
+		}, 350);
+
+		return () => {
+			cancelled = true;
+			window.clearTimeout(timer);
+		};
+	}, [slug, outlook?.id]);
+
 	const fit = titleFit(title);
 	const issuedIso = safeIso(issued);
 	const validIso = safeIso(validUntil);
@@ -131,6 +151,11 @@ export function OutlookForm({
 							setSlugTouched(true);
 						}}
 					/>
+					{slugTaken && (
+						<small className="form-warning" role="alert">
+							Υπάρχει ήδη χάρτης με αυτό το slug. Άλλαξέ το, αλλιώς η αποθήκευση θα αποτύχει.
+						</small>
+					)}
 					<small>Λατινικά πεζά, αριθμοί και παύλες. Θα είναι /outlooks/{slug || "…"}</small>
 				</div>
 

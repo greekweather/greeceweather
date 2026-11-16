@@ -121,6 +121,9 @@ export async function createPostAction(formData: FormData) {
 	revalidatePath("/admin/posts");
 	revalidatePath("/admin/tags");
 
+	// a published article is announced to the phones after the response
+	after(() => sendPendingNotifications().catch(() => {}));
+
 	// stay on this post: continue editing it rather than going back to the list
 	redirect(`/admin/posts/${data.id}/edit`);
 }
@@ -213,6 +216,8 @@ export async function updatePostAction(formData: FormData) {
 	revalidatePath("/admin/posts");
 	revalidatePath("/admin/tags");
 	revalidatePath(`/admin/posts/${id}/edit`);
+
+	after(() => sendPendingNotifications().catch(() => {}));
 
 	// no redirect: the editor stays where it is
 }

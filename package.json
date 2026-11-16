@@ -1,5 +1,8 @@
 {
 	"name": "greeceweather",
+	"engines": {
+		"node": "22.x"
+	},
 	"version": "1.0.0",
 	"private": true,
 	"scripts": {

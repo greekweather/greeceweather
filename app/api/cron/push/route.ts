@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
 		return NextResponse.json(summary);
 	} catch (error) {
-		log.error("cron.push.failed", {
+		log.critical("cron.push.failed", {
 			...requestFields(request),
 			ms: elapsed(),
 			error: safeError(error),
