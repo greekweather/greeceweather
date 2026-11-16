@@ -575,7 +575,6 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		return { error: "Δεν ήταν δυνατή η αποθήκευση των άρθρων πρόγνωσης." };
 	}
 
-	// an emergency bulletin that has just gone live is announced to the phones after the response
 	after(() => sendPendingNotifications().catch(() => {}));
 	revalidatePath("/", "layout");
 	revalidatePath("/admin");
