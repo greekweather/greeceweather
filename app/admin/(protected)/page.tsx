@@ -1,7 +1,10 @@
+import { getPushStats } from "@/lib/push-stats";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminPage() {
 	const supabase = await createClient();
+
+	const push = await getPushStats();
 
 	const [{ count: posts }, { count: publishedPosts }, { count: drafts }] = await Promise.all([
 		supabase.from("posts").select("*", { count: "exact", head: true }),
@@ -37,6 +40,47 @@ export default async function AdminPage() {
 					<strong>{drafts ?? 0}</strong>
 					<small>Μη δημοσιευμένα άρθρα</small>
 				</a>
+			</section>
+
+			<section className="admin-section">
+				<div className="admin-section-header">
+					<div>
+						<h2>Ειδοποιήσεις</h2>
+						<p>
+							{push.error
+								? push.error
+								: push.byTopic
+									? "Πόσες συσκευές έχουν ενεργές τις ειδοποιήσεις, και για τι."
+									: "Δεν έχει τρέξει το supabase/changes-2026-11-16.sql: όλες οι συσκευές παίρνουν τα πάντα."}
+						</p>
+					</div>
+				</div>
+
+				<div className="admin-dashboard-grid">
+					<div className="admin-stat-card">
+						<span>Συνολικά</span>
+						<strong>{push.total}</strong>
+						<small>Συσκευές με ειδοποιήσεις</small>
+					</div>
+
+					<div className="admin-stat-card">
+						<span>Χάρτες</span>
+						<strong>{push.maps}</strong>
+						<small>Για νέο χάρτη</small>
+					</div>
+
+					<div className="admin-stat-card">
+						<span>Άρθρα</span>
+						<strong>{push.posts}</strong>
+						<small>Για νέο άρθρο</small>
+					</div>
+
+					<div className="admin-stat-card">
+						<span>Μπάνερ</span>
+						<strong>{push.banner}</strong>
+						<small>Για έκτακτο δελτίο</small>
+					</div>
+				</div>
 			</section>
 
 			<section className="admin-section">
