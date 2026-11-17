@@ -39,6 +39,25 @@ function localKey(id: string | undefined) {
 	return `greeceweather:post-draft:${id ?? "new"}`;
 }
 
+type DeviceLines = { phone: number; desktop: number };
+
+// Says WHERE the text is too long: on a small phone, on a computer, or on both.
+function tooLongMessage(subject: string, lines: DeviceLines, consequence: string) {
+	const phone = lines.phone > 3;
+	const desktop = lines.desktop > 3;
+	const detail = `(κινητό ${lines.phone} γραμμές, υπολογιστής ${lines.desktop})`;
+
+	if (phone && desktop) {
+		return `${subject} ξεπερνά τις 3 γραμμές στο κινητό και στον υπολογιστή ${detail} και ${consequence}.`;
+	}
+
+	if (phone) {
+		return `${subject} ξεπερνά τις 3 γραμμές μόνο σε μικρό κινητό (360px) ${detail}: εκεί ${consequence}. Στον υπολογιστή χωράει.`;
+	}
+
+	return `${subject} ξεπερνά τις 3 γραμμές μόνο στον υπολογιστή ${detail}: εκεί ${consequence}. Στο κινητό χωράει.`;
+}
+
 function countRenderedLines(element: HTMLElement) {
 	const textNode = element.firstChild;
 
@@ -81,8 +100,12 @@ export function PostForm({
 	const [slug, setSlug] = useState(post?.slug ?? "");
 	const [selectedTagIds, setSelectedTagIds] = useState<string[]>(post?.tag_ids ?? []);
 
-	const [titleTooLong, setTitleTooLong] = useState(false);
-	const [descriptionTooLong, setDescriptionTooLong] = useState(false);
+	// how many lines the text takes on a small phone and on a computer (the card is narrower on
+	// a phone, so the same text can need more lines there)
+	const [titleLines, setTitleLines] = useState({ phone: 0, desktop: 0 });
+	const [descriptionLines, setDescriptionLines] = useState({ phone: 0, desktop: 0 });
+	const titleTooLong = titleLines.phone > 3 || titleLines.desktop > 3;
+	const descriptionTooLong = descriptionLines.phone > 3 || descriptionLines.desktop > 3;
 	const [slugIsInvalid, setSlugIsInvalid] = useState(false);
 	const [publishAttempted, setPublishAttempted] = useState(false);
 	const [showPreview, setShowPreview] = useState(false);
@@ -93,20 +116,22 @@ export function PostForm({
 	const [justSaved, setJustSaved] = useState(false);
 
 	const measureGridRef = useRef<HTMLDivElement>(null);
-	const titleMeasureRef = useRef<HTMLHeadingElement>(null);
-	const descriptionMeasureRef = useRef<HTMLParagraphElement>(null);
+	const phoneTitleRef = useRef<HTMLHeadingElement>(null);
+	const phoneDescriptionRef = useRef<HTMLParagraphElement>(null);
+	const desktopTitleRef = useRef<HTMLHeadingElement>(null);
+	const desktopDescriptionRef = useRef<HTMLParagraphElement>(null);
 
 	const measureLines = useCallback(() => {
-		const titleElement = titleMeasureRef.current;
-		const descriptionElement = descriptionMeasureRef.current;
+		const lines = (element: HTMLElement | null) => (element ? countRenderedLines(element) : 0);
 
-		if (titleElement) {
-			setTitleTooLong(countRenderedLines(titleElement) > 3);
-		}
-
-		if (descriptionElement) {
-			setDescriptionTooLong(countRenderedLines(descriptionElement) > 3);
-		}
+		setTitleLines({
+			phone: lines(phoneTitleRef.current),
+			desktop: lines(desktopTitleRef.current),
+		});
+		setDescriptionLines({
+			phone: lines(phoneDescriptionRef.current),
+			desktop: lines(desktopDescriptionRef.current),
+		});
 	}, []);
 
 	// Measure again whenever the text changes. The resize observers below are not enough:
@@ -130,12 +155,13 @@ export function PostForm({
 			resizeObserver.observe(measureGridRef.current);
 		}
 
-		if (titleMeasureRef.current) {
-			resizeObserver.observe(titleMeasureRef.current);
-		}
-
-		if (descriptionMeasureRef.current) {
-			resizeObserver.observe(descriptionMeasureRef.current);
+		for (const element of [
+			phoneTitleRef.current,
+			phoneDescriptionRef.current,
+			desktopTitleRef.current,
+			desktopDescriptionRef.current,
+		]) {
+			if (element) resizeObserver.observe(element);
 		}
 
 		window.addEventListener("resize", measureLines);
@@ -462,7 +488,7 @@ export function PostForm({
 					>
 						{showTitleWarning
 							? "⚠ Για δημοσίευση πρέπει να υπάρχει τίτλος άρθρου."
-							: "⚠ Ο τίτλος ξεπερνά τις 3 γραμμές στην κάρτα άρθρου (μετράται με το τρέχον, μικρότερο μέγεθος γραφής)."}
+							: `⚠ ${tooLongMessage("Ο τίτλος", titleLines, "θα φαίνεται κομμένος ή πολύ μεγάλος")}`}
 					</p>
 				</div>
 
@@ -521,7 +547,7 @@ export function PostForm({
 				>
 					{showDescriptionWarning
 						? "⚠ Για δημοσίευση πρέπει να υπάρχει περιγραφή άρθρου."
-						: "⚠ Η περιγραφή ξεπερνά τις 3 γραμμές και θα εμφανιστεί κομμένη με «...»."}
+						: `⚠ ${tooLongMessage("Η περιγραφή", descriptionLines, "θα εμφανιστεί κομμένη με «...»")}`}
 				</p>
 			</div>
 
@@ -702,10 +728,11 @@ export function PostForm({
 				<PostsListLink className="button secondary">Ακύρωση</PostsListLink>
 			</div>
 
+			{/* Hidden copies of a card's text at two real widths: a small phone (360px screen) and the
+			    3-column desktop grid. Padding and borders are already taken off the widths. */}
 			<div
 				ref={measureGridRef}
 				aria-hidden="true"
-				className="container"
 				style={{
 					position: "absolute",
 					left: "-100000px",
@@ -714,17 +741,26 @@ export function PostForm({
 					pointerEvents: "none",
 				}}
 			>
-				<div className="post-grid">
-					<article className="post-card">
-						<div className="post-card-body">
-							<h3 ref={titleMeasureRef}>{title || "\u00a0"}</h3>
+				<div className="post-grid" style={{ display: "block" }}>
+					{[
+						{ width: 282, titleRef: phoneTitleRef, descriptionRef: phoneDescriptionRef },
+						{ width: 334, titleRef: desktopTitleRef, descriptionRef: desktopDescriptionRef },
+					].map(({ width, titleRef, descriptionRef }) => (
+						<article
+							key={width}
+							className="post-card"
+							style={{ width, padding: 0, border: 0, height: "auto" }}
+						>
+							<div className="post-card-body" style={{ padding: 0 }}>
+								<h3 ref={titleRef}>{title || "\u00a0"}</h3>
 
-							{/* The card clips this paragraph at 3 lines; measure it unclipped to count them. */}
-							<p ref={descriptionMeasureRef} className="post-measure">
-								{description || "\u00a0"}
-							</p>
-						</div>
-					</article>
+								{/* The card clips this paragraph at 3 lines; measure it unclipped. */}
+								<p ref={descriptionRef} className="post-measure">
+									{description || "\u00a0"}
+								</p>
+							</div>
+						</article>
+					))}
 				</div>
 			</div>
 		</form>

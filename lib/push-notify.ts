@@ -13,9 +13,15 @@ type Summary = {
 	emergencies: number;
 	delivered: number;
 	removed: number;
+	failed: number;
 };
 
-const PARALLEL = 20;
+// Few at a time, and a pause between two different notifications: push services (FCM above
+// all) answer 429 when they get a burst, and a refused notification would be lost.
+const PARALLEL = 10;
+const PAUSE_BETWEEN_NOTIFICATIONS_MS = 1500;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Sends one message to every subscribed phone. Subscriptions the push service reports as gone
 // (the phone unsubscribed or was reset) are deleted.
@@ -25,6 +31,7 @@ async function broadcast(topic: PushTopic, message: PushMessage, urgent: boolean
 	let removed = 0;
 	let failed = 0;
 	let total = 0;
+	const started = Date.now();
 
 	// Only the phones that chose this topic. If the topics column does not exist yet (the SQL
 	// was not run) everyone gets everything, as before.
@@ -73,17 +80,20 @@ async function broadcast(topic: PushTopic, message: PushMessage, urgent: boolean
 		if (data.length < 1000) break;
 	}
 
-	log.info("push.broadcast", {
+	// "delivered" means the push service ACCEPTED the message. Whether the phone then shows it
+	// depends on the phone (battery saver, notifications switched off, the site open on screen).
+	log[failed > 0 ? "warn" : "info"]("push.broadcast", {
 		topic,
 		tag: message.tag,
 		urgent,
 		total,
-		delivered,
-		removed,
+		accepted: delivered,
+		gone: removed,
 		failed,
+		ms: Date.now() - started,
 	});
 
-	return { delivered, removed };
+	return { delivered, removed, failed, total };
 }
 
 export const emergencyKey = (url: string) => createHash("md5").update(url).digest("hex");
@@ -98,7 +108,14 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 
 	const supabase = createServiceClient();
 	const now = new Date().toISOString();
-	const summary: Summary = { outlooks: 0, posts: 0, emergencies: 0, delivered: 0, removed: 0 };
+	const summary: Summary = {
+		outlooks: 0,
+		posts: 0,
+		emergencies: 0,
+		delivered: 0,
+		removed: 0,
+		failed: 0,
+	};
 
 	const { data: outlooks } = await supabase
 		.from("outlooks")
@@ -133,9 +150,20 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 			false,
 		);
 
+		// every phone failed (the push service was down, say): hand the map back so the next
+		// scheduled check tries again instead of losing the announcement
+		if (result.total > 0 && result.delivered === 0 && result.failed === result.total) {
+			await supabase.from("outlooks").update({ push_sent_at: null }).eq("id", outlook.id);
+			log.error("push.released", { kind: "outlook", id: outlook.id, failed: result.failed });
+			continue;
+		}
+
 		summary.outlooks += 1;
 		summary.delivered += result.delivered;
 		summary.removed += result.removed;
+		summary.failed += result.failed;
+
+		await sleep(PAUSE_BETWEEN_NOTIFICATIONS_MS);
 	}
 
 	const { data: banners } = await supabase
@@ -172,17 +200,33 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 		const result = await broadcast(
 			"banner",
 			{
-				title: "🚨 Έκτακτο δελτίο",
-				body: banner.title?.trim() || "Ισχυρή κακοκαιρία σε εξέλιξη",
+				title: "🚨 ΕΚΤΑΚΤΟ ΔΕΛΤΙΟ ΚΑΚΟΚΑΙΡΙΑΣ",
+				// the banner's own headline, then what tapping does
+				body: `${banner.title?.trim() || "Ισχυρά καιρικά φαινόμενα σε εξέλιξη"}\nΠάτα για να δεις το δελτίο.`,
 				url,
-				tag: `emergency-${banner.id}`,
+				// the key changes with every new bulletin, so a second bulletin does not
+				// silently replace the first one on the phone
+				tag: `emergency-${key.slice(0, 12)}`,
+				urgent: true,
 			},
 			true,
 		);
 
+		if (result.total > 0 && result.delivered === 0 && result.failed === result.total) {
+			await supabase
+				.from("weather_banner")
+				.update({ push_emergency_key: banner.push_emergency_key })
+				.eq("id", banner.id);
+			log.error("push.released", { kind: "banner", id: banner.id, failed: result.failed });
+			continue;
+		}
+
 		summary.emergencies += 1;
 		summary.delivered += result.delivered;
 		summary.removed += result.removed;
+		summary.failed += result.failed;
+
+		await sleep(PAUSE_BETWEEN_NOTIFICATIONS_MS);
 	}
 
 	// Articles: published, their time has come, and not announced yet. (Articles that were
@@ -227,9 +271,18 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 			false,
 		);
 
+		if (result.total > 0 && result.delivered === 0 && result.failed === result.total) {
+			await supabase.from("posts").update({ push_sent_at: null }).eq("id", post.id);
+			log.error("push.released", { kind: "post", id: post.id, failed: result.failed });
+			continue;
+		}
+
 		summary.posts += 1;
 		summary.delivered += result.delivered;
 		summary.removed += result.removed;
+		summary.failed += result.failed;
+
+		await sleep(PAUSE_BETWEEN_NOTIFICATIONS_MS);
 	}
 
 	return summary;

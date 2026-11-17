@@ -208,6 +208,15 @@ export function NotificationGuide() {
 			if (data?.type !== "gw-push" || !data.title) return;
 
 			pushMessage({ kind: "push", title: data.title, body: data.body ?? "", url: data.url });
+
+			// the site's own chime (a system notification cannot carry a custom sound on the
+			// web, so it plays here, when the message shows inside the page)
+			try {
+				const chime = new Audio("/sounds/notify.wav");
+
+				chime.volume = 0.6;
+				void chime.play().catch(() => {});
+			} catch {}
 		};
 
 		navigator.serviceWorker.addEventListener("message", onMessage);

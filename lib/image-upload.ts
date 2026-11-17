@@ -55,36 +55,34 @@ async function compressImage(file: File): Promise<File> {
 	return new File([blob], `${storageFileBase(file.name)}.webp`, { type: "image/webp" });
 }
 
-function escapeRegExp(text: string) {
-	return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-// The next free name: "name" if nothing uses it, otherwise one more than the highest
-// existing "name-N" (thunderstorm-4 and thunderstorm-5 exist -> thunderstorm-6).
+// The name to use: "name" itself if nothing uses it, otherwise the LOWEST free number, so gaps
+// are filled (cloudy-4 is taken, cloudy-2 and cloudy-3 are free -> cloudy-2, not cloudy-5).
+// A name that already ends in a number (cloudy-4) is looked at as "cloudy" + 4: it is kept if
+// free, otherwise the gap is filled.
 export async function nextFreeName(
 	prefix: string,
 	base: string,
 	extension = ".webp",
 ): Promise<string> {
+	const stem = base.replace(/-\d+$/, "");
 	const supabase = createClient();
 	const { data, error } = await supabase.storage
 		.from(IMAGE_BUCKET)
-		.list(prefix.replace(/\/$/, ""), { limit: 1000, search: base });
+		.list(prefix.replace(/\/$/, ""), { limit: 1000, search: stem });
 	if (error) throw error;
 
-	const pattern = new RegExp(`^${escapeRegExp(base)}(?:-(\\d+))?${escapeRegExp(extension)}$`, "i");
-	let highest = 0;
-	let plainTaken = false;
+	const taken = new Set((data ?? []).map((item) => item.name.toLowerCase()));
+	const used = (name: string) => taken.has(`${name}${extension}`.toLowerCase());
 
-	for (const item of data ?? []) {
-		const match = pattern.exec(item.name);
-		if (!match) continue;
-		if (match[1]) highest = Math.max(highest, Number(match[1]));
-		else plainTaken = true;
+	if (!used(base)) return base;
+
+	for (let number = 2; number < 10000; number += 1) {
+		const candidate = `${stem}-${number}`;
+
+		if (!used(candidate)) return candidate;
 	}
 
-	if (!plainTaken && highest === 0) return base;
-	return `${base}-${Math.max(highest, 1) + 1}`;
+	return `${stem}-${Date.now()}`;
 }
 
 // Uploads under the name the file had on the visitor's computer. If that name is taken the

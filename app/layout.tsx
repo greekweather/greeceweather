@@ -11,6 +11,7 @@ import { NotificationGuide } from "@/components/NotificationGuide";
 import { PushToggle } from "@/components/PushToggle";
 import { PwaRegister } from "@/components/PwaRegister";
 import { RefreshOnNavigate } from "@/components/RefreshOnNavigate";
+import { SiteTour, TourButton } from "@/components/SiteTour";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { WeatherBanner } from "@/components/WeatherBanner";
 
@@ -114,9 +115,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 						<div>Μετεωρολογία και καιρός στην Ελλάδα</div>
 						<InstallApp />
 						<PushToggle />
+						<TourButton />
 					</div>
 				</footer>
 				<NotificationGuide />
+				<SiteTour />
 				<Analytics />
 			</body>
 		</html>

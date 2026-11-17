@@ -1535,18 +1535,32 @@ body:has(.admin-shell) .weather-banner {
 		gap: 10px;
 	}
 
-	.admin-sort-buttons,
+	/* the filter chips share the row equally, so nothing needs a sideways scroll to be seen */
 	.admin-status-tabs {
-		flex-wrap: nowrap;
-		overflow-x: auto;
-		margin-inline: -16px;
-		padding: 2px 16px 6px;
-		scrollbar-width: none;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 6px;
 	}
 
-	.admin-sort-buttons .button,
+	.admin-sort-buttons {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 6px;
+	}
+
 	.admin-status-tabs a {
-		flex: none;
+		justify-content: center;
+		min-width: 0;
+		padding: 0 6px;
+		font-size: 0.82rem;
+		text-align: center;
+	}
+
+	.admin-sort-buttons .button {
+		min-width: 0;
+		padding-inline: 8px;
+		font-size: 0.85rem;
+		justify-content: center;
 	}
 
 	.admin-table-wrap {
@@ -2159,4 +2173,11 @@ body:has(.admin-shell) .weather-banner {
 		width: 100%;
 		min-height: 46px;
 	}
+}
+
+.backup-bulk {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 14px;
 }

@@ -20,6 +20,8 @@ export type PushMessage = {
 	tag?: string;
 	/** a picture shown large in the notification (the cover of a map or an article) */
 	image?: string;
+	/** an emergency: stays on screen until dismissed and vibrates longer */
+	urgent?: boolean;
 };
 
 const b64 = (data: Buffer | Uint8Array) => Buffer.from(data).toString("base64url");
@@ -133,6 +135,21 @@ export function vapidKeys() {
 
 export type SendResult = "sent" | "gone" | "failed";
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// How long to wait before trying again: the push service's Retry-After (seconds) if it gave
+// one, otherwise 0.8 s, 2 s... plus a little randomness so many phones do not retry together.
+function retryDelay(response: Response | null, attempt: number): number {
+	const header = Number(response?.headers.get("retry-after"));
+	const base = Number.isFinite(header) && header > 0 ? header * 1000 : 800 * 2 ** attempt;
+
+	return Math.min(base, 6000) + Math.random() * 400;
+}
+
+// 429 (rate limited) and 5xx (the push service is busy) are temporary: try again.
+const RETRYABLE = (status: number) => status === 429 || status >= 500;
+const ATTEMPTS = 3;
+
 /** Sends one notification. "gone" means the phone unsubscribed: forget the subscription. */
 export async function sendPush(
 	subscription: PushSubscription,
@@ -149,22 +166,35 @@ export async function sendPush(
 
 	try {
 		const body = encryptPayload(Buffer.from(JSON.stringify(message)), subscription);
+		let response: Response | null = null;
+		let attempt = 0;
 
-		const response = await fetch(subscription.endpoint, {
-			method: "POST",
-			headers: {
-				Authorization: vapidHeader(subscription.endpoint, keys),
-				"Content-Encoding": "aes128gcm",
-				"Content-Type": "application/octet-stream",
-				TTL: String(options.urgent ? 6 * 3600 : 24 * 3600),
-				Urgency: options.urgent ? "high" : "normal",
-			},
-			body: new Uint8Array(body),
-			signal: AbortSignal.timeout(10_000),
-		});
+		for (; attempt < ATTEMPTS; attempt += 1) {
+			response = await fetch(subscription.endpoint, {
+				method: "POST",
+				headers: {
+					Authorization: vapidHeader(subscription.endpoint, keys),
+					"Content-Encoding": "aes128gcm",
+					"Content-Type": "application/octet-stream",
+					TTL: String(options.urgent ? 6 * 3600 : 24 * 3600),
+					Urgency: options.urgent ? "high" : "normal",
+				},
+				body: new Uint8Array(body),
+				signal: AbortSignal.timeout(10_000),
+			});
 
-		const where = { pushService: hostOf(subscription.endpoint), tag: message.tag };
+			if (!RETRYABLE(response.status) || attempt === ATTEMPTS - 1) break;
 
+			await sleep(retryDelay(response, attempt));
+		}
+
+		if (!response) return "failed";
+
+		const where = {
+			pushService: hostOf(subscription.endpoint),
+			tag: message.tag,
+			attempts: attempt + 1,
+		};
 		if (response.status === 404 || response.status === 410) {
 			log.info("push.send.failed", { ...where, status: response.status, reason: "gone" });
 

@@ -1,4 +1,9 @@
-import { purgeDeletedAction, restoreDeletedAction } from "@/app/backup-actions";
+import {
+	purgeAllDeletedAction,
+	purgeDeletedAction,
+	restoreAllDeletedAction,
+	restoreDeletedAction,
+} from "@/app/backup-actions";
 import { BackupRestore } from "@/components/admin/BackupRestore";
 import { Pagination } from "@/components/admin/Pagination";
 import { PurgeConfirmButton } from "@/components/admin/PurgeConfirmButton";
@@ -42,7 +47,11 @@ export default async function BackupPage({
 			</header>
 
 			<section className="admin-section">
-				{restored && <p className="backup-notice">Το στοιχείο επανήλθε.</p>}
+				{restored && (
+					<p className="backup-notice">
+						{Number(restored) > 1 ? `Επανήλθαν ${restored} στοιχεία.` : "Το στοιχείο επανήλθε."}
+					</p>
+				)}
 
 				<div className="form-card backup-card">
 					<h2>Πρόσφατες διαγραφές</h2>
@@ -98,6 +107,22 @@ export default async function BackupPage({
 									))}
 								</tbody>
 							</table>
+						</div>
+					)}
+
+					{!error && pager.total > 0 && (
+						<div className="backup-bulk">
+							<form action={restoreAllDeletedAction}>
+								<button className="button secondary" type="submit">
+									Επαναφορά όλων ({pager.total})
+								</button>
+							</form>
+
+							<PurgeConfirmButton
+								action={purgeAllDeletedAction}
+								all={pager.total}
+								label={`Οριστική διαγραφή όλων (${pager.total})`}
+							/>
 						</div>
 					)}
 

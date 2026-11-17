@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { useDuplicatePrompt } from "@/components/admin/DuplicatePrompt";
 import { findVisualDuplicate, indexUploaded } from "@/lib/image-hash";
 import { listImages, type StoredImage, uploadImage } from "@/lib/image-upload";
+import { count, pick } from "@/lib/plural";
 
 export function ImagePicker({
 	currentUrl,
@@ -109,7 +110,9 @@ export function ImagePicker({
 			setQuery("");
 			setStatus(
 				[
-					added > 0 ? `Ανέβηκαν ${added} εικόνες.` : "",
+					added > 0
+						? `${pick(added, "Ανέβηκε", "Ανέβηκαν")} ${count(added, "εικόνα", "εικόνες")}.`
+						: "",
 					reused > 0 ? `Χρησιμοποιήθηκε υπάρχουσα (${reused}).` : "",
 					failed.length > 0 ? `Απέτυχαν: ${failed.join(" · ")}` : "",
 				]

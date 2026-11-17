@@ -1,7 +1,7 @@
 // Minimal service worker: it exists so the site can be installed, and to show a friendly
 // page when there is no connection. It deliberately caches NOTHING from the site itself:
 // no pages, no /admin, no /api, no data. Only the offline page and the app icons.
-const CACHE = "gw-offline-v2";
+const CACHE = "gw-offline-v3";
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [OFFLINE_URL, "/icons/icon-192.png"];
 
@@ -51,7 +51,11 @@ self.addEventListener("push", (event) => {
 			// system notification (browsers allow this for a visible page).
 			const visible = windows.filter((client) => client.visibilityState === "visible");
 
-			if (visible.length > 0) {
+			// iPhone / iPad require a system notification for EVERY push (a push shown silently
+			// gets the subscription cancelled after a few), so they always get one.
+			const apple = /iPhone|iPad|iPod/.test(self.navigator.userAgent);
+
+			if (visible.length > 0 && !apple) {
 				for (const client of visible) {
 					client.postMessage({ type: "gw-push", title, body: data.body || "", url });
 				}
@@ -70,13 +74,13 @@ self.addEventListener("push", (event) => {
 					typeof data.image === "string" && data.image.startsWith("https://")
 						? data.image
 						: undefined,
-				vibrate: [120, 60, 120],
+				vibrate: data.urgent ? [300, 120, 300, 120, 500] : [120, 60, 120],
 				actions: [{ action: "open", title: "Άνοιγμα" }],
 				lang: "el",
 				tag: data.tag || undefined,
 				renotify: Boolean(data.tag),
 				// an emergency stays on screen until it is dismissed
-				requireInteraction: typeof data.tag === "string" && data.tag.startsWith("emergency-"),
+				requireInteraction: data.urgent === true,
 				timestamp: Date.now(),
 				data: { url },
 			});

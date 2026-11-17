@@ -7,6 +7,7 @@ import { useDuplicatePrompt } from "@/components/admin/DuplicatePrompt";
 import { findVisualDuplicate, indexUploaded } from "@/lib/image-hash";
 import { renameImage } from "@/lib/image-rename";
 import { uploadKeepingName } from "@/lib/image-upload";
+import { count, pick } from "@/lib/plural";
 import { storageFileBase } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/client";
 
@@ -166,11 +167,15 @@ export function MediaLibrary({
 		setUploading(false);
 		setMessage(
 			[
-				done > 0 ? `Ανέβηκαν ${done} από ${images.length} εικόνες.` : "Δεν ανέβηκε καμία εικόνα.",
+				done > 0
+					? `${pick(done, "Ανέβηκε", "Ανέβηκαν")} ${done} από ${count(images.length, "εικόνα", "εικόνες")}.`
+					: "Δεν ανέβηκε καμία εικόνα.",
 				skippedDuplicates.length > 0
 					? `Παραλείφθηκαν ως διπλότυπα: ${skippedDuplicates.join(", ")}.`
 					: "",
-				skipped > 0 ? `${skipped} αρχεία που δεν ήταν εικόνες αγνοήθηκαν.` : "",
+				skipped > 0
+					? `${count(skipped, "αρχείο που δεν ήταν εικόνα αγνοήθηκε", "αρχεία που δεν ήταν εικόνες αγνοήθηκαν")}.`
+					: "",
 				failures.length > 0 ? `Απέτυχαν: ${failures.join(" · ")}` : "",
 			]
 				.filter(Boolean)
@@ -211,7 +216,7 @@ export function MediaLibrary({
 			setRenaming(null);
 			setMessage(
 				result.postsUpdated > 0
-					? `Η εικόνα μετονομάστηκε σε «${result.name}» και ενημερώθηκαν ${result.postsUpdated} άρθρα.`
+					? `Η εικόνα μετονομάστηκε σε «${result.name}» και ${pick(result.postsUpdated, "ενημερώθηκε", "ενημερώθηκαν")} ${count(result.postsUpdated, "άρθρο", "άρθρα")}.`
 					: `Η εικόνα μετονομάστηκε σε «${result.name}». Δεν τη χρησιμοποιεί κανένα άρθρο.`,
 			);
 		} catch (error) {

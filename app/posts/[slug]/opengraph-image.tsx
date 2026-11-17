@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { clip, loadOgFonts, OG_BLUE, OG_NAVY, OG_SIZE, photoDataUri, titleSize } from "@/lib/og";
+import { loadOgFonts, OG_BLUE, OG_NAVY, OG_SIZE, photoDataUri } from "@/lib/og";
 import { getPublishedPostBySlug } from "@/lib/posts";
 
 export const alt = "GreeceWeather";
@@ -12,7 +12,6 @@ export default async function PostShareImage({ params }: { params: Promise<{ slu
 	const post = await getPublishedPostBySlug(slug);
 	const [fonts, photo] = await Promise.all([loadOgFonts(), photoDataUri(post?.image_url)]);
 
-	const title = clip(post?.title ?? "GreeceWeather", 120);
 	const tags = (post?.tags ?? []).slice(0, 3);
 
 	return new ImageResponse(
@@ -47,7 +46,7 @@ export default async function PostShareImage({ params }: { params: Promise<{ slu
 					height: "100%",
 					display: "flex",
 					background: photo
-						? "linear-gradient(180deg, rgba(14,34,51,0.25) 0%, rgba(14,34,51,0.55) 45%, rgba(14,34,51,0.94) 100%)"
+						? "linear-gradient(180deg, rgba(14,34,51,0.35) 0%, rgba(14,34,51,0.05) 40%, rgba(14,34,51,0.75) 100%)"
 						: "transparent",
 				}}
 			/>
@@ -68,18 +67,34 @@ export default async function PostShareImage({ params }: { params: Promise<{ slu
 					<div style={{ display: "flex", marginLeft: 14 }}>GREECEWEATHER.GR</div>
 				</div>
 
+				{/* The title is NOT drawn here: wherever this picture is shared (Instagram, Facebook,
+				    WhatsApp) the title is written right under it, so it would appear twice. */}
 				<div style={{ display: "flex", flexDirection: "column" }}>
+					{!photo && (
+						<div
+							style={{
+								display: "flex",
+								marginBottom: 28,
+								fontSize: 84,
+								lineHeight: 1.1,
+								textShadow: "0 2px 12px rgba(0,0,0,0.45)",
+							}}
+						>
+							Ειδήσεις καιρού
+						</div>
+					)}
+
 					{tags.length > 0 && (
-						<div style={{ display: "flex", marginBottom: 18 }}>
+						<div style={{ display: "flex" }}>
 							{tags.map((tag) => (
 								<div
 									key={tag}
 									style={{
 										display: "flex",
 										marginRight: 12,
-										padding: "6px 16px",
-										fontSize: 24,
-										background: "rgba(255,255,255,0.18)",
+										padding: "8px 20px",
+										fontSize: 28,
+										background: "rgba(255,255,255,0.2)",
 										borderRadius: 999,
 									}}
 								>
@@ -88,17 +103,6 @@ export default async function PostShareImage({ params }: { params: Promise<{ slu
 							))}
 						</div>
 					)}
-
-					<div
-						style={{
-							display: "flex",
-							fontSize: titleSize(title),
-							lineHeight: 1.18,
-							textShadow: "0 2px 12px rgba(0,0,0,0.45)",
-						}}
-					>
-						{title}
-					</div>
 				</div>
 			</div>
 		</div>,
