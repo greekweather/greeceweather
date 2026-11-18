@@ -141,11 +141,13 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 		const result = await broadcast(
 			"maps",
 			{
-				title: "🗺️ Νέος χάρτης πρόγνωσης",
-				body: `${outlook.title}\n${formatOutlookDate(outlook.issued_at)}`,
+				// the map's own title on top, then what it is and when it is valid for
+				title: `🗺️ ${outlook.title}`.slice(0, 100),
+				body: `Νέος χάρτης πρόγνωσης · ${formatOutlookDate(outlook.issued_at)}`,
 				url: `/outlooks/${outlook.slug}`,
 				tag: `outlook-${outlook.id}`,
-				image: `${SITE_URL}/outlooks/${outlook.slug}/opengraph-image`,
+				// only the map, without the title written on it a second time
+				image: `${SITE_URL}/outlooks/${outlook.slug}/push-image`,
 			},
 			false,
 		);
@@ -166,23 +168,46 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 		await sleep(PAUSE_BETWEEN_NOTIFICATIONS_MS);
 	}
 
-	const { data: banners } = await supabase
+	// Read without time filters in the query (two .or() filters on one query are not reliable)
+	// and check the schedule here, so a banner can never be skipped silently by the database.
+	const { data: allBanners, error: bannersError } = await supabase
 		.from("weather_banner")
-		.select("id,title,emergency_url,push_emergency_key")
+		.select("id,title,emergency_url,push_emergency_key,starts_at,ends_at")
 		.eq("emergency_enabled", true)
 		.not("emergency_url", "is", null)
-		.or(`starts_at.is.null,starts_at.lte.${now}`)
-		.or(`ends_at.is.null,ends_at.gt.${now}`)
-		.limit(5);
+		.limit(20);
 
-	for (const banner of banners ?? []) {
+	if (bannersError) {
+		log.error("push.banners.read_failed", { error: safeError(bannersError) });
+	}
+
+	const banners = (allBanners ?? []).filter((banner) => {
+		const started = !banner.starts_at || banner.starts_at <= now;
+		const notEnded = !banner.ends_at || banner.ends_at > now;
+
+		if (!started || !notEnded) {
+			log.debug("push.banner.skipped", { id: banner.id, reason: "outside its schedule" });
+		}
+
+		return started && notEnded;
+	});
+
+	for (const banner of banners) {
 		const url = banner.emergency_url as string | null;
 
-		if (!url || !isSafeBannerUrl(url)) continue;
+		if (!url || !isSafeBannerUrl(url)) {
+			log.warn("push.banner.skipped", { id: banner.id, reason: "bulletin address is not https" });
+			continue;
+		}
 
 		const key = emergencyKey(url);
 
-		if (banner.push_emergency_key === key) continue;
+		if (banner.push_emergency_key === key) {
+			// already announced: the same bulletin address is sent once, even if the banner is
+			// edited. A new address counts as a new bulletin.
+			log.info("push.banner.skipped", { id: banner.id, reason: "already announced" });
+			continue;
+		}
 
 		let claim = supabase
 			.from("weather_banner")

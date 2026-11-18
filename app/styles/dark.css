@@ -79,6 +79,8 @@
 /* ---- night values: system preference ---- */
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]) {
+		--warn-partial: #fdba74;
+		--warn-full: #fca5a5;
 		color-scheme: dark;
 
 		/* core tokens */
@@ -176,6 +178,8 @@
 
 /* ---- night values: forced with data-theme="dark" ---- */
 :root[data-theme="dark"] {
+	--warn-partial: #fdba74;
+	--warn-full: #fca5a5;
 	color-scheme: dark;
 
 	/* core tokens */

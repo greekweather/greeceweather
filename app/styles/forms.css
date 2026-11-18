@@ -268,3 +268,13 @@
 		min-height: 48px;
 	}
 }
+
+/* Text too long for the card: orange when it only overflows on one kind of screen (small phone
+   or computer), dark red when it overflows on both. */
+.form-warning-slot.warn-partial {
+	color: var(--warn-partial, #c2410c);
+}
+
+.form-warning-slot.warn-full {
+	color: var(--warn-full, #991b1b);
+}

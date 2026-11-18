@@ -58,6 +58,16 @@ function tooLongMessage(subject: string, lines: DeviceLines, consequence: string
 	return `${subject} ξεπερνά τις 3 γραμμές μόνο στον υπολογιστή ${detail}: εκεί ${consequence}. Στο κινητό χωράει.`;
 }
 
+// Orange: too long on one kind of screen only. Dark red: too long on both.
+function severityClass(lines: DeviceLines) {
+	const phone = lines.phone > 3;
+	const desktop = lines.desktop > 3;
+
+	if (phone && desktop) return "warn-full";
+
+	return phone || desktop ? "warn-partial" : "";
+}
+
 function countRenderedLines(element: HTMLElement) {
 	const textNode = element.firstChild;
 
@@ -483,7 +493,9 @@ export function PostForm({
 					/>
 
 					<p
-						className={`form-warning-slot ${showTitleWarning || titleTooLong ? "visible" : ""}`}
+						className={`form-warning-slot ${showTitleWarning || titleTooLong ? "visible" : ""} ${
+							showTitleWarning ? "" : severityClass(titleLines)
+						}`}
 						role="alert"
 					>
 						{showTitleWarning
@@ -542,7 +554,7 @@ export function PostForm({
 				<p
 					className={`form-warning-slot ${
 						showDescriptionWarning || descriptionTooLong ? "visible" : ""
-					}`}
+					} ${showDescriptionWarning ? "" : severityClass(descriptionLines)}`}
 					role="alert"
 				>
 					{showDescriptionWarning

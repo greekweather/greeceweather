@@ -6,6 +6,7 @@ import { after } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { bannerUrlError, parseBannerSchedule, parseForecastEntries } from "@/lib/banner";
 import { athensLocalToUTC } from "@/lib/date";
+import { log, safeError } from "@/lib/log";
 import { sendPendingNotifications } from "@/lib/push-notify";
 import { createClient } from "@/lib/supabase/server";
 import { saveBeforeDelete } from "@/lib/trash";
@@ -37,6 +38,17 @@ function getTagIds(formData: FormData) {
 }
 
 // After an image is renamed its address changed inside posts; refresh the cached pages.
+// Announces what just went live, after the response. A failure is logged, never thrown.
+async function notifyAfterSave() {
+	try {
+		const result = await sendPendingNotifications();
+
+		log.info("push.after_save", { result });
+	} catch (error) {
+		log.error("push.after_save_failed", { error: safeError(error) });
+	}
+}
+
 export async function refreshAfterImageRenameAction(slugs: string[]) {
 	await requireAdmin();
 
@@ -122,7 +134,7 @@ export async function createPostAction(formData: FormData) {
 	revalidatePath("/admin/tags");
 
 	// a published article is announced to the phones after the response
-	after(() => sendPendingNotifications().catch(() => {}));
+	after(() => notifyAfterSave());
 
 	// stay on this post: continue editing it rather than going back to the list
 	redirect(`/admin/posts/${data.id}/edit`);
@@ -217,7 +229,7 @@ export async function updatePostAction(formData: FormData) {
 	revalidatePath("/admin/tags");
 	revalidatePath(`/admin/posts/${id}/edit`);
 
-	after(() => sendPendingNotifications().catch(() => {}));
+	after(() => notifyAfterSave());
 
 	// no redirect: the editor stays where it is
 }
@@ -482,7 +494,7 @@ export async function createBannerAction(_prevState: { error?: string }, formDat
 	}
 
 	// an emergency bulletin that has just gone live is announced to the phones after the response
-	after(() => sendPendingNotifications().catch(() => {}));
+	after(() => notifyAfterSave());
 	revalidatePath("/", "layout");
 	revalidatePath("/admin");
 	revalidatePath("/admin/banner");
@@ -580,7 +592,7 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 		return { error: "Δεν ήταν δυνατή η αποθήκευση των άρθρων πρόγνωσης." };
 	}
 
-	after(() => sendPendingNotifications().catch(() => {}));
+	after(() => notifyAfterSave());
 	revalidatePath("/", "layout");
 	revalidatePath("/admin");
 	revalidatePath("/admin/banner");
