@@ -5,7 +5,12 @@ import { sendPendingNotifications } from "@/lib/push-notify";
 
 export const dynamic = "force-dynamic";
 
-// Called every few minutes by .github/workflows/push-check.yml. It catches what was scheduled
+// A run sends to every subscribed phone with a pause between notifications, which can take longer
+// than the platform default. Without this the run could be cut off half way.
+export const maxDuration = 60;
+
+// Called every minute by the Supabase job in supabase/changes-2026-11-22.sql, with
+// .github/workflows/push-check.yml as a backup (GitHub often delays or skips scheduled runs). It catches what was scheduled
 // for later (a map whose issue time arrives, a banner whose start time arrives); anything saved
 // in the admin is announced right away by the save itself.
 export async function GET(request: Request) {
