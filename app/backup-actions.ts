@@ -13,8 +13,16 @@ function refreshEverything() {
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
+type RestoreOutcome = { ok: true } | { ok: false; conflict: boolean; message: string };
+
 // Puts one safety copy back (with its links, e.g. an article's tags) and removes the copy.
-async function restoreOne(supabase: Supabase, id: string, rawData: unknown) {
+// A copy whose slug is already used by something else is NOT an error that stops everything:
+// it is left in place and reported as a conflict.
+async function restoreOne(
+	supabase: Supabase,
+	id: string,
+	rawData: unknown,
+): Promise<RestoreOutcome> {
 	const data = rawData as Record<string, Record<string, unknown>[]>;
 
 	// parents before links, so the foreign keys are satisfied
@@ -28,11 +36,18 @@ async function restoreOne(supabase: Supabase, id: string, rawData: unknown) {
 			.upsert(rows, { ignoreDuplicates: true });
 
 		if (restoreError) {
-			throw new Error(`Η επαναφορά απέτυχε (${table}): ${restoreError.message}`);
+			return {
+				ok: false,
+				// 23505: unique violation (the same slug already exists)
+				conflict: restoreError.code === "23505",
+				message: `Η επαναφορά απέτυχε (${table}): ${restoreError.message}`,
+			};
 		}
 	}
 
 	await supabase.from("deleted_items").delete().eq("id", id);
+
+	return { ok: true };
 }
 
 // Puts a deleted item (and its links, e.g. an article's tags) back exactly as it was.
@@ -53,14 +68,21 @@ export async function restoreDeletedAction(formData: FormData) {
 
 	if (error || !item) throw new Error(error?.message ?? "Το αντίγραφο δεν βρέθηκε.");
 
-	await restoreOne(supabase, item.id, item.data);
+	const outcome = await restoreOne(supabase, item.id, item.data);
+
+	if (!outcome.ok) {
+		if (outcome.conflict) redirect("/admin/backup?skipped=1");
+
+		throw new Error(outcome.message);
+	}
 
 	refreshEverything();
 	redirect("/admin/backup?restored=1");
 }
 
 // Puts back EVERY safety copy, oldest first (so a tag comes back before the article that uses
-// it). Stops at the first failure and says how many came back.
+// it). A copy that cannot come back because its slug is taken is skipped and stays in the list;
+// the others carry on. Any other error stops the run and says how far it got.
 export async function restoreAllDeletedAction() {
 	await requireAdmin();
 
@@ -73,24 +95,24 @@ export async function restoreAllDeletedAction() {
 	if (error) throw new Error(error.message);
 
 	let restored = 0;
+	let skipped = 0;
 
 	for (const item of items ?? []) {
-		try {
-			await restoreOne(supabase, item.id, item.data);
+		const outcome = await restoreOne(supabase, item.id, item.data);
+
+		if (outcome.ok) {
 			restored += 1;
-		} catch (restoreError) {
+		} else if (outcome.conflict) {
+			skipped += 1;
+		} else {
 			refreshEverything();
 
-			throw new Error(
-				`Επανήλθαν ${restored} από ${items?.length ?? 0}. ${
-					restoreError instanceof Error ? restoreError.message : "Άγνωστο σφάλμα."
-				}`,
-			);
+			throw new Error(`Επανήλθαν ${restored} από ${items?.length ?? 0}. ${outcome.message}`);
 		}
 	}
 
 	refreshEverything();
-	redirect(`/admin/backup?restored=${restored}`);
+	redirect(`/admin/backup?restored=${restored}&skipped=${skipped}`);
 }
 
 // Removes EVERY safety copy for good.

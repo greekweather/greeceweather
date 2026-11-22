@@ -23,9 +23,9 @@ function formatDateTime(value: string) {
 export default async function BackupPage({
 	searchParams,
 }: {
-	searchParams: Promise<{ page?: string; restored?: string }>;
+	searchParams: Promise<{ page?: string; restored?: string; skipped?: string }>;
 }) {
-	const { page, restored } = await searchParams;
+	const { page, restored, skipped } = await searchParams;
 
 	const supabase = await createClient();
 
@@ -47,9 +47,21 @@ export default async function BackupPage({
 			</header>
 
 			<section className="admin-section">
-				{restored && (
+				{restored && Number(restored) > 0 && (
 					<p className="backup-notice">
-						{Number(restored) > 1 ? `Επανήλθαν ${restored} στοιχεία.` : "Το στοιχείο επανήλθε."}
+						{Number(restored) > 1
+							? `Επανήλθαν ${restored} στοιχεία.`
+							: "Το στοιχείο επανήλθε."}
+					</p>
+				)}
+
+				{skipped && Number(skipped) > 0 && (
+					<p className="form-warning" role="alert">
+						{Number(skipped) > 1
+							? `Παραλείφθηκαν ${skipped} στοιχεία`
+							: "Παραλείφθηκε 1 στοιχείο"}
+						: υπάρχει ήδη κάτι με το ίδιο slug. Μένουν στη λίστα· άλλαξε ή σβήσε το υπάρχον και
+						δοκίμασε ξανά.
 					</p>
 				)}
 
@@ -112,11 +124,12 @@ export default async function BackupPage({
 
 					{!error && pager.total > 0 && (
 						<div className="backup-bulk">
-							<form action={restoreAllDeletedAction}>
-								<button className="button secondary" type="submit">
-									Επαναφορά όλων ({pager.total})
-								</button>
-							</form>
+							<PurgeConfirmButton
+								action={restoreAllDeletedAction}
+								all={pager.total}
+								label={`Επαναφορά όλων (${pager.total})`}
+								restore
+							/>
 
 							<PurgeConfirmButton
 								action={purgeAllDeletedAction}

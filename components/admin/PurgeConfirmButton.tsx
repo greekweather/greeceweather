@@ -12,6 +12,7 @@ export function PurgeConfirmButton({
 	action,
 	label = "Οριστική διαγραφή",
 	all,
+	restore = false,
 }: {
 	id?: string;
 	name?: string;
@@ -19,6 +20,8 @@ export function PurgeConfirmButton({
 	label?: string;
 	/** how many copies a "delete all" removes; shown in the warning */
 	all?: number;
+	/** the same dialog for "restore all": a plain question, not a permanent-deletion warning */
+	restore?: boolean;
 }) {
 	const [open, setOpen] = useState(false);
 
@@ -37,9 +40,20 @@ export function PurgeConfirmButton({
 							aria-modal="true"
 							aria-labelledby="purge-confirm-title"
 						>
-							<h2 id="purge-confirm-title">ΟΡΙΣΤΙΚΗ ΔΙΑΓΡΑΦΗ</h2>
+							<h2 id="purge-confirm-title">
+								{restore ? "ΕΠΑΝΑΦΟΡΑ ΟΛΩΝ" : "ΟΡΙΣΤΙΚΗ ΔΙΑΓΡΑΦΗ"}
+							</h2>
 
-							{all !== undefined ? (
+							{restore ? (
+								<p>
+									{pick(all ?? 0, "Θα επανέλθει", "Θα επανέλθουν")}{" "}
+									<strong className="delete-confirm-name">
+										{count(all ?? 0, "στοιχείο", "στοιχεία")}
+									</strong>{" "}
+									με τη σειρά, από το παλαιότερο. Όσα έχουν slug που υπάρχει ήδη θα
+									παραλειφθούν και θα μείνουν στη λίστα.
+								</p>
+							) : all !== undefined ? (
 								<p>
 									<strong className="delete-confirm-name">
 										{count(all, "αντίγραφο", "αντίγραφα")}
@@ -54,21 +68,23 @@ export function PurgeConfirmButton({
 								</p>
 							)}
 
-							<p className="delete-confirm-warning">
-								ΔΕΝ ΥΠΑΡΧΕΙ ΕΠΙΣΤΡΟΦΗ. Μετά από αυτό δεν θα μπορείς να επαναφέρεις το στοιχείο από
-								πουθενά, εκτός αν έχεις κατεβάσει το ίδιο αντίγραφο σε αρχείο.
-							</p>
+							{!restore && (
+								<p className="delete-confirm-warning">
+									ΔΕΝ ΥΠΑΡΧΕΙ ΕΠΙΣΤΡΟΦΗ. Μετά από αυτό δεν θα μπορείς να επαναφέρεις το στοιχείο από
+									πουθενά, εκτός αν έχεις κατεβάσει το ίδιο αντίγραφο σε αρχείο.
+								</p>
+							)}
 
 							<div className="delete-confirm-actions">
 								<button className="button secondary" type="button" onClick={() => setOpen(false)}>
-									Όχι, κράτα το
+									{restore ? "Άκυρο" : "Όχι, κράτα το"}
 								</button>
 
 								<form action={action}>
 									{id && <input type="hidden" name="id" value={id} />}
 
-									<button className="button danger" type="submit">
-										Ναι, διαγραφή για πάντα
+									<button className={`button ${restore ? "" : "danger"}`} type="submit">
+										{restore ? "Ναι, επαναφορά όλων" : "Ναι, διαγραφή για πάντα"}
 									</button>
 								</form>
 							</div>

@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import { isSafeBannerUrl } from "@/lib/banner";
 import { log, safeError } from "@/lib/log";
 import { formatOutlookDate } from "@/lib/outlook/format";
 import type { PushTopic } from "@/lib/push-topics";
@@ -168,79 +167,70 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 		await sleep(PAUSE_BETWEEN_NOTIFICATIONS_MS);
 	}
 
-	// Read without time filters in the query (two .or() filters on one query are not reliable)
-	// and check the schedule here, so a banner can never be skipped silently by the database.
+	// A banner is announced when it goes live, whatever it contains (a forecast, an update, an
+	// official bulletin...). Read without time filters in the query and check the schedule here,
+	// so a banner can never be skipped silently by the database.
 	const { data: allBanners, error: bannersError } = await supabase
 		.from("weather_banner")
-		.select("id,title,emergency_url,push_emergency_key,starts_at,ends_at")
-		.eq("emergency_enabled", true)
-		.not("emergency_url", "is", null)
+		.select(
+			"id,title,forecast_enabled,emergency_enabled,update_enabled,push_emergency_key,starts_at,ends_at",
+		)
+		.is("push_emergency_key", null)
 		.limit(20);
 
 	if (bannersError) {
 		log.error("push.banners.read_failed", { error: safeError(bannersError) });
 	}
 
-	const banners = (allBanners ?? []).filter((banner) => {
+	for (const banner of allBanners ?? []) {
+		const hasContent =
+			banner.forecast_enabled || banner.emergency_enabled || banner.update_enabled;
 		const started = !banner.starts_at || banner.starts_at <= now;
 		const notEnded = !banner.ends_at || banner.ends_at > now;
 
-		if (!started || !notEnded) {
-			log.debug("push.banner.skipped", { id: banner.id, reason: "outside its schedule" });
-		}
-
-		return started && notEnded;
-	});
-
-	for (const banner of banners) {
-		const url = banner.emergency_url as string | null;
-
-		if (!url || !isSafeBannerUrl(url)) {
-			log.warn("push.banner.skipped", { id: banner.id, reason: "bulletin address is not https" });
+		if (!hasContent || !started || !notEnded) {
+			log.debug("push.banner.skipped", {
+				id: banner.id,
+				reason: hasContent ? "outside its schedule" : "nothing switched on in it",
+			});
 			continue;
 		}
 
-		const key = emergencyKey(url);
-
-		if (banner.push_emergency_key === key) {
-			// already announced: the same bulletin address is sent once, even if the banner is
-			// edited. A new address counts as a new bulletin.
-			log.info("push.banner.skipped", { id: banner.id, reason: "already announced" });
-			continue;
-		}
-
-		let claim = supabase
+		// claimed first, so two runs at the same moment cannot both send it
+		const { data: claimed } = await supabase
 			.from("weather_banner")
-			.update({ push_emergency_key: key })
-			.eq("id", banner.id);
-
-		claim = banner.push_emergency_key
-			? claim.eq("push_emergency_key", banner.push_emergency_key)
-			: claim.is("push_emergency_key", null);
-
-		const { data: claimed } = await claim.select("id");
+			.update({ push_emergency_key: emergencyKey(`${banner.id}|${banner.starts_at ?? ""}`) })
+			.eq("id", banner.id)
+			.is("push_emergency_key", null)
+			.select("id");
 
 		if (!claimed?.length) continue;
+
+		const headline = banner.title?.trim() || "Ισχυρή κακοκαιρία σε εξέλιξη";
+		const parts = [
+			banner.forecast_enabled ? "Πρόγνωση" : null,
+			banner.emergency_enabled ? "Επίσημο δελτίο" : null,
+			banner.update_enabled ? "Επικαιροποίηση" : null,
+		].filter(Boolean);
 
 		const result = await broadcast(
 			"banner",
 			{
-				title: "🚨 ΕΚΤΑΚΤΟ ΔΕΛΤΙΟ ΚΑΚΟΚΑΙΡΙΑΣ",
-				// the banner's own headline, then what tapping does
-				body: `${banner.title?.trim() || "Ισχυρά καιρικά φαινόμενα σε εξέλιξη"}\nΠάτα για να δεις το δελτίο.`,
-				url,
-				// the key changes with every new bulletin, so a second bulletin does not
-				// silently replace the first one on the phone
-				tag: `emergency-${key.slice(0, 12)}`,
-				urgent: true,
+				title: `${banner.emergency_enabled ? "🚨" : "🌦️"} ${headline}`.slice(0, 100),
+				// what is inside, and what a tap does
+				body: `${parts.join(" · ")}\nΠάτα για να δεις τις λεπτομέρειες.`,
+				// the home page: the banner with all its buttons is at the top of it
+				url: "/",
+				tag: `banner-${banner.id}`,
+				urgent: banner.emergency_enabled,
 			},
-			true,
+			banner.emergency_enabled,
 		);
 
 		if (result.total > 0 && result.delivered === 0 && result.failed === result.total) {
 			await supabase
 				.from("weather_banner")
-				.update({ push_emergency_key: banner.push_emergency_key })
+				.update({ push_emergency_key: null })
 				.eq("id", banner.id);
 			log.error("push.released", { kind: "banner", id: banner.id, failed: result.failed });
 			continue;
