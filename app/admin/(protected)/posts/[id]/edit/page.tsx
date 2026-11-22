@@ -23,6 +23,8 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 					image_caption,
 					published,
 					published_at,
+					push_enabled,
+					push_sent_at,
 					post_tags (
 						tag_id
 					)
@@ -101,6 +103,8 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 						tag_ids: tagIds,
 						published: data.published,
 						published_at: publishedAtValue,
+						push_enabled: data.push_enabled,
+						push_sent: data.push_sent_at !== null,
 					}}
 					action={updatePostAction}
 					availableTags={availableTags ?? []}

@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { BannerLinkField } from "@/components/admin/BannerLinkField";
 import { PostSearchSelect } from "@/components/admin/PostSearchSelect";
+import { PushOption } from "@/components/admin/PushOption";
 import { utcToAthensLocal } from "@/lib/date";
 
 type Banner = {
@@ -16,6 +17,8 @@ type Banner = {
 	update_url: string | null;
 	starts_at?: string | null;
 	ends_at?: string | null;
+	push_enabled?: boolean;
+	push_sent?: boolean;
 };
 
 type BannerFormState = {
@@ -242,6 +245,16 @@ export function BannerForm({
 					Κενή έναρξη: εμφανίζεται αμέσως. Κενή λήξη: δεν λήγει ποτέ. Αν πολλά μπάνερ είναι ενεργά
 					ταυτόχρονα, εμφανίζεται το πιο πρόσφατα ενημερωμένο.
 				</small>
+			</div>
+
+			<div className="banner-option">
+				<PushOption
+					className="banner-option-label"
+					label="ΑΠΟΣΤΟΛΗ ΕΙΔΟΠΟΙΗΣΗΣ"
+					enabled={banner?.push_enabled}
+					sent={banner?.push_sent}
+					hint="Στέλνεται στα κινητά όταν το μπάνερ γίνει ενεργό (στην ώρα έναρξης, αν έχει οριστεί)."
+				/>
 			</div>
 
 			{state.error && (

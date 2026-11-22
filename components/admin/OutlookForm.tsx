@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useId, useMemo, useState } from "react";
 import { outlookSlugTakenAction } from "@/app/outlook-actions";
+import { PushOption } from "@/components/admin/PushOption";
 import { OutlookEditor } from "@/components/outlook/OutlookEditor";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
 import { athensLocalToUTC, utcToAthensLocal } from "@/lib/date";
@@ -28,6 +29,8 @@ export type OutlookFormValues = {
 	issued_at: string | null;
 	valid_until: string | null;
 	published: boolean;
+	push_enabled?: boolean;
+	push_sent?: boolean;
 };
 
 const initialState: FormState = {};
@@ -229,6 +232,12 @@ export function OutlookForm({
 					<input name="published" type="checkbox" defaultChecked={outlook?.published ?? false} />
 					<span>Δημοσιευμένη (ορατή στο κοινό)</span>
 				</label>
+
+				<PushOption
+					className="outlook-checkbox"
+					enabled={outlook?.push_enabled}
+					sent={outlook?.push_sent}
+				/>
 			</section>
 
 			<section className="form-card">

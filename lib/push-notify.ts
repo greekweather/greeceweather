@@ -116,7 +116,7 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 		failed: 0,
 	};
 
-	const { data: outlooks } = await supabase
+	const { data: outlooks, error: outlooksError } = await supabase
 		.from("outlooks")
 		.select("id,title,slug,issued_at")
 		.eq("published", true)
@@ -124,8 +124,14 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 		.lte("published_at", now)
 		.lte("issued_at", now)
 		.is("push_sent_at", null)
+		.eq("push_enabled", true)
 		.order("issued_at", { ascending: true })
 		.limit(5);
+
+	// 42703: push_enabled does not exist yet (changes-2026-11-22-notify-option.sql not run)
+	if (outlooksError) {
+		log.error("push.outlooks.read_failed", { error: safeError(outlooksError) });
+	}
 
 	for (const outlook of outlooks ?? []) {
 		const { data: claimed } = await supabase
@@ -176,6 +182,7 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 			"id,title,forecast_enabled,emergency_enabled,update_enabled,push_emergency_key,starts_at,ends_at",
 		)
 		.is("push_emergency_key", null)
+		.eq("push_enabled", true)
 		.limit(20);
 
 	if (bannersError) {
@@ -253,6 +260,7 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 		.not("published_at", "is", null)
 		.lte("published_at", now)
 		.is("push_sent_at", null)
+		.eq("push_enabled", true)
 		.order("published_at", { ascending: true })
 		.limit(5);
 

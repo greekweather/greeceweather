@@ -24,6 +24,13 @@ export default async function EditOutlookPage({ params }: { params: Promise<{ id
 
 	const outlook = toOutlook(data);
 
+	// read apart: OUTLOOK_COLUMNS is shared with the public pages
+	const { data: push } = await supabase
+		.from("outlooks")
+		.select("push_enabled,push_sent_at")
+		.eq("id", id)
+		.single();
+
 	return (
 		<>
 			<header className="admin-page-header">
@@ -56,7 +63,11 @@ export default async function EditOutlookPage({ params }: { params: Promise<{ id
 			<section className="admin-section">
 				<OutlookForm
 					action={updateOutlookAction}
-					outlook={outlook}
+					outlook={{
+						...outlook,
+						push_enabled: push?.push_enabled ?? true,
+						push_sent: Boolean(push?.push_sent_at),
+					}}
 					defaultIssuedLocal={utcToAthensLocal(outlook.issued_at)}
 				>
 					<DeleteConfirmButton

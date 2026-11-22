@@ -8,6 +8,7 @@ import { athensLocalToUTC } from "@/lib/date";
 import { parseMapData } from "@/lib/outlook/schema";
 import { LEGEND_POSITIONS, type LegendPosition, type MapData } from "@/lib/outlook/types";
 import { sendPendingNotifications } from "@/lib/push-notify";
+import { readPushOption } from "@/lib/push-option";
 import { createClient } from "@/lib/supabase/server";
 import { saveBeforeDelete } from "@/lib/trash";
 
@@ -22,6 +23,7 @@ type Parsed = {
 	issued_at: string;
 	valid_until: string | null;
 	published: boolean;
+	push_enabled?: boolean;
 };
 
 function text(formData: FormData, key: string) {
@@ -96,6 +98,7 @@ function parseForm(
 			issued_at: issued,
 			valid_until: validUntil,
 			published,
+			...readPushOption(formData),
 		},
 	};
 }

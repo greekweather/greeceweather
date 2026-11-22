@@ -26,7 +26,7 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 	const { data: banner, error } = await supabase
 		.from("weather_banner")
 		.select(
-			"id,title,created_at,updated_at,starts_at,ends_at,forecast_enabled,forecast_url,emergency_enabled,emergency_url,update_enabled,update_url",
+			"id,title,created_at,updated_at,starts_at,ends_at,forecast_enabled,forecast_url,emergency_enabled,emergency_url,update_enabled,update_url,push_enabled,push_emergency_key",
 		)
 		.eq("id", id)
 		.single();
@@ -34,6 +34,9 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 	if (error || !banner) {
 		notFound();
 	}
+
+	// the hash that marks a banner as announced stays on the server; the form only needs to know it
+	const { push_emergency_key: pushKey, ...bannerFields } = banner;
 
 	const [{ data: posts }, { data: forecasts }] = await Promise.all([
 		supabase
@@ -71,7 +74,7 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
 			<section className="admin-section">
 				<BannerForm
 					action={updateBannerAction}
-					banner={banner}
+					banner={{ ...bannerFields, push_sent: pushKey !== null }}
 					posts={posts ?? []}
 					siteUrl={siteUrl}
 					forecasts={forecasts ?? []}

@@ -8,6 +8,7 @@ import { bannerUrlError, parseBannerSchedule, parseForecastEntries } from "@/lib
 import { athensLocalToUTC } from "@/lib/date";
 import { log, safeError } from "@/lib/log";
 import { sendPendingNotifications } from "@/lib/push-notify";
+import { readPushOption } from "@/lib/push-option";
 import { createClient } from "@/lib/supabase/server";
 import { saveBeforeDelete } from "@/lib/trash";
 import { postInputSchema } from "@/lib/validation";
@@ -105,6 +106,7 @@ export async function createPostAction(formData: FormData) {
 			image_caption: input.image_caption,
 			published: input.published,
 			published_at: publishedAt,
+			...readPushOption(formData),
 		})
 		.select("id")
 		.single();
@@ -194,6 +196,7 @@ export async function updatePostAction(formData: FormData) {
 			image_caption: input.image_caption,
 			published: input.published,
 			published_at: publishedAt,
+			...readPushOption(formData),
 		})
 		.eq("id", id);
 
@@ -475,6 +478,7 @@ export async function createBannerAction(_prevState: { error?: string }, formDat
 			updated_at: new Date().toISOString(),
 			starts_at: schedule.value.starts_at,
 			ends_at: schedule.value.ends_at,
+			...readPushOption(formData),
 		})
 		.select("id")
 		.single();
@@ -577,6 +581,7 @@ export async function updateBannerAction(_prevState: { error?: string }, formDat
 			updated_at: new Date().toISOString(),
 			starts_at: schedule.value.starts_at,
 			ends_at: schedule.value.ends_at,
+			...readPushOption(formData),
 		})
 		.eq("id", id);
 

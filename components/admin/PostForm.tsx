@@ -6,6 +6,7 @@ import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import { PostPreview } from "@/components/admin/PostPreview";
 import { PostsListLink } from "@/components/admin/PostsListLink";
+import { PushOption } from "@/components/admin/PushOption";
 import { TagPicker } from "@/components/admin/TagPicker";
 import { greeklishSlug, imageNameFromUrl } from "@/lib/slug";
 
@@ -21,6 +22,8 @@ type FormPost = {
 	tag_ids: string[];
 	published: boolean;
 	published_at: string;
+	push_enabled?: boolean;
+	push_sent?: boolean;
 };
 
 type LocalCopy = {
@@ -687,6 +690,12 @@ export function PostForm({
 						/>
 						<span>Δημοσιευμένο</span>
 					</label>
+
+					<PushOption
+						className="publish-option"
+						enabled={post?.push_enabled}
+						sent={post?.push_sent}
+					/>
 				</div>
 			</div>
 
