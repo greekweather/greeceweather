@@ -453,13 +453,7 @@
 	line-height: 1.2;
 }
 
-.publish-option + .publish-option {
-	margin-top: 8px;
-}
-
 .push-sent-note {
-	display: block;
-	margin-top: 8px;
 	color: var(--a-muted, #6b7280);
 }
 
