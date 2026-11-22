@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useId, useMemo, useState } from "react";
 import { outlookSlugTakenAction } from "@/app/outlook-actions";
-import { PushOption } from "@/components/admin/PushOption";
+import { PushNote, PushOption } from "@/components/admin/PushOption";
 import { OutlookEditor } from "@/components/outlook/OutlookEditor";
 import { OutlookGraphic } from "@/components/outlook/OutlookGraphic";
 import { athensLocalToUTC, utcToAthensLocal } from "@/lib/date";
@@ -227,6 +227,8 @@ export function OutlookForm({
 						onChange={(event) => setSummary(event.target.value)}
 					/>
 				</div>
+
+				<PushNote sent={outlook?.push_sent} />
 
 				<label className="outlook-checkbox">
 					<input name="published" type="checkbox" defaultChecked={outlook?.published ?? false} />

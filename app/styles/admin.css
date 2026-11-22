@@ -455,6 +455,7 @@
 
 .push-sent-note {
 	color: var(--a-muted, #6b7280);
+	line-height: 1.4;
 }
 
 .delete-confirm-overlay {

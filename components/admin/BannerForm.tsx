@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { BannerLinkField } from "@/components/admin/BannerLinkField";
 import { PostSearchSelect } from "@/components/admin/PostSearchSelect";
-import { PushOption } from "@/components/admin/PushOption";
+import { PushNote, PushOption } from "@/components/admin/PushOption";
 import { utcToAthensLocal } from "@/lib/date";
 
 type Banner = {
@@ -248,6 +248,8 @@ export function BannerForm({
 			</div>
 
 			<div className="banner-option">
+				<PushNote sent={banner?.push_sent} />
+
 				<PushOption
 					className="banner-option-label"
 					label="ΑΠΟΣΤΟΛΗ ΕΙΔΟΠΟΙΗΣΗΣ"

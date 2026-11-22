@@ -6,7 +6,7 @@ import { DeleteConfirmButton } from "@/components/admin/DeleteConfirmButton";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import { PostPreview } from "@/components/admin/PostPreview";
 import { PostsListLink } from "@/components/admin/PostsListLink";
-import { PushOption } from "@/components/admin/PushOption";
+import { PushNote, PushOption } from "@/components/admin/PushOption";
 import { TagPicker } from "@/components/admin/TagPicker";
 import { greeklishSlug, imageNameFromUrl } from "@/lib/slug";
 
@@ -675,6 +675,8 @@ export function PostForm({
 				</div>
 
 				<div className="form-field" style={{ alignSelf: "end" }}>
+					<PushNote sent={post?.push_sent} />
+
 					<label className="publish-option">
 						<input
 							type="checkbox"
