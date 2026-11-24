@@ -752,7 +752,8 @@ export function PostForm({
 			</div>
 
 			{/* Hidden copies of a card's text at two real widths: a small phone (360px screen) and the
-			    3-column desktop grid. Padding and borders are already taken off the widths. */}
+			    3-column desktop grid. Padding and borders are already taken off the widths, and each
+			    copy uses the text sizes of its own device, not those of this window. */}
 			<div
 				ref={measureGridRef}
 				aria-hidden="true"
@@ -766,12 +767,22 @@ export function PostForm({
 			>
 				<div className="post-grid" style={{ display: "block" }}>
 					{[
-						{ width: 282, titleRef: phoneTitleRef, descriptionRef: phoneDescriptionRef },
-						{ width: 334, titleRef: desktopTitleRef, descriptionRef: desktopDescriptionRef },
-					].map(({ width, titleRef, descriptionRef }) => (
+						{
+							device: "phone",
+							width: 282,
+							titleRef: phoneTitleRef,
+							descriptionRef: phoneDescriptionRef,
+						},
+						{
+							device: "desktop",
+							width: 334,
+							titleRef: desktopTitleRef,
+							descriptionRef: desktopDescriptionRef,
+						},
+					].map(({ device, width, titleRef, descriptionRef }) => (
 						<article
 							key={width}
-							className="post-card"
+							className={`post-card post-card-${device}`}
 							style={{ width, padding: 0, border: 0, height: "auto" }}
 						>
 							<div className="post-card-body" style={{ padding: 0 }}>

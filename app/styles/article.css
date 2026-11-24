@@ -366,6 +366,15 @@
 	.article {
 		padding-top: 36px;
 	}
+
+	/* smaller on a phone, so more of the title and description fits on each line */
+	.article-header h1 {
+		font-size: 1.35rem;
+	}
+
+	.article-lead {
+		font-size: 1.02rem;
+	}
 }
 
 .admin-edit-link {

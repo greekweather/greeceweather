@@ -35,7 +35,20 @@
 	gap: 26px;
 }
 
+/* Text sizes of a card. Phones get smaller ones so more fits on each line. The post form measures
+   hidden copies of a card with "post-card-phone" and "post-card-desktop", which force one set or the
+   other whatever the size of the admin window, so its long-title warnings follow these sizes. */
+:root {
+	--card-title-size-desktop: 1.12rem;
+	--card-text-size-desktop: 1rem;
+	--card-title-size-phone: 1rem;
+	--card-text-size-phone: 0.92rem;
+}
+
 .post-card {
+	--card-title-size: var(--card-title-size-desktop);
+	--card-text-size: var(--card-text-size-desktop);
+
 	display: flex;
 	flex-direction: column;
 	height: 100%;
@@ -85,7 +98,7 @@
 
 .post-card h3 {
 	margin: 8px 0 10px;
-	font-size: 1.12rem;
+	font-size: var(--card-title-size);
 	line-height: 1.3;
 	color: var(--night);
 }
@@ -101,6 +114,7 @@
 .post-card p {
 	margin: 0 0 16px;
 	color: var(--muted);
+	font-size: var(--card-text-size);
 	display: -webkit-box;
 	line-clamp: 3;
 	-webkit-line-clamp: 3;
@@ -136,6 +150,9 @@
 	}
 
 	.post-card {
+		--card-title-size: var(--card-title-size-phone);
+		--card-text-size: var(--card-text-size-phone);
+
 		padding: 12px;
 	}
 
@@ -153,4 +170,15 @@
 	.post-tags {
 		gap: 8px;
 	}
+}
+
+/* Used only by the hidden measuring copies in the post form (see the comment at the top). */
+.post-card.post-card-phone {
+	--card-title-size: var(--card-title-size-phone);
+	--card-text-size: var(--card-text-size-phone);
+}
+
+.post-card.post-card-desktop {
+	--card-title-size: var(--card-title-size-desktop);
+	--card-text-size: var(--card-text-size-desktop);
 }
