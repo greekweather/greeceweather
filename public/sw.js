@@ -31,6 +31,34 @@ self.addEventListener("fetch", (event) => {
 });
 
 // ---- Push notifications ----------------------------------------------------------------
+// Computers cut a long notification title, some of them without any "…", and how much fits
+// depends on the system (these limits are estimates, in characters, for macOS and for
+// Windows/Linux). So on a computer a long headline goes into the body, which wraps, and the
+// title becomes a short label. Phones keep the headline as the title.
+const DESKTOP_TITLE_LIMIT = { mac: 40, other: 55 };
+
+function shapeText(data, title) {
+	const body = data.body || "";
+	const agent = self.navigator.userAgent;
+
+	if (/Android|iPhone|iPad|iPod/.test(agent)) return { title, body };
+
+	const mac = /Macintosh|Mac OS X/.test(agent);
+	const limit = mac ? DESKTOP_TITLE_LIMIT.mac : DESKTOP_TITLE_LIMIT.other;
+
+	if (
+		typeof data.label !== "string" ||
+		typeof data.headline !== "string" ||
+		Array.from(title).length <= limit
+	) {
+		return { title, body };
+	}
+
+	const detail = typeof data.detail === "string" && data.detail ? `\n${data.detail}` : "";
+
+	return { title: data.label, body: `${data.headline}${detail}` };
+}
+
 // The server sends {title, body, url, tag}. Only addresses of this site or https:// links
 // are opened, whatever the message says.
 self.addEventListener("push", (event) => {
@@ -63,8 +91,10 @@ self.addEventListener("push", (event) => {
 				return undefined;
 			}
 
-			return self.registration.showNotification(title, {
-				body: data.body || "",
+			const text = shapeText(data, title);
+
+			return self.registration.showNotification(text.title, {
+				body: text.body,
 				icon: "/icons/icon-192.png",
 				// the small status-bar icon: Android only reads the shape (alpha) of this image,
 				// so it must be a single-colour picture, not the coloured logo

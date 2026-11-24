@@ -22,6 +22,24 @@ const PAUSE_BETWEEN_NOTIFICATIONS_MS = 1500;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// The longest title and article description that are ever sent. The forms already stop shorter
+// than this, so in practice nothing is cut here: it is only a safety net for the message size.
+const TITLE_MAX = 200;
+const BODY_MAX = 160;
+
+// Shortens at a word boundary and marks the cut with "…". (A plain slice cut words in half with
+// no sign that anything was missing.) Text that already fits is left exactly as it is.
+function clip(text: string, max: number): string {
+	const chars = Array.from(text.trim());
+
+	if (chars.length <= max) return chars.join("");
+
+	const cut = chars.slice(0, max - 1).join("");
+	const space = cut.lastIndexOf(" ");
+
+	return `${(space > max * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
+}
+
 // Sends one message to every subscribed phone. Subscriptions the push service reports as gone
 // (the phone unsubscribed or was reset) are deleted.
 async function broadcast(topic: PushTopic, message: PushMessage, urgent: boolean) {
@@ -147,7 +165,10 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 			"maps",
 			{
 				// the map's own title on top, then what it is and when it is valid for
-				title: `🗺️ ${outlook.title}`.slice(0, 100),
+				title: clip(`🗺️ ${outlook.title}`, TITLE_MAX),
+				label: "🗺️ Νέος χάρτης πρόγνωσης",
+				headline: clip(outlook.title, TITLE_MAX),
+				detail: formatOutlookDate(outlook.issued_at),
 				body: `Νέος χάρτης πρόγνωσης · ${formatOutlookDate(outlook.issued_at)}`,
 				url: `/outlooks/${outlook.slug}`,
 				tag: `outlook-${outlook.id}`,
@@ -223,7 +244,10 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 		const result = await broadcast(
 			"banner",
 			{
-				title: `${banner.emergency_enabled ? "🚨" : "🌦️"} ${headline}`.slice(0, 100),
+				title: clip(`${banner.emergency_enabled ? "🚨" : "🌦️"} ${headline}`, TITLE_MAX),
+				label: banner.emergency_enabled ? "🚨 Έκτακτη ενημέρωση" : "🌦️ Ενημέρωση καιρού",
+				headline: clip(headline, TITLE_MAX),
+				detail: parts.join(" · ") || undefined,
 				// what is inside, and what a tap does
 				body: `${parts.join(" · ")}\nΠάτα για να δεις τις λεπτομέρειες.`,
 				// the home page: the banner with all its buttons is at the top of it
@@ -285,8 +309,10 @@ export async function sendPendingNotifications(): Promise<Summary | { configured
 		const result = await broadcast(
 			"posts",
 			{
-				title: `📰 ${post.title}`.slice(0, 120),
-				body: (post.description?.trim() || "Νέο άρθρο στο GreeceWeather").slice(0, 160),
+				title: clip(`📰 ${post.title}`, TITLE_MAX),
+				label: "📰 Νέο άρθρο",
+				headline: clip(post.title, TITLE_MAX),
+				body: clip(post.description?.trim() || "Νέο άρθρο στο GreeceWeather", BODY_MAX),
 				url: `/posts/${post.slug}`,
 				tag: `post-${post.id}`,
 				image: cover ? post.image_url : `${SITE_URL}/posts/${post.slug}/opengraph-image`,

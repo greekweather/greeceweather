@@ -17,6 +17,10 @@ export type PushMessage = {
 	title: string;
 	body: string;
 	url: string;
+	/** computers cut a long title: there it moves into the body (see public/sw.js) */
+	label?: string;
+	headline?: string;
+	detail?: string;
 	tag?: string;
 	/** a picture shown large in the notification (the cover of a map or an article) */
 	image?: string;
