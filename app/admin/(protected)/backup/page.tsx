@@ -49,17 +49,13 @@ export default async function BackupPage({
 			<section className="admin-section">
 				{restored && Number(restored) > 0 && (
 					<p className="backup-notice">
-						{Number(restored) > 1
-							? `Επανήλθαν ${restored} στοιχεία.`
-							: "Το στοιχείο επανήλθε."}
+						{Number(restored) > 1 ? `Επανήλθαν ${restored} στοιχεία.` : "Το στοιχείο επανήλθε."}
 					</p>
 				)}
 
 				{skipped && Number(skipped) > 0 && (
 					<p className="form-warning" role="alert">
-						{Number(skipped) > 1
-							? `Παραλείφθηκαν ${skipped} στοιχεία`
-							: "Παραλείφθηκε 1 στοιχείο"}
+						{Number(skipped) > 1 ? `Παραλείφθηκαν ${skipped} στοιχεία` : "Παραλείφθηκε 1 στοιχείο"}
 						: υπάρχει ήδη κάτι με το ίδιο slug. Μένουν στη λίστα· άλλαξε ή σβήσε το υπάρχον και
 						δοκίμασε ξανά.
 					</p>

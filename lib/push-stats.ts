@@ -20,7 +20,9 @@ export async function getPushStats(): Promise<PushStats> {
 	try {
 		const supabase = createServiceClient();
 		const count = (topic?: string) => {
-			const query = supabase.from("push_subscriptions").select("*", { count: "exact", head: true });
+			const query = supabase
+				.from("push_subscriptions")
+				.select("*", { count: "exact", head: true });
 
 			return topic ? query.contains("topics", [topic]) : query;
 		};

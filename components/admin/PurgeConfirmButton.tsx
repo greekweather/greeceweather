@@ -40,9 +40,7 @@ export function PurgeConfirmButton({
 							aria-modal="true"
 							aria-labelledby="purge-confirm-title"
 						>
-							<h2 id="purge-confirm-title">
-								{restore ? "ΕΠΑΝΑΦΟΡΑ ΟΛΩΝ" : "ΟΡΙΣΤΙΚΗ ΔΙΑΓΡΑΦΗ"}
-							</h2>
+							<h2 id="purge-confirm-title">{restore ? "ΕΠΑΝΑΦΟΡΑ ΟΛΩΝ" : "ΟΡΙΣΤΙΚΗ ΔΙΑΓΡΑΦΗ"}</h2>
 
 							{restore ? (
 								<p>
@@ -50,8 +48,8 @@ export function PurgeConfirmButton({
 									<strong className="delete-confirm-name">
 										{count(all ?? 0, "στοιχείο", "στοιχεία")}
 									</strong>{" "}
-									με τη σειρά, από το παλαιότερο. Όσα έχουν slug που υπάρχει ήδη θα
-									παραλειφθούν και θα μείνουν στη λίστα.
+									με τη σειρά, από το παλαιότερο. Όσα έχουν slug που υπάρχει ήδη θα παραλειφθούν
+									και θα μείνουν στη λίστα.
 								</p>
 							) : all !== undefined ? (
 								<p>
@@ -70,8 +68,8 @@ export function PurgeConfirmButton({
 
 							{!restore && (
 								<p className="delete-confirm-warning">
-									ΔΕΝ ΥΠΑΡΧΕΙ ΕΠΙΣΤΡΟΦΗ. Μετά από αυτό δεν θα μπορείς να επαναφέρεις το στοιχείο από
-									πουθενά, εκτός αν έχεις κατεβάσει το ίδιο αντίγραφο σε αρχείο.
+									ΔΕΝ ΥΠΑΡΧΕΙ ΕΠΙΣΤΡΟΦΗ. Μετά από αυτό δεν θα μπορείς να επαναφέρεις το στοιχείο
+									από πουθενά, εκτός αν έχεις κατεβάσει το ίδιο αντίγραφο σε αρχείο.
 								</p>
 							)}
 
